@@ -180,7 +180,8 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
 
 // Main Store Component
 function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void }) {
-  const [activeCategory, setActiveCategory] = useState<string>('todos')
+  const [activeModel, setActiveModel] = useState<string>('todos')
+  const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -194,17 +195,28 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
 
   const filteredProducts = products.filter(p => {
     const inCity = p.available.includes(city || 'duitama')
-    if (activeCategory === 'todos') return inCity
-    if (activeCategory === 'nuevos') return inCity && p.condition === 'Nuevo'
-    if (activeCategory === 'semi-usados') return inCity && p.condition === 'Semi-usado'
-    return inCity
+    if (!inCity) return false
+    // Filter by condition
+    if (activeCondition === 'nuevos' && p.condition !== 'Nuevo') return false
+    if (activeCondition === 'semi-usados' && p.condition !== 'Semi-usado') return false
+    // Filter by model
+    if (activeModel !== 'todos') {
+      const modelName = activeModel.toLowerCase()
+      return p.name.toLowerCase().includes(modelName)
+    }
+    return true
   })
 
-  const circleCategories = [
-    { id: 'todos', label: 'Todos los\niPhone', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
-    { id: 'nuevos', label: 'iPhone\nNuevos', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
-    { id: 'semi-usados', label: 'iPhone\nSemi-usados', image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop' },
-    { id: 'accesorios', label: 'Accesorios', image: 'https://images.unsplash.com/photo-1605464315542-bda44204b12c?w=300&h=300&fit=crop' },
+  // Model bubbles - newest to oldest (left to right)
+  const modelBubbles = [
+    { id: 'todos', label: 'Todos', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
+    { id: 'iphone 17', label: 'iPhone 17', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
+    { id: 'iphone air', label: 'iPhone Air', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
+    { id: 'iphone 16', label: 'iPhone 16', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
+    { id: 'iphone 15', label: 'iPhone 15', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
+    { id: 'iphone 14', label: 'iPhone 14', image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop' },
+    { id: 'iphone 13', label: 'iPhone 13', image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=300&h=300&fit=crop' },
+    { id: 'iphone 12', label: 'iPhone 12', image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=300&h=300&fit=crop' },
     ...(city === 'duitama' ? [{ id: 'reparacion', label: 'Reparacion', image: 'https://images.unsplash.com/photo-1597740985671-2a8a3b80502e?w=300&h=300&fit=crop' }] : []),
   ]
 
@@ -363,41 +375,39 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         </div>
       </section>
 
-      {/* Categories - Best Buy Style Circles */}
+      {/* Model Bubbles - Newest to Oldest */}
       <section className="py-8 md:py-12 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-start justify-center gap-6 md:gap-10 overflow-x-auto pb-2 scrollbar-hide">
-            {circleCategories.map(cat => (
+          <div className="flex items-start gap-5 md:gap-8 overflow-x-auto pb-2 px-2 scrollbar-hide">
+            {modelBubbles.map(model => (
               <button
-                key={cat.id}
+                key={model.id}
                 onClick={() => {
-                  if (cat.id === 'reparacion') {
+                  if (model.id === 'reparacion') {
                     document.getElementById('reparacion')?.scrollIntoView({ behavior: 'smooth' })
-                  } else if (cat.id === 'accesorios') {
-                    // placeholder
                   } else {
-                    setActiveCategory(cat.id)
+                    setActiveModel(model.id)
                     document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
                   }
                 }}
-                className="flex flex-col items-center gap-3 group cursor-pointer flex-shrink-0"
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0"
               >
-                <div className={`w-24 h-24 md:w-28 md:h-28 rounded-full border-2 overflow-hidden transition-all duration-300 ${
-                  activeCategory === cat.id
-                    ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-105'
+                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 overflow-hidden transition-all duration-300 ${
+                  activeModel === model.id
+                    ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
                     : 'border-gray-600 hover:border-blue-400 hover:scale-105'
                 }`}>
                   <img
-                    src={cat.image}
-                    alt={cat.label}
+                    src={model.image}
+                    alt={model.label}
                     className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(cat.label)}` }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
-                <span className={`text-xs md:text-sm font-medium text-center leading-tight whitespace-pre-line transition-colors ${
-                  activeCategory === cat.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
+                <span className={`text-xs font-medium text-center leading-tight transition-colors ${
+                  activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
                 }`}>
-                  {cat.label}
+                  {model.label}
                 </span>
               </button>
             ))}
@@ -408,12 +418,28 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
       {/* Products Section */}
       <section id="productos" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
               <h3 className="text-3xl md:text-5xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                {activeCategory === 'todos' ? 'TODOS LOS iPHONES' : activeCategory === 'nuevos' ? 'iPHONES NUEVOS' : 'iPHONES SEMI-USADOS'}
+                {activeModel === 'todos' ? 'TODOS LOS iPHONES' : activeModel.toUpperCase()}
               </h3>
               <p className="text-gray-400 mt-2">Disponibles en {cityName} &middot; {filteredProducts.length} productos</p>
+            </div>
+            {/* Condition Filter Tabs */}
+            <div className="flex items-center gap-2">
+              {[{ id: 'todos', label: 'Todos' }, { id: 'nuevos', label: 'Nuevos' }, { id: 'semi-usados', label: 'Semi-usados' }].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveCondition(tab.id)}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    activeCondition === tab.id
+                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
