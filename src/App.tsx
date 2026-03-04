@@ -217,7 +217,6 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
     { id: 'iphone 14', label: 'iPhone 14', image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop' },
     { id: 'iphone 13', label: 'iPhone 13', image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=300&h=300&fit=crop' },
     { id: 'iphone 12', label: 'iPhone 12', image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=300&h=300&fit=crop' },
-    ...(city === 'duitama' ? [{ id: 'reparacion', label: 'Reparacion', image: 'https://images.unsplash.com/photo-1597740985671-2a8a3b80502e?w=300&h=300&fit=crop' }] : []),
   ]
 
   return (
@@ -383,12 +382,8 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
               <button
                 key={model.id}
                 onClick={() => {
-                  if (model.id === 'reparacion') {
-                    document.getElementById('reparacion')?.scrollIntoView({ behavior: 'smooth' })
-                  } else {
-                    setActiveModel(model.id)
-                    document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
-                  }
+                  setActiveModel(model.id)
+                  document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
                 }}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0"
               >
