@@ -4,112 +4,76 @@ import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Cl
 
 type City = 'duitama' | 'tunja' | null
 
-// Product data
-const products = [
-  {
-    id: 1,
-    name: 'iPhone 16 Pro Max',
-    condition: 'Nuevo',
-    price: 5899000,
-    originalPrice: 6299000,
-    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop',
-    badge: 'Nuevo',
-    rating: 5,
-    colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'],
-    storage: '256GB',
+// Product data - Semi-usados
+const semiUsados = [
+  // iPhone 12 Series
+  { id: 101, name: 'iPhone 12', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=400&h=500&fit=crop', colors: ['#000000', '#FFFFFF', '#4169E1'] },
+  { id: 102, name: 'iPhone 12 Mini', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#FFFFFF'] },
+  { id: 103, name: 'iPhone 12 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1607936854279-55e8a4c64888?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#FFD700', '#1C1C1E'] },
+  { id: 104, name: 'iPhone 12 Pro Max', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1607936854279-55e8a4c64888?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#FFD700', '#1C1C1E'] },
+  // iPhone 13 Series
+  { id: 105, name: 'iPhone 13', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F28B82', '#AECBFA'] },
+  { id: 106, name: 'iPhone 13 Mini', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F28B82', '#FFFFFF'] },
+  { id: 107, name: 'iPhone 13 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#87CEEB', '#FFD700'] },
+  { id: 108, name: 'iPhone 13 Pro Max', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#87CEEB', '#FFD700'] },
+  // iPhone 14 Series
+  { id: 109, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop', colors: ['#000000', '#E3D0B9', '#F28B82'] },
+  { id: 110, name: 'iPhone 14 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop', colors: ['#000000', '#E3D0B9', '#AECBFA'] },
+  { id: 111, name: 'iPhone 14 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#6B5B4F', '#F5F5DC'] },
+  { id: 112, name: 'iPhone 14 Pro Max', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#6B5B4F', '#F5F5DC'] },
+  // iPhone 15 Series
+  { id: 113, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#AECBFA'] },
+  { id: 114, name: 'iPhone 15 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#AECBFA'] },
+  { id: 115, name: 'iPhone 15 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
+  { id: 116, name: 'iPhone 15 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
+  // iPhone 16 Series
+  { id: 117, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 118, name: 'iPhone 16 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 119, name: 'iPhone 16 Pro', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  { id: 120, name: 'iPhone 16 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  // iPhone 17 Series
+  { id: 121, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 122, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 123, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 124, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+]
+
+// Product data - Nuevos
+const nuevos = [
+  { id: 201, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop', colors: ['#000000', '#E3D0B9', '#F28B82'] },
+  { id: 202, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#AECBFA'] },
+  { id: 203, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 204, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 205, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 206, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 207, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+]
+
+// Build unified product list
+type Product = {
+  id: number
+  name: string
+  condition: string
+  image: string
+  colors: string[]
+  storageOptions: string[]
+  badge: string | null
+  available: string[]
+}
+
+const products: Product[] = [
+  ...nuevos.map(p => ({
+    ...p,
+    condition: 'Nuevo' as const,
+    badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
-  },
-  {
-    id: 2,
-    name: 'iPhone 16 Pro',
-    condition: 'Nuevo',
-    price: 4999000,
-    originalPrice: 5499000,
-    image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop',
-    badge: 'Popular',
-    rating: 5,
-    colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'],
-    storage: '128GB',
+  })),
+  ...semiUsados.map(p => ({
+    ...p,
+    condition: 'Semi-usado' as const,
+    badge: null as string | null,
     available: ['duitama', 'tunja'],
-  },
-  {
-    id: 3,
-    name: 'iPhone 15',
-    condition: 'Nuevo',
-    price: 3499000,
-    originalPrice: null,
-    image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop',
-    badge: null,
-    rating: 4,
-    colors: ['#000000', '#F28B82', '#AECBFA'],
-    storage: '128GB',
-    available: ['duitama', 'tunja'],
-  },
-  {
-    id: 4,
-    name: 'iPhone 15 Pro Max',
-    condition: 'Semi-usado',
-    price: 3899000,
-    originalPrice: 5499000,
-    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop',
-    badge: 'Oferta',
-    rating: 4,
-    colors: ['#4A4A4A', '#F5F5DC'],
-    storage: '256GB',
-    available: ['duitama'],
-  },
-  {
-    id: 5,
-    name: 'iPhone 14 Pro',
-    condition: 'Semi-usado',
-    price: 2699000,
-    originalPrice: 4199000,
-    image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop',
-    badge: 'Ahorra 36%',
-    rating: 4,
-    colors: ['#1C1C1E', '#6B5B4F'],
-    storage: '128GB',
-    available: ['duitama', 'tunja'],
-  },
-  {
-    id: 6,
-    name: 'iPhone 14',
-    condition: 'Semi-usado',
-    price: 1999000,
-    originalPrice: 3099000,
-    image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop',
-    badge: 'Precio Bajo',
-    rating: 4,
-    colors: ['#000000', '#E3D0B9', '#F28B82'],
-    storage: '128GB',
-    available: ['duitama', 'tunja'],
-  },
-  {
-    id: 7,
-    name: 'iPhone 13',
-    condition: 'Semi-usado',
-    price: 1499000,
-    originalPrice: 2399000,
-    image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop',
-    badge: null,
-    rating: 4,
-    colors: ['#1C1C1E', '#F28B82'],
-    storage: '128GB',
-    available: ['duitama', 'tunja'],
-  },
-  {
-    id: 8,
-    name: 'iPhone 16',
-    condition: 'Nuevo',
-    price: 3999000,
-    originalPrice: 4299000,
-    image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop',
-    badge: 'Nuevo',
-    rating: 5,
-    colors: ['#000000', '#AECBFA', '#F5F5DC'],
-    storage: '128GB',
-    available: ['tunja'],
-  },
+  })),
 ]
 
 const repairServices = [
@@ -119,9 +83,6 @@ const repairServices = [
   { icon: Award, title: 'Diagnostico Gratis', description: 'Te decimos exactamente que tiene tu equipo sin costo alguno', price: 'Gratis' },
 ]
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price)
-}
 
 // City Selection Splash Screen
 function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
@@ -239,10 +200,12 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
     return inCity
   })
 
-  const categories = [
-    { id: 'todos', label: 'Todos', icon: Smartphone },
-    { id: 'nuevos', label: 'Nuevos', icon: Star },
-    { id: 'semi-usados', label: 'Semi-usados', icon: Award },
+  const circleCategories = [
+    { id: 'todos', label: 'Todos los\niPhone', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
+    { id: 'nuevos', label: 'iPhone\nNuevos', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
+    { id: 'semi-usados', label: 'iPhone\nSemi-usados', image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop' },
+    { id: 'accesorios', label: 'Accesorios', image: 'https://images.unsplash.com/photo-1605464315542-bda44204b12c?w=300&h=300&fit=crop' },
+    ...(city === 'duitama' ? [{ id: 'reparacion', label: 'Reparacion', image: 'https://images.unsplash.com/photo-1597740985671-2a8a3b80502e?w=300&h=300&fit=crop' }] : []),
   ]
 
   return (
@@ -400,33 +363,44 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         </div>
       </section>
 
-      {/* Categories Banner */}
-      <section className="py-6 border-y border-white/5 bg-white/2">
+      {/* Categories - Best Buy Style Circles */}
+      <section className="py-8 md:py-12 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map(cat => (
+          <div className="flex items-start justify-center gap-6 md:gap-10 overflow-x-auto pb-2 scrollbar-hide">
+            {circleCategories.map(cat => (
               <button
                 key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-sm whitespace-nowrap transition-all ${
-                  activeCategory === cat.id
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5'
-                }`}
+                onClick={() => {
+                  if (cat.id === 'reparacion') {
+                    document.getElementById('reparacion')?.scrollIntoView({ behavior: 'smooth' })
+                  } else if (cat.id === 'accesorios') {
+                    // placeholder
+                  } else {
+                    setActiveCategory(cat.id)
+                    document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}
+                className="flex flex-col items-center gap-3 group cursor-pointer flex-shrink-0"
               >
-                <cat.icon className="w-4 h-4" />
-                {cat.label}
+                <div className={`w-24 h-24 md:w-28 md:h-28 rounded-full border-2 overflow-hidden transition-all duration-300 ${
+                  activeCategory === cat.id
+                    ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-105'
+                    : 'border-gray-600 hover:border-blue-400 hover:scale-105'
+                }`}>
+                  <img
+                    src={cat.image}
+                    alt={cat.label}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(cat.label)}` }}
+                  />
+                </div>
+                <span className={`text-xs md:text-sm font-medium text-center leading-tight whitespace-pre-line transition-colors ${
+                  activeCategory === cat.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
+                }`}>
+                  {cat.label}
+                </span>
               </button>
             ))}
-            {city === 'duitama' && (
-              <a
-                href="#reparacion"
-                className="flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-sm whitespace-nowrap transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5"
-              >
-                <Wrench className="w-4 h-4" />
-                Reparacion
-              </a>
-            )}
           </div>
         </div>
       </section>
@@ -474,14 +448,22 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
 
                 {/* Info */}
                 <div className="p-5">
-                  <div className="flex items-center gap-1 mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-3.5 h-3.5 ${i < product.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-600'}`} />
+                  <div className={`inline-block px-2 py-0.5 rounded-md text-xs font-medium mb-2 ${
+                    product.condition === 'Nuevo' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'
+                  }`}>
+                    {product.condition}
+                  </div>
+                  <h4 className="text-lg font-bold text-white mb-2">{product.name}</h4>
+                  
+                  {/* Storage Options */}
+                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                    {product.storageOptions.map((storage, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-300 font-medium">
+                        {storage}
+                      </span>
                     ))}
                   </div>
-                  <p className="text-xs text-blue-400 font-medium mb-1">{product.condition} &middot; {product.storage}</p>
-                  <h4 className="text-lg font-bold text-white mb-3">{product.name}</h4>
-                  
+
                   {/* Colors */}
                   <div className="flex items-center gap-1.5 mb-4">
                     {product.colors.map((color, i) => (
@@ -489,19 +471,16 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                     ))}
                   </div>
 
-                  {/* Price */}
-                  <div className="flex items-end gap-2">
-                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{formatPrice(product.price)}</span>
-                    {product.originalPrice && (
-                      <span className="text-sm text-gray-500 line-through mb-0.5">{formatPrice(product.originalPrice)}</span>
-                    )}
-                  </div>
-
                   {/* CTA */}
-                  <button className="w-full mt-4 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm">
+                  <a
+                    href={`https://wa.me/573001234567?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${product.name} (${product.condition}). ¿Tienen disponible?`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full mt-2 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+                  >
                     <MessageCircle className="w-4 h-4" />
-                    Consultar por WhatsApp
-                  </button>
+                    Consultar Precio
+                  </a>
                 </div>
               </div>
             ))}
