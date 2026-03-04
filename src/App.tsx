@@ -150,15 +150,9 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
       <div className={`relative z-10 text-center transition-all duration-1000 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         {/* Logo */}
         <div className="mb-12">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/10">
-              <Smartphone className="w-8 h-8 text-blue-400" />
-            </div>
+          <div className="flex items-center justify-center mb-4">
+            <img src="/images/gordotech-logo.jpg" alt="Gordotech Logo" className="w-48 md:w-64 rounded-2xl" />
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-white tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-            GORDOTECH
-          </h1>
-          <p className="text-blue-400/80 tracking-widest text-sm mt-2 uppercase">Conectando tus suenos</p>
         </div>
 
         {/* Greeting */}
@@ -259,13 +253,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/10">
-                <Smartphone className="w-5 h-5 text-blue-400" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>GORDOTECH</h1>
-                <p className="text-blue-400/60 text-xs tracking-widest -mt-1 hidden sm:block">CONECTANDO TUS SUENOS</p>
-              </div>
+              <img src="/images/gordotech-logo.jpg" alt="Gordotech" className="h-10 md:h-12 rounded-lg" />
             </div>
 
             {/* Nav Links - Desktop */}
@@ -690,12 +678,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             {/* Brand */}
             <div className="md:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/10">
-                  <Smartphone className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>GORDOTECH</h4>
-                </div>
+                <img src="/images/gordotech-logo.jpg" alt="Gordotech" className="h-12 rounded-lg" />
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y semi-usados en Boyaca.</p>
               <div className="flex gap-3 mt-4">
