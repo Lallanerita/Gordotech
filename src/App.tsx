@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles } from 'lucide-react'
 
 type City = 'duitama' | 'tunja' | null
 
@@ -184,6 +184,29 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+
+  // Curated sections
+  const recommendedProducts = products.filter(p => 
+    p.available.includes(city || 'duitama') && 
+    ['iPhone 17 Pro Max', 'iPhone 17 Pro', 'iPhone Air', 'iPhone 16 Pro Max', 'iPhone 15 Pro Max'].includes(p.name) && 
+    p.condition === 'Nuevo'
+  ).slice(0, 4)
+
+  const trendingProducts = products.filter(p => 
+    p.available.includes(city || 'duitama') && 
+    ['iPhone 16', 'iPhone 15', 'iPhone 17', 'iPhone 16 Pro'].includes(p.name)
+  ).slice(0, 4)
+
+  const getRelatedProducts = (product: Product) => {
+    // Get products from same generation/family
+    const generation = product.name.match(/iPhone (\d+|Air)/)?.[1] || ''
+    return products.filter(p => 
+      p.id !== product.id && 
+      p.available.includes(city || 'duitama') && 
+      (p.name.includes(`iPhone ${generation}`) || p.condition === product.condition)
+    ).slice(0, 4)
+  }
 
   const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
 
@@ -410,7 +433,168 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         </div>
       </section>
 
+      {/* Recomendado para ti */}
+      {!selectedProduct && recommendedProducts.length > 0 && (
+        <section className="py-10 md:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center gap-3 mb-8">
+              <Sparkles className="w-6 h-6 text-blue-400" />
+              <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>RECOMENDADO PARA TI</h3>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {recommendedProducts.map(product => (
+                <button key={product.id} onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                  <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
+                    {product.badge && (
+                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
+                    )}
+                    <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Heart className="w-4 h-4 text-gray-300" />
+                    </div>
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                  </div>
+                  <div className="p-3 md:p-4">
+                    <p className="text-xs text-blue-400 font-medium mb-1">{product.condition}</p>
+                    <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {product.storageOptions.map((s, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Tendencia Ahora */}
+      {!selectedProduct && trendingProducts.length > 0 && (
+        <section className="py-10 md:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center gap-3 mb-8">
+              <TrendingUp className="w-6 h-6 text-amber-400" />
+              <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TENDENCIA AHORA</h3>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {trendingProducts.map(product => (
+                <button key={product.id} onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
+                  <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
+                    <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Trending</div>
+                    <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Heart className="w-4 h-4 text-gray-300" />
+                    </div>
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                  </div>
+                  <div className="p-3 md:p-4">
+                    <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                    <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {product.storageOptions.map((s, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Product Detail View */}
+      {selectedProduct && (
+        <section className="py-10 md:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <button onClick={() => setSelectedProduct(null)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
+              <ArrowLeft className="w-4 h-4" />
+              Volver a productos
+            </button>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
+              {/* Product Image */}
+              <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10">
+                {selectedProduct.badge && (
+                  <div className="absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
+                )}
+                <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover rounded-2xl" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }} />
+              </div>
+
+              {/* Product Info */}
+              <div className="flex flex-col justify-center">
+                <div className={`inline-block px-3 py-1 rounded-lg text-sm font-medium mb-4 w-fit ${selectedProduct.condition === 'Nuevo' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                  {selectedProduct.condition}
+                </div>
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>{selectedProduct.name}</h2>
+                
+                <div className="mb-6">
+                  <p className="text-gray-400 text-sm mb-3">Almacenamiento disponible</p>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedProduct.storageOptions.map((storage, i) => (
+                      <span key={i} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white font-medium hover:border-blue-500/50 transition-colors cursor-pointer">{storage}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mb-8">
+                  <p className="text-gray-400 text-sm mb-3">Colores disponibles</p>
+                  <div className="flex items-center gap-3">
+                    {selectedProduct.colors.map((color, i) => (
+                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white/20 hover:border-blue-400 transition-colors cursor-pointer" style={{ backgroundColor: color }} />
+                    ))}
+                  </div>
+                </div>
+
+                <a
+                  href={`https://wa.me/573001234567?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition}). ¿Tienen disponible y cuál es el precio?`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Consultar Precio por WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* Related Products */}
+            <div>
+              <h3 className="text-2xl md:text-4xl font-bold mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRODUCTOS RELACIONADOS</h3>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {getRelatedProducts(selectedProduct).map(product => (
+                  <button key={product.id} onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                    <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
+                      {product.badge && (
+                        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
+                      )}
+                      <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Heart className="w-4 h-4 text-gray-300" />
+                      </div>
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                    </div>
+                    <div className="p-3 md:p-4">
+                      <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                      <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {product.storageOptions.map((s, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Products Section */}
+      {!selectedProduct && (
       <section id="productos" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
@@ -438,76 +622,58 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (
-              <div
+              <button
                 key={product.id}
-                className="group relative bg-gradient-to-b from-white/5 to-transparent rounded-3xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
+                onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
               >
                 {/* Badge */}
-                {product.badge && (
-                  <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-xs font-bold ${
-                    product.badge === 'Nuevo' ? 'bg-blue-500 text-white' :
-                    product.badge === 'Oferta' || product.badge === 'Precio Bajo' ? 'bg-red-500 text-white' :
-                    product.badge === 'Popular' ? 'bg-amber-500 text-black' :
-                    'bg-green-500 text-white'
-                  }`}>
-                    {product.badge}
+                <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
+                  {product.badge && (
+                    <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
+                  )}
+                  <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Heart className="w-4 h-4 text-gray-300" />
                   </div>
-                )}
-
-                {/* Image */}
-                <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 p-8 flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
                   />
                 </div>
 
                 {/* Info */}
-                <div className="p-5">
-                  <div className={`inline-block px-2 py-0.5 rounded-md text-xs font-medium mb-2 ${
-                    product.condition === 'Nuevo' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'
-                  }`}>
-                    {product.condition}
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2">{product.name}</h4>
+                <div className="p-3 md:p-4">
+                  <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                  <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                   
                   {/* Storage Options */}
-                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                  <div className="flex flex-wrap gap-1 mb-2">
                     {product.storageOptions.map((storage, i) => (
-                      <span key={i} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-300 font-medium">
+                      <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">
                         {storage}
                       </span>
                     ))}
                   </div>
 
                   {/* Colors */}
-                  <div className="flex items-center gap-1.5 mb-4">
+                  <div className="flex items-center gap-1 mb-2">
                     {product.colors.map((color, i) => (
-                      <div key={i} className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: color }} />
+                      <div key={i} className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: color }} />
                     ))}
                   </div>
 
-                  {/* CTA */}
-                  <a
-                    href={`https://wa.me/573001234567?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${product.name} (${product.condition}). ¿Tienen disponible?`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full mt-2 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Consultar Precio
-                  </a>
+                  <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
       </section>
+      )}
 
       {/* Repair Section - Only for Duitama */}
       {city === 'duitama' && (
