@@ -1,0 +1,803 @@
+import { useState, useEffect } from 'react'
+import './App.css'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart } from 'lucide-react'
+
+type City = 'duitama' | 'tunja' | null
+
+// Product data
+const products = [
+  {
+    id: 1,
+    name: 'iPhone 16 Pro Max',
+    condition: 'Nuevo',
+    price: 5899000,
+    originalPrice: 6299000,
+    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop',
+    badge: 'Nuevo',
+    rating: 5,
+    colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'],
+    storage: '256GB',
+    available: ['duitama', 'tunja'],
+  },
+  {
+    id: 2,
+    name: 'iPhone 16 Pro',
+    condition: 'Nuevo',
+    price: 4999000,
+    originalPrice: 5499000,
+    image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop',
+    badge: 'Popular',
+    rating: 5,
+    colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'],
+    storage: '128GB',
+    available: ['duitama', 'tunja'],
+  },
+  {
+    id: 3,
+    name: 'iPhone 15',
+    condition: 'Nuevo',
+    price: 3499000,
+    originalPrice: null,
+    image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop',
+    badge: null,
+    rating: 4,
+    colors: ['#000000', '#F28B82', '#AECBFA'],
+    storage: '128GB',
+    available: ['duitama', 'tunja'],
+  },
+  {
+    id: 4,
+    name: 'iPhone 15 Pro Max',
+    condition: 'Semi-usado',
+    price: 3899000,
+    originalPrice: 5499000,
+    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop',
+    badge: 'Oferta',
+    rating: 4,
+    colors: ['#4A4A4A', '#F5F5DC'],
+    storage: '256GB',
+    available: ['duitama'],
+  },
+  {
+    id: 5,
+    name: 'iPhone 14 Pro',
+    condition: 'Semi-usado',
+    price: 2699000,
+    originalPrice: 4199000,
+    image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop',
+    badge: 'Ahorra 36%',
+    rating: 4,
+    colors: ['#1C1C1E', '#6B5B4F'],
+    storage: '128GB',
+    available: ['duitama', 'tunja'],
+  },
+  {
+    id: 6,
+    name: 'iPhone 14',
+    condition: 'Semi-usado',
+    price: 1999000,
+    originalPrice: 3099000,
+    image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop',
+    badge: 'Precio Bajo',
+    rating: 4,
+    colors: ['#000000', '#E3D0B9', '#F28B82'],
+    storage: '128GB',
+    available: ['duitama', 'tunja'],
+  },
+  {
+    id: 7,
+    name: 'iPhone 13',
+    condition: 'Semi-usado',
+    price: 1499000,
+    originalPrice: 2399000,
+    image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop',
+    badge: null,
+    rating: 4,
+    colors: ['#1C1C1E', '#F28B82'],
+    storage: '128GB',
+    available: ['duitama', 'tunja'],
+  },
+  {
+    id: 8,
+    name: 'iPhone 16',
+    condition: 'Nuevo',
+    price: 3999000,
+    originalPrice: 4299000,
+    image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop',
+    badge: 'Nuevo',
+    rating: 5,
+    colors: ['#000000', '#AECBFA', '#F5F5DC'],
+    storage: '128GB',
+    available: ['tunja'],
+  },
+]
+
+const repairServices = [
+  { icon: Smartphone, title: 'Cambio de Pantalla', description: 'Pantallas originales y compatibles para todos los modelos de iPhone', price: 'Desde $150.000' },
+  { icon: Zap, title: 'Cambio de Bateria', description: 'Baterias de alta calidad con garantia de 6 meses', price: 'Desde $120.000' },
+  { icon: Shield, title: 'Reparacion de Placa', description: 'Microelectronica avanzada para solucionar problemas de placa', price: 'Consultar' },
+  { icon: Award, title: 'Diagnostico Gratis', description: 'Te decimos exactamente que tiene tu equipo sin costo alguno', price: 'Gratis' },
+]
+
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price)
+}
+
+// City Selection Splash Screen
+function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
+  const [hoveredCity, setHoveredCity] = useState<City>(null)
+  const [animateIn, setAnimateIn] = useState(false)
+
+  useEffect(() => {
+    setTimeout(() => setAnimateIn(true), 100)
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
+          {/* Grid lines */}
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: 'linear-gradient(rgba(123,163,201,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(123,163,201,0.3) 1px, transparent 1px)',
+            backgroundSize: '60px 60px'
+          }} />
+        </div>
+      </div>
+
+      <div className={`relative z-10 text-center transition-all duration-1000 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        {/* Logo */}
+        <div className="mb-12">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/10">
+              <Smartphone className="w-8 h-8 text-blue-400" />
+            </div>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold text-white tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            GORDOTECH
+          </h1>
+          <p className="text-blue-400/80 tracking-widest text-sm mt-2 uppercase">Conectando tus suenos</p>
+        </div>
+
+        {/* Greeting */}
+        <div className={`mb-12 transition-all duration-1000 delay-300 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+          <h2 className="text-2xl md:text-4xl text-white font-light mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+            Hola! <span className="inline-block animate-bounce">👋</span>
+          </h2>
+          <p className="text-gray-400 text-lg md:text-xl">En que ciudad te encuentras?</p>
+        </div>
+
+        {/* City Cards */}
+        <div className={`flex flex-col sm:flex-row gap-6 justify-center transition-all duration-1000 delay-500 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+          {/* Duitama */}
+          <button
+            onClick={() => onSelect('duitama')}
+            onMouseEnter={() => setHoveredCity('duitama')}
+            onMouseLeave={() => setHoveredCity(null)}
+            className={`group relative w-72 p-8 rounded-3xl border transition-all duration-500 cursor-pointer ${
+              hoveredCity === 'duitama'
+                ? 'bg-blue-500/10 border-blue-400/50 scale-105 shadow-2xl shadow-blue-500/20'
+                : 'bg-white/5 border-white/10 hover:bg-white/10'
+            }`}
+          >
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'duitama' ? 'text-blue-400' : 'text-gray-400'}`} />
+            <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>DUITAMA</h3>
+            <p className="text-gray-400 text-sm">Tienda + Centro de Reparacion</p>
+            <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-sm">Explorar</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </button>
+
+          {/* Tunja */}
+          <button
+            onClick={() => onSelect('tunja')}
+            onMouseEnter={() => setHoveredCity('tunja')}
+            onMouseLeave={() => setHoveredCity(null)}
+            className={`group relative w-72 p-8 rounded-3xl border transition-all duration-500 cursor-pointer ${
+              hoveredCity === 'tunja'
+                ? 'bg-blue-500/10 border-blue-400/50 scale-105 shadow-2xl shadow-blue-500/20'
+                : 'bg-white/5 border-white/10 hover:bg-white/10'
+            }`}
+          >
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'tunja' ? 'text-blue-400' : 'text-gray-400'}`} />
+            <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>TUNJA</h3>
+            <p className="text-gray-400 text-sm">Punto de Venta</p>
+            <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-sm">Explorar</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className={`absolute bottom-8 text-gray-600 text-xs transition-all duration-1000 delay-700 ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
+        <p>Gordotech &copy; 2024 &middot; Conectando tus suenos</p>
+      </div>
+    </div>
+  )
+}
+
+// Main Store Component
+function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void }) {
+  const [activeCategory, setActiveCategory] = useState<string>('todos')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const filteredProducts = products.filter(p => {
+    const inCity = p.available.includes(city || 'duitama')
+    if (activeCategory === 'todos') return inCity
+    if (activeCategory === 'nuevos') return inCity && p.condition === 'Nuevo'
+    if (activeCategory === 'semi-usados') return inCity && p.condition === 'Semi-usado'
+    return inCity
+  })
+
+  const categories = [
+    { id: 'todos', label: 'Todos', icon: Smartphone },
+    { id: 'nuevos', label: 'Nuevos', icon: Star },
+    { id: 'semi-usados', label: 'Semi-usados', icon: Award },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Header / Navbar */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5' : 'bg-transparent'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/10">
+                <Smartphone className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>GORDOTECH</h1>
+                <p className="text-blue-400/60 text-xs tracking-widest -mt-1 hidden sm:block">CONECTANDO TUS SUENOS</p>
+              </div>
+            </div>
+
+            {/* Nav Links - Desktop */}
+            <nav className="hidden md:flex items-center gap-8">
+              <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Productos</a>
+              {city === 'duitama' && (
+                <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
+              )}
+              <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
+              <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
+            </nav>
+
+            {/* Right side */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={onChangeCity}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-sm"
+              >
+                <MapPin className="w-3.5 h-3.5 text-blue-400" />
+                <span className="text-gray-300">{cityName}</span>
+              </button>
+              <button className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                <ShoppingCart className="w-5 h-5 text-gray-300" />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full text-xs flex items-center justify-center">0</span>
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-xl bg-white/5 border border-white/10"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden pb-4 border-t border-white/5 mt-2 pt-4">
+              <nav className="flex flex-col gap-3">
+                <a href="#productos" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Productos</a>
+                {city === 'duitama' && (
+                  <a href="#reparacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Reparacion</a>
+                )}
+                <a href="#ubicacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Ubicacion</a>
+                <a href="#contacto" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Contacto</a>
+              </nav>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl" />
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(123,163,201,0.4) 1px, transparent 0)',
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+                <Zap className="w-4 h-4 text-blue-400" />
+                <span className="text-blue-400 text-sm font-medium">Disponible en {cityName}</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                TU PROXIMO<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">iPHONE</span><br />
+                TE ESPERA
+              </h2>
+              <p className="text-gray-400 text-lg md:text-xl mb-8 max-w-lg">
+                Encuentra los mejores iPhones nuevos y semi-usados con garantia. {city === 'duitama' ? 'Ademas, contamos con centro de reparacion especializado.' : 'Los mejores precios de Tunja.'}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                <a href="#productos" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25">
+                  Ver Catalogo
+                  <ChevronRight className="w-5 h-5" />
+                </a>
+                {city === 'duitama' && (
+                  <a href="#reparacion" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold rounded-2xl transition-all">
+                    <Wrench className="w-5 h-5" />
+                    Reparacion
+                  </a>
+                )}
+              </div>
+
+              {/* Trust badges */}
+              <div className="flex flex-wrap items-center gap-6 mt-10 justify-center md:justify-start">
+                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Shield className="w-4 h-4 text-blue-400" />
+                  <span>Garantia incluida</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Truck className="w-4 h-4 text-blue-400" />
+                  <span>Envio en Boyaca</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Award className="w-4 h-4 text-blue-400" />
+                  <span>100% Originales</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Hero Image */}
+            <div className="flex-1 relative">
+              <div className="relative w-72 md:w-96 mx-auto">
+                <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent rounded-3xl blur-3xl" />
+                <img
+                  src="/images/hero-iphone.png"
+                  alt="iPhone de alta gama disponible en Gordotech"
+                  className="relative z-10 w-full drop-shadow-2xl"
+                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x500/1a1a2e/7BA3C9/png?text=iPhone+16+Pro' }}
+                />
+                {/* Floating badges */}
+                <div className="absolute top-4 -left-4 md:-left-8 z-20 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl animate-bounce" style={{ animationDuration: '3s' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <Shield className="w-4 h-4 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400">Garantia</p>
+                      <p className="text-sm font-bold text-white">12 Meses</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute bottom-12 -right-4 md:-right-8 z-20 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <Star className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400">Calificacion</p>
+                      <p className="text-sm font-bold text-white">4.9 / 5.0</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Banner */}
+      <section className="py-6 border-y border-white/5 bg-white/2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-sm whitespace-nowrap transition-all ${
+                  activeCategory === cat.id
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5'
+                }`}
+              >
+                <cat.icon className="w-4 h-4" />
+                {cat.label}
+              </button>
+            ))}
+            {city === 'duitama' && (
+              <a
+                href="#reparacion"
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-sm whitespace-nowrap transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5"
+              >
+                <Wrench className="w-4 h-4" />
+                Reparacion
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Products Section */}
+      <section id="productos" className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <h3 className="text-3xl md:text-5xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                {activeCategory === 'todos' ? 'TODOS LOS iPHONES' : activeCategory === 'nuevos' ? 'iPHONES NUEVOS' : 'iPHONES SEMI-USADOS'}
+              </h3>
+              <p className="text-gray-400 mt-2">Disponibles en {cityName} &middot; {filteredProducts.length} productos</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="group relative bg-gradient-to-b from-white/5 to-transparent rounded-3xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
+              >
+                {/* Badge */}
+                {product.badge && (
+                  <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-xs font-bold ${
+                    product.badge === 'Nuevo' ? 'bg-blue-500 text-white' :
+                    product.badge === 'Oferta' || product.badge === 'Precio Bajo' ? 'bg-red-500 text-white' :
+                    product.badge === 'Popular' ? 'bg-amber-500 text-black' :
+                    'bg-green-500 text-white'
+                  }`}>
+                    {product.badge}
+                  </div>
+                )}
+
+                {/* Image */}
+                <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 p-8 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
+                  />
+                </div>
+
+                {/* Info */}
+                <div className="p-5">
+                  <div className="flex items-center gap-1 mb-2">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`w-3.5 h-3.5 ${i < product.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-600'}`} />
+                    ))}
+                  </div>
+                  <p className="text-xs text-blue-400 font-medium mb-1">{product.condition} &middot; {product.storage}</p>
+                  <h4 className="text-lg font-bold text-white mb-3">{product.name}</h4>
+                  
+                  {/* Colors */}
+                  <div className="flex items-center gap-1.5 mb-4">
+                    {product.colors.map((color, i) => (
+                      <div key={i} className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: color }} />
+                    ))}
+                  </div>
+
+                  {/* Price */}
+                  <div className="flex items-end gap-2">
+                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{formatPrice(product.price)}</span>
+                    {product.originalPrice && (
+                      <span className="text-sm text-gray-500 line-through mb-0.5">{formatPrice(product.originalPrice)}</span>
+                    )}
+                  </div>
+
+                  {/* CTA */}
+                  <button className="w-full mt-4 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm">
+                    <MessageCircle className="w-4 h-4" />
+                    Consultar por WhatsApp
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Repair Section - Only for Duitama */}
+      {city === 'duitama' && (
+        <section id="reparacion" className="py-16 md:py-24 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+                <Wrench className="w-4 h-4 text-blue-400" />
+                <span className="text-blue-400 text-sm font-medium">Solo en Duitama</span>
+              </div>
+              <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACION</span>
+              </h3>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Nuestros tecnicos certificados reparan tu iPhone con repuestos de la mas alta calidad
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {repairServices.map((service, i) => (
+                <div
+                  key={i}
+                  className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
+                    <service.icon className="w-7 h-7 text-blue-400" />
+                  </div>
+                  <h4 className="text-lg font-bold text-white mb-2">{service.title}</h4>
+                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">{service.description}</p>
+                  <p className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{service.price}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <a
+                href="https://wa.me/573001234567?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Agendar Reparacion por WhatsApp
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Location Section */}
+      <section id="ubicacion" className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+              VISITANOS EN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">{cityName.toUpperCase()}</span>
+            </h3>
+            <p className="text-gray-400 text-lg">Ven a conocer nuestros productos en persona</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Duitama */}
+            <div className={`p-8 rounded-3xl border transition-all ${city === 'duitama' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>DUITAMA</h4>
+                  <p className="text-blue-400 text-sm">Tienda + Centro de Reparacion</p>
+                </div>
+              </div>
+              <div className="space-y-4 text-gray-300">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
+                  <p className="text-sm">Centro Comercial, Duitama, Boyaca</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <p className="text-sm">Lun - Sab: 9:00 AM - 7:00 PM</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <p className="text-sm">+57 300 123 4567</p>
+                </div>
+              </div>
+              <div className="mt-6 flex gap-3">
+                <a href="https://wa.me/573001234567" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                  WhatsApp
+                </a>
+                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                  Ver en Mapa
+                </a>
+              </div>
+            </div>
+
+            {/* Tunja */}
+            <div className={`p-8 rounded-3xl border transition-all ${city === 'tunja' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TUNJA</h4>
+                  <p className="text-blue-400 text-sm">Punto de Venta</p>
+                </div>
+              </div>
+              <div className="space-y-4 text-gray-300">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
+                  <p className="text-sm">Centro Comercial, Tunja, Boyaca</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <p className="text-sm">Lun - Sab: 9:00 AM - 7:00 PM</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <p className="text-sm">+57 300 765 4321</p>
+                </div>
+              </div>
+              <div className="mt-6 flex gap-3">
+                <a href="https://wa.me/573007654321" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                  WhatsApp
+                </a>
+                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                  Ver en Mapa
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className="py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="relative rounded-3xl bg-gradient-to-r from-blue-600 to-blue-800 p-10 md:p-16 overflow-hidden">
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+              backgroundSize: '30px 30px'
+            }} />
+            <div className="relative z-10 text-center">
+              <h3 className="text-3xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                ENCUENTRA TU iPHONE IDEAL
+              </h3>
+              <p className="text-blue-100/80 text-lg mb-8 max-w-2xl mx-auto">
+                Escribenos por WhatsApp y te asesoramos para que encuentres el iPhone perfecto para ti al mejor precio
+              </p>
+              <a
+                href="https://wa.me/573001234567?text=Hola%20Gordotech%2C%20quiero%20información%20sobre%20iPhones"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-700 font-bold rounded-2xl transition-all hover:scale-105 hover:shadow-lg"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Chatea con Nosotros
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer id="contacto" className="border-t border-white/5 pt-16 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            {/* Brand */}
+            <div className="md:col-span-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/10">
+                  <Smartphone className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>GORDOTECH</h4>
+                </div>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y semi-usados en Boyaca.</p>
+              <div className="flex gap-3 mt-4">
+                <a href="#" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <Instagram className="w-5 h-5 text-gray-400" />
+                </a>
+                <a href="#" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <Facebook className="w-5 h-5 text-gray-400" />
+                </a>
+                <a href="https://wa.me/573001234567" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <MessageCircle className="w-5 h-5 text-gray-400" />
+                </a>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Productos</h5>
+              <ul className="space-y-3">
+                <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Nuevos</a></li>
+                <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Semi-usados</a></li>
+                <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">Accesorios</a></li>
+              </ul>
+            </div>
+
+            {/* Services */}
+            <div>
+              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Servicios</h5>
+              <ul className="space-y-3">
+                <li><a href="#reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Reparacion iPhone</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de pantalla</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de bateria</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Diagnostico gratis</a></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contacto</h5>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Phone className="w-4 h-4 text-blue-400" />
+                  +57 300 123 4567
+                </li>
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Mail className="w-4 h-4 text-blue-400" />
+                  info@gordotech.co
+                </li>
+                <li className="flex items-start gap-2 text-gray-400 text-sm">
+                  <MapPin className="w-4 h-4 text-blue-400 mt-0.5" />
+                  Duitama & Tunja, Boyaca
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-gray-500 text-xs">&copy; 2024 Gordotech. Todos los derechos reservados. Conectando tus suenos.</p>
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <a href="#" className="hover:text-white transition-colors">Terminos</a>
+              <a href="#" className="hover:text-white transition-colors">Privacidad</a>
+              <a href="#" className="hover:text-white transition-colors">Garantia</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* WhatsApp Floating Button */}
+      <a
+        href="https://wa.me/573001234567?text=Hola%20Gordotech%2C%20necesito%20información"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-all"
+      >
+        <MessageCircle className="w-7 h-7 text-white" />
+      </a>
+    </div>
+  )
+}
+
+function App() {
+  const [city, setCity] = useState<City>(() => {
+    const saved = localStorage.getItem('gordotech-city')
+    return (saved === 'duitama' || saved === 'tunja') ? saved : null
+  })
+
+  const handleCitySelect = (selected: City) => {
+    setCity(selected)
+    if (selected) localStorage.setItem('gordotech-city', selected)
+  }
+
+  const handleChangeCity = () => {
+    setCity(null)
+    localStorage.removeItem('gordotech-city')
+    window.scrollTo(0, 0)
+  }
+
+  if (!city) {
+    return <CitySelector onSelect={handleCitySelect} />
+  }
+
+  return <Store city={city} onChangeCity={handleChangeCity} />
+}
+
+export default App
