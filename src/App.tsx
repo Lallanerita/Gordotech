@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles } from 'lucide-react'
+import AdminPanel from './AdminPanel'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 type City = 'duitama' | 'tunja' | null
 
@@ -185,28 +188,113 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  
+  // API-loaded data with fallback to static
+  const [apiProducts, setApiProducts] = useState<Product[]>(products)
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
+  const [trendingProducts, setTrendingProducts] = useState<Product[]>([])
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
+  const [modelBubbles, setModelBubbles] = useState<{id: string; label: string; image: string}[]>([
+    { id: 'todos', label: 'Todos', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
+    { id: 'iphone 17', label: 'iPhone 17', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
+    { id: 'iphone air', label: 'iPhone Air', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
+    { id: 'iphone 16', label: 'iPhone 16', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
+    { id: 'iphone 15', label: 'iPhone 15', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
+    { id: 'iphone 14', label: 'iPhone 14', image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop' },
+    { id: 'iphone 13', label: 'iPhone 13', image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=300&h=300&fit=crop' },
+    { id: 'iphone 12', label: 'iPhone 12', image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=300&h=300&fit=crop' },
+  ])
+  const [apiRepairServices, setApiRepairServices] = useState(repairServices)
 
-  // Curated sections
-  const recommendedProducts = products.filter(p => 
-    p.available.includes(city || 'duitama') && 
-    ['iPhone 17 Pro Max', 'iPhone 17 Pro', 'iPhone Air', 'iPhone 16 Pro Max', 'iPhone 15 Pro Max'].includes(p.name) && 
-    p.condition === 'Nuevo'
-  ).slice(0, 4)
+  // Load data from API
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [productsRes, recommendedRes, trendingRes, bubblesRes, servicesRes] = await Promise.all([
+          fetch(`${API_URL}/api/products?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/products/recommended?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/products/trending?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/bubbles`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/repair-services`).then(r => r.ok ? r.json() : null),
+        ])
+        if (productsRes?.products) {
+          setApiProducts(productsRes.products.map((p: Record<string, unknown>) => ({
+            id: p.id as number,
+            name: p.name as string,
+            condition: p.condition as string,
+            image: p.image as string,
+            colors: p.colors as string[],
+            storageOptions: p.storage_options as string[],
+            badge: (p.badge as string) || null,
+            available: p.available as string[],
+            price: (p.price as string) || '',
+            description: (p.description as string) || '',
+          })))
+        }
+        if (recommendedRes?.products) {
+          setRecommendedProducts(recommendedRes.products.map((p: Record<string, unknown>) => ({
+            id: p.id as number, name: p.name as string, condition: p.condition as string,
+            image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            badge: (p.badge as string) || null, available: p.available as string[],
+            price: (p.price as string) || '', description: (p.description as string) || '',
+          })))
+        }
+        if (trendingRes?.products) {
+          setTrendingProducts(trendingRes.products.map((p: Record<string, unknown>) => ({
+            id: p.id as number, name: p.name as string, condition: p.condition as string,
+            image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            badge: (p.badge as string) || null, available: p.available as string[],
+            price: (p.price as string) || '', description: (p.description as string) || '',
+          })))
+        }
+        if (bubblesRes?.bubbles) {
+          setModelBubbles(bubblesRes.bubbles.map((b: Record<string, unknown>) => ({
+            id: b.model_id as string, label: b.label as string, image: b.image as string,
+          })))
+        }
+        if (servicesRes?.services) {
+          const iconMap: Record<string, typeof Smartphone> = { Smartphone, Zap, Shield, Award, Wrench }
+          setApiRepairServices(servicesRes.services.map((s: Record<string, unknown>) => ({
+            icon: iconMap[s.icon as string] || Smartphone,
+            title: s.title as string,
+            description: s.description as string,
+            price: s.price as string,
+          })))
+        }
+      } catch {
+        // Fallback to static data if API unavailable
+        console.log('Using static data (API unavailable)')
+      }
+    }
+    loadData()
+  }, [city])
 
-  const trendingProducts = products.filter(p => 
-    p.available.includes(city || 'duitama') && 
-    ['iPhone 16', 'iPhone 15', 'iPhone 17', 'iPhone 16 Pro'].includes(p.name)
-  ).slice(0, 4)
-
-  const getRelatedProducts = (product: Product) => {
-    // Get products from same generation/family
-    const generation = product.name.match(/iPhone (\d+|Air)/)?.[1] || ''
-    return products.filter(p => 
-      p.id !== product.id && 
-      p.available.includes(city || 'duitama') && 
-      (p.name.includes(`iPhone ${generation}`) || p.condition === product.condition)
-    ).slice(0, 4)
-  }
+  // Load related products when a product is selected
+  useEffect(() => {
+    if (!selectedProduct) { setRelatedProducts([]); return }
+    const loadRelated = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/products/${selectedProduct.id}/related?city=${city || 'duitama'}`)
+        if (res.ok) {
+          const data = await res.json()
+          setRelatedProducts(data.products.map((p: Record<string, unknown>) => ({
+            id: p.id as number, name: p.name as string, condition: p.condition as string,
+            image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            badge: (p.badge as string) || null, available: p.available as string[],
+            price: (p.price as string) || '', description: (p.description as string) || '',
+          })))
+        }
+      } catch {
+        // Fallback: compute related locally
+        const generation = selectedProduct.name.match(/iPhone (\d+|Air)/)?.[1] || ''
+        setRelatedProducts(apiProducts.filter(p => 
+          p.id !== selectedProduct.id && 
+          (p.name.includes(`iPhone ${generation}`) || p.condition === selectedProduct.condition)
+        ).slice(0, 4))
+      }
+    }
+    loadRelated()
+  }, [selectedProduct, city, apiProducts])
 
   const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
 
@@ -216,31 +304,17 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = apiProducts.filter(p => {
     const inCity = p.available.includes(city || 'duitama')
     if (!inCity) return false
-    // Filter by condition
     if (activeCondition === 'nuevos' && p.condition !== 'Nuevo') return false
     if (activeCondition === 'semi-usados' && p.condition !== 'Semi-usado') return false
-    // Filter by model
     if (activeModel !== 'todos') {
       const modelName = activeModel.toLowerCase()
       return p.name.toLowerCase().includes(modelName)
     }
     return true
   })
-
-  // Model bubbles - newest to oldest (left to right)
-  const modelBubbles = [
-    { id: 'todos', label: 'Todos', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
-    { id: 'iphone 17', label: 'iPhone 17', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
-    { id: 'iphone air', label: 'iPhone Air', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
-    { id: 'iphone 16', label: 'iPhone 16', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
-    { id: 'iphone 15', label: 'iPhone 15', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
-    { id: 'iphone 14', label: 'iPhone 14', image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop' },
-    { id: 'iphone 13', label: 'iPhone 13', image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=300&h=300&fit=crop' },
-    { id: 'iphone 12', label: 'iPhone 12', image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=300&h=300&fit=crop' },
-  ]
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -564,7 +638,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             <div>
               <h3 className="text-2xl md:text-4xl font-bold mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRODUCTOS RELACIONADOS</h3>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {getRelatedProducts(selectedProduct).map(product => (
+                {relatedProducts.map(product => (
                   <button key={product.id} onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
                     <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                       {product.badge && (
@@ -694,7 +768,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {repairServices.map((service, i) => (
+              {apiRepairServices.map((service, i) => (
                 <div
                   key={i}
                   className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
@@ -930,6 +1004,26 @@ function App() {
     const saved = localStorage.getItem('gordotech-city')
     return (saved === 'duitama' || saved === 'tunja') ? saved : null
   })
+  const [showAdmin, setShowAdmin] = useState(false)
+
+  // Keyboard shortcut: Ctrl+Shift+A to toggle admin panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault()
+        setShowAdmin(prev => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Check URL hash for admin access
+  useEffect(() => {
+    if (window.location.hash === '#admin') {
+      setShowAdmin(true)
+    }
+  }, [])
 
   const handleCitySelect = (selected: City) => {
     setCity(selected)
@@ -940,6 +1034,10 @@ function App() {
     setCity(null)
     localStorage.removeItem('gordotech-city')
     window.scrollTo(0, 0)
+  }
+
+  if (showAdmin) {
+    return <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
   }
 
   if (!city) {
