@@ -566,7 +566,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
       {/* Model Bubbles - Newest to Oldest */}
       <section className="py-8 md:py-12 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-start gap-5 md:gap-8 overflow-x-auto pb-2 px-2 scrollbar-hide">
+          <div className="flex items-start gap-5 md:gap-8 overflow-x-auto pb-4 pt-2 px-2 scrollbar-hide">
             {modelBubbles.map(model => (
               <button
                 key={model.id}
@@ -576,7 +576,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                 }}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0"
               >
-                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 overflow-hidden transition-all duration-300 ${
+                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 transition-all duration-300 ${
                   activeModel === model.id
                     ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
                     : 'border-gray-600 hover:border-blue-400 hover:scale-105'
@@ -584,7 +584,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                   <img
                     src={model.image}
                     alt={model.label}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-full"
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
