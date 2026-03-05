@@ -95,6 +95,7 @@ const accesorios = [
 type Product = {
   id: number
   name: string
+  category: string
   condition: string
   image: string
   colors: string[]
@@ -106,42 +107,49 @@ type Product = {
 const products: Product[] = [
   ...nuevos.map(p => ({
     ...p,
+    category: 'iphones',
     condition: 'Nuevo' as const,
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
   ...semiUsados.map(p => ({
     ...p,
+    category: 'iphones',
     condition: 'Semi-usado' as const,
     badge: null as string | null,
     available: ['duitama', 'tunja'],
   })),
   ...ipads.map(p => ({
     ...p,
+    category: 'ipads',
     condition: 'Nuevo' as const,
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
   ...macbooks.map(p => ({
     ...p,
+    category: 'macbook',
     condition: 'Nuevo' as const,
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
   ...airpods.map(p => ({
     ...p,
+    category: 'airpods',
     condition: 'Nuevo' as const,
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
   ...appleWatches.map(p => ({
     ...p,
+    category: 'apple-watch',
     condition: 'Nuevo' as const,
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
   ...accesorios.map(p => ({
     ...p,
+    category: 'accesorios',
     condition: 'Nuevo' as const,
     badge: null as string | null,
     available: ['duitama', 'tunja'],
@@ -289,6 +297,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           setApiProducts(productsRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number,
             name: p.name as string,
+            category: (p.category as string) || '',
             condition: p.condition as string,
             image: p.image as string,
             colors: p.colors as string[],
@@ -301,7 +310,8 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         }
         if (recommendedRes?.products) {
           setRecommendedProducts(recommendedRes.products.map((p: Record<string, unknown>) => ({
-            id: p.id as number, name: p.name as string, condition: p.condition as string,
+            id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+            condition: p.condition as string,
             image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', description: (p.description as string) || '',
@@ -309,7 +319,8 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         }
         if (trendingRes?.products) {
           setTrendingProducts(trendingRes.products.map((p: Record<string, unknown>) => ({
-            id: p.id as number, name: p.name as string, condition: p.condition as string,
+            id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+            condition: p.condition as string,
             image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', description: (p.description as string) || '',
@@ -346,7 +357,8 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         if (res.ok) {
           const data = await res.json()
           setRelatedProducts(data.products.map((p: Record<string, unknown>) => ({
-            id: p.id as number, name: p.name as string, condition: p.condition as string,
+            id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+            condition: p.condition as string,
             image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', description: (p.description as string) || '',
@@ -378,13 +390,17 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
     if (activeCondition === 'nuevos' && p.condition !== 'Nuevo') return false
     if (activeCondition === 'semi-usados' && p.condition !== 'Semi-usado') return false
     if (activeModel !== 'todos') {
+      // Use explicit category field first, fallback to name-based matching
+      if (p.category) {
+        return p.category === activeModel || p.category === activeModel.replace(' ', '-')
+      }
       const name = p.name.toLowerCase()
       switch (activeModel) {
         case 'iphones': return name.includes('iphone')
         case 'ipads': return name.includes('ipad')
         case 'macbook': return name.includes('macbook')
         case 'airpods': return name.includes('airpods')
-        case 'apple watch': return name.includes('apple watch')
+        case 'apple-watch': return name.includes('apple watch')
         case 'accesorios': return name.includes('pencil') || name.includes('accesorio')
         default: return name.includes(activeModel.toLowerCase())
       }

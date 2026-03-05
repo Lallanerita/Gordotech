@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock } from 'lucide-react'
+import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 type Product = {
   id: number
   name: string
+  category: string
   condition: string
   image: string
   colors: string[]
@@ -16,6 +17,14 @@ type Product = {
   description: string
   featured_recommended: boolean
   featured_trending: boolean
+  sort_order: number
+}
+
+type Category = {
+  id: number
+  slug: string
+  name: string
+  image: string
   sort_order: number
 }
 
@@ -40,11 +49,12 @@ type Stats = {
   total_products: number
   new_products: number
   used_products: number
+  categories: number
   bubbles: number
   repair_services: number
 }
 
-type Tab = 'dashboard' | 'products' | 'bubbles' | 'services' | 'settings'
+type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'settings'
 
 // ==================== API HELPERS ====================
 
@@ -220,14 +230,16 @@ function ImageUploader({ token, currentImage, onUpload }: { token: string; curre
 
 // ==================== PRODUCT FORM ====================
 
-function ProductForm({ product, token, onSave, onCancel }: {
+function ProductForm({ product, token, categories, onSave, onCancel }: {
   product: Product | null
   token: string
+  categories: Category[]
   onSave: () => void
   onCancel: () => void
 }) {
   const [form, setForm] = useState({
     name: product?.name || '',
+    category: product?.category || '',
     condition: product?.condition || 'Semi-usado',
     image: product?.image || '',
     colors: product?.colors?.join(', ') || '',
@@ -252,6 +264,7 @@ function ProductForm({ product, token, onSave, onCancel }: {
       
       const body = {
         name: form.name,
+        category: form.category,
         condition: form.condition,
         image: form.image,
         colors: form.colors.split(',').map(c => c.trim()).filter(Boolean),
@@ -301,6 +314,17 @@ function ProductForm({ product, token, onSave, onCancel }: {
                 <option value="Semi-usado">Semi-usado</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-gray-400 text-sm mb-1">Categoria *</label>
+            <select value={form.category} onChange={e => setForm({...form, category: e.target.value})}
+              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50">
+              <option value="">Sin categoria</option>
+              {categories.map(c => (
+                <option key={c.slug} value={c.slug}>{c.name}</option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -539,6 +563,80 @@ function ServiceForm({ service, token, onSave, onCancel }: {
   )
 }
 
+// ==================== CATEGORY FORM ====================
+
+function CategoryForm({ category, token, onSave, onCancel }: {
+  category: Category | null
+  token: string
+  onSave: () => void
+  onCancel: () => void
+}) {
+  const [form, setForm] = useState({
+    slug: category?.slug || '',
+    name: category?.name || '',
+    image: category?.image || '',
+    sort_order: category?.sort_order || 0,
+  })
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      if (category) {
+        await apiPut(`/api/admin/categories/${category.id}`, form, token)
+      } else {
+        await apiPost('/api/admin/categories', form, token)
+      }
+      onSave()
+    } catch {
+      alert('Error guardando categoria')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-white/10">
+          <h3 className="text-xl font-bold text-white">{category ? 'Editar Categoria' : 'Nueva Categoria'}</h3>
+          <button onClick={onCancel} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+        
+        <div className="p-5 space-y-4">
+          <div>
+            <label className="block text-gray-400 text-sm mb-1">Slug (identificador unico, ej: iphones)</label>
+            <input value={form.slug} onChange={e => setForm({...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: iphones, ipads, macbook" />
+          </div>
+          <div>
+            <label className="block text-gray-400 text-sm mb-1">Nombre visible</label>
+            <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
+              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: iPhones, iPads, MacBook" />
+          </div>
+          <div>
+            <label className="block text-gray-400 text-sm mb-1">Imagen</label>
+            <ImageUploader token={token} currentImage={form.image} onUpload={url => setForm({...form, image: url})} />
+          </div>
+          <div>
+            <label className="block text-gray-400 text-sm mb-1">Orden</label>
+            <input type="number" value={form.sort_order} onChange={e => setForm({...form, sort_order: parseInt(e.target.value) || 0})}
+              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" />
+          </div>
+        </div>
+
+        <div className="flex gap-3 p-5 border-t border-white/10">
+          <button onClick={onCancel} className="flex-1 py-2.5 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors text-sm">Cancelar</button>
+          <button onClick={handleSave} disabled={saving || !form.slug || !form.name} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
+            <Save className="w-4 h-4" />
+            {saving ? 'Guardando...' : 'Guardar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ==================== MAIN ADMIN PANEL ====================
 
 export default function AdminPanel({ onExit }: { onExit: () => void }) {
@@ -546,19 +644,21 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
   const [stats, setStats] = useState<Stats | null>(null)
   const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [bubbles, setBubbles] = useState<Bubble[]>([])
   const [services, setServices] = useState<RepairService[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [conditionFilter, setConditionFilter] = useState('todos')
+  const [categoryFilter, setCategoryFilter] = useState('todos')
   
   // Form modals
   const [editingProduct, setEditingProduct] = useState<Product | null | 'new'>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null | 'new'>(null)
   const [editingBubble, setEditingBubble] = useState<Bubble | null | 'new'>(null)
   const [editingService, setEditingService] = useState<RepairService | null | 'new'>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; id: number; name: string } | null>(null)
 
   // Password change
-  const [_showPasswordChange, _setShowPasswordChange] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [passwordMsg, setPasswordMsg] = useState('')
@@ -593,6 +693,16 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const loadCategories = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiGet('/api/admin/categories', token)
+      setCategories(data.categories)
+    } catch {
+      handleLogout()
+    }
+  }, [token])
+
   const loadBubbles = useCallback(async () => {
     if (!token) return
     try {
@@ -617,20 +727,23 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     if (token) {
       loadStats()
       loadProducts()
+      loadCategories()
       loadBubbles()
       loadServices()
     }
-  }, [token, loadStats, loadProducts, loadBubbles, loadServices])
+  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices])
 
   const handleDelete = async () => {
     if (!deleteConfirm || !token) return
     try {
       if (deleteConfirm.type === 'product') await apiDelete(`/api/admin/products/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'category') await apiDelete(`/api/admin/categories/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'bubble') await apiDelete(`/api/admin/bubbles/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'service') await apiDelete(`/api/admin/repair-services/${deleteConfirm.id}`, token)
       setDeleteConfirm(null)
       loadStats()
       if (deleteConfirm.type === 'product') loadProducts()
+      if (deleteConfirm.type === 'category') loadCategories()
       if (deleteConfirm.type === 'bubble') loadBubbles()
       if (deleteConfirm.type === 'service') loadServices()
     } catch {
@@ -658,12 +771,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     const matchesCondition = conditionFilter === 'todos' || 
       (conditionFilter === 'nuevos' && p.condition === 'Nuevo') ||
       (conditionFilter === 'semi-usados' && p.condition === 'Semi-usado')
-    return matchesSearch && matchesCondition
+    const matchesCategory = categoryFilter === 'todos' || p.category === categoryFilter
+    return matchesSearch && matchesCondition && matchesCategory
   })
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'products', label: 'Productos', icon: <Package className="w-4 h-4" /> },
+    { id: 'categories', label: 'Categorias', icon: <FolderOpen className="w-4 h-4" /> },
     { id: 'bubbles', label: 'Burbujas', icon: <Circle className="w-4 h-4" /> },
     { id: 'services', label: 'Servicios', icon: <Wrench className="w-4 h-4" /> },
     { id: 'settings', label: 'Config', icon: <Lock className="w-4 h-4" /> },
@@ -713,11 +828,12 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
         {activeTab === 'dashboard' && stats && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>DASHBOARD</h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {[
                 { label: 'Total Productos', value: stats.total_products, color: 'blue' },
                 { label: 'Nuevos', value: stats.new_products, color: 'green' },
                 { label: 'Semi-usados', value: stats.used_products, color: 'amber' },
+                { label: 'Categorias', value: stats.categories, color: 'cyan' },
                 { label: 'Burbujas', value: stats.bubbles, color: 'purple' },
                 { label: 'Servicios', value: stats.repair_services, color: 'rose' },
               ].map((stat, i) => (
@@ -741,21 +857,35 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col md:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Buscar producto..."
-                  className="w-full bg-gray-800/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
-                />
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <input
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Buscar producto..."
+                    className="w-full bg-gray-800/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {['todos', 'nuevos', 'semi-usados'].map(f => (
+                    <button key={f} onClick={() => setConditionFilter(f)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${conditionFilter === f ? 'bg-blue-500 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-white border border-white/10'}`}>
+                      {f === 'todos' ? 'Todos' : f === 'nuevos' ? 'Nuevos' : 'Semi-usados'}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-2">
-                {['todos', 'nuevos', 'semi-usados'].map(f => (
-                  <button key={f} onClick={() => setConditionFilter(f)}
-                    className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${conditionFilter === f ? 'bg-blue-500 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-white border border-white/10'}`}>
-                    {f === 'todos' ? 'Todos' : f === 'nuevos' ? 'Nuevos' : 'Semi-usados'}
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => setCategoryFilter('todos')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${categoryFilter === 'todos' ? 'bg-cyan-500 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-white border border-white/10'}`}>
+                  Todas
+                </button>
+                {categories.map(c => (
+                  <button key={c.slug} onClick={() => setCategoryFilter(c.slug)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${categoryFilter === c.slug ? 'bg-cyan-500 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-white border border-white/10'}`}>
+                    {c.name}
                   </button>
                 ))}
               </div>
@@ -768,6 +898,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                   <thead>
                     <tr className="border-b border-white/10">
                       <th className="text-left text-gray-400 text-xs font-medium px-4 py-3 uppercase">Producto</th>
+                      <th className="text-left text-gray-400 text-xs font-medium px-4 py-3 uppercase hidden md:table-cell">Categoria</th>
                       <th className="text-left text-gray-400 text-xs font-medium px-4 py-3 uppercase hidden md:table-cell">Condicion</th>
                       <th className="text-left text-gray-400 text-xs font-medium px-4 py-3 uppercase hidden md:table-cell">Storage</th>
                       <th className="text-left text-gray-400 text-xs font-medium px-4 py-3 uppercase hidden lg:table-cell">Precio</th>
@@ -786,6 +917,11 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                               <p className="text-gray-500 text-xs md:hidden">{product.condition}</p>
                             </div>
                           </div>
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded-md text-xs font-medium">
+                            {categories.find(c => c.slug === product.category)?.name || product.category || '-'}
+                          </span>
                         </td>
                         <td className="px-4 py-3 hidden md:table-cell">
                           <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${product.condition === 'Nuevo' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>
@@ -822,6 +958,38 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
               {filteredProducts.length === 0 && (
                 <div className="text-center py-10 text-gray-500">No se encontraron productos</div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* CATEGORIES TAB */}
+        {activeTab === 'categories' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>CATEGORIAS ({categories.length})</h2>
+              <button onClick={() => setEditingCategory('new')} className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors">
+                <Plus className="w-4 h-4" /> Nueva Categoria
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {categories.map(cat => (
+                <div key={cat.id} className="bg-gray-900/50 border border-white/10 rounded-2xl p-4 text-center group hover:border-cyan-500/30 transition-all">
+                  <img src={cat.image} alt={cat.name} className="w-20 h-20 rounded-full mx-auto object-cover bg-gray-800 mb-3" onError={e => { (e.target as HTMLImageElement).src = `https://placehold.co/80x80/1a1a2e/7BA3C9/png?text=${encodeURIComponent(cat.name.slice(0,2))}` }} />
+                  <p className="text-white text-sm font-medium">{cat.name}</p>
+                  <p className="text-gray-500 text-xs mb-1">Slug: {cat.slug}</p>
+                  <p className="text-gray-500 text-xs mb-3">Orden: {cat.sort_order}</p>
+                  <p className="text-cyan-400 text-xs mb-3">{products.filter(p => p.category === cat.slug).length} productos</p>
+                  <div className="flex gap-1 justify-center">
+                    <button onClick={() => setEditingCategory(cat)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => setDeleteConfirm({ type: 'category', id: cat.id, name: cat.name })} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-red-400">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -930,8 +1098,18 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
         <ProductForm
           product={editingProduct === 'new' ? null : editingProduct}
           token={token}
+          categories={categories}
           onSave={() => { setEditingProduct(null); loadProducts(); loadStats() }}
           onCancel={() => setEditingProduct(null)}
+        />
+      )}
+
+      {editingCategory !== null && (
+        <CategoryForm
+          category={editingCategory === 'new' ? null : editingCategory}
+          token={token}
+          onSave={() => { setEditingCategory(null); loadCategories(); loadStats() }}
+          onCancel={() => setEditingCategory(null)}
         />
       )}
 
