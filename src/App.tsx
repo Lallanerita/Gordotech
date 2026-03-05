@@ -395,13 +395,13 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         <>
           <button
             onClick={goPrev}
-            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all hover:scale-110 border border-white/10"
+            className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
           >
             <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
           </button>
           <button
             onClick={goNext}
-            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all hover:scale-110 border border-white/10"
+            className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
           >
             <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
           </button>
