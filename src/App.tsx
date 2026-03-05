@@ -20,16 +20,22 @@ type HeroSlide = {
 
 function getYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null
+  let videoId: string | null = null
   // Handle youtube.com/watch?v=ID
   const watchMatch = url.match(/(?:youtube\.com\/watch\?v=)([\w-]+)/)
-  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${watchMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`
+  if (watchMatch) videoId = watchMatch[1]
   // Handle youtu.be/ID
-  const shortMatch = url.match(/(?:youtu\.be\/)([\w-]+)/)
-  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${shortMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`
+  if (!videoId) { const shortMatch = url.match(/(?:youtu\.be\/)([\w-]+)/); if (shortMatch) videoId = shortMatch[1] }
   // Handle youtube.com/embed/ID
-  const embedMatch = url.match(/(?:youtube\.com\/embed\/)([\w-]+)/)
-  if (embedMatch) return `https://www.youtube.com/embed/${embedMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${embedMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`
-  return null
+  if (!videoId) { const embedMatch = url.match(/(?:youtube\.com\/embed\/)([\w-]+)/); if (embedMatch) videoId = embedMatch[1] }
+  if (!videoId) return null
+  // Extract start time from URL if present (e.g. &t=60 or &t=1m30s)
+  let startTime = 0
+  const tMatch = url.match(/[?&]t=(\d+)/)
+  if (tMatch) startTime = parseInt(tMatch[1])
+  // Default start at 60s if no explicit time in URL
+  if (!startTime) startTime = 60
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=${startTime}`
 }
 
 type MarqueeText = {
