@@ -451,7 +451,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
           fetch(`${API_URL}/api/products?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/products/recommended?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/products/trending?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
-          fetch(`${API_URL}/api/categories`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/bubbles`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/repair-services`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/hero-slides`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/marquee-texts`).then(r => r.ok ? r.json() : null),
@@ -490,11 +490,11 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             price: (p.price as string) || '', description: (p.description as string) || '',
           })))
         }
-        if (bubblesRes?.categories) {
-          const catBubbles = bubblesRes.categories.map((c: Record<string, unknown>) => ({
-            id: c.slug as string, label: c.name as string, image: c.image as string,
+        if (bubblesRes?.bubbles) {
+          const apiBubbles = bubblesRes.bubbles.map((b: Record<string, unknown>) => ({
+            id: b.model_id as string, label: b.label as string, image: b.image as string,
           }))
-          setModelBubbles([{ id: 'todos', label: 'Todos', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' }, ...catBubbles])
+          setModelBubbles(apiBubbles)
         }
         if (servicesRes?.services) {
           const iconMap: Record<string, typeof Smartphone> = { Smartphone, Zap, Shield, Award, Wrench }
