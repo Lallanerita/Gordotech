@@ -668,7 +668,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                   <img
                     src={model.image}
                     alt={model.label}
-                    className="w-full h-full object-contain scale-125"
+                    className="w-full h-full object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>

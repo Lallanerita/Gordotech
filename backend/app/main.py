@@ -914,12 +914,38 @@ async def upload_image(file: UploadFile = File(...), username: str = Depends(get
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos de imagen")
     
+    content = await file.read()
     ext = os.path.splitext(file.filename or "image.jpg")[1] or ".jpg"
+    
+    # Auto-crop transparent padding from PNG images
+    try:
+        from PIL import Image
+        import io
+        img = Image.open(io.BytesIO(content))
+        if img.mode == "RGBA":
+            bbox = img.getbbox()
+            if bbox:
+                # Add small padding (5% of dimensions)
+                pad_x = max(int((bbox[2] - bbox[0]) * 0.05), 2)
+                pad_y = max(int((bbox[3] - bbox[1]) * 0.05), 2)
+                crop_box = (
+                    max(0, bbox[0] - pad_x),
+                    max(0, bbox[1] - pad_y),
+                    min(img.width, bbox[2] + pad_x),
+                    min(img.height, bbox[3] + pad_y),
+                )
+                cropped = img.crop(crop_box)
+                buf = io.BytesIO()
+                cropped.save(buf, format="PNG")
+                content = buf.getvalue()
+                ext = ".png"
+    except Exception:
+        pass  # If cropping fails, use original image
+    
     filename = f"{uuid.uuid4().hex}{ext}"
     filepath = os.path.join(UPLOAD_DIR, filename)
     
     with open(filepath, "wb") as f:
-        content = await file.read()
         f.write(content)
     
     return {"url": f"/uploads/{filename}", "filename": filename}
