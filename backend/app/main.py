@@ -125,6 +125,7 @@ class HeroSlideCreate(BaseModel):
     title: str = ""
     subtitle: str = ""
     image: str = ""
+    video_url: str = ""
     link: str = ""
     active: bool = True
     sort_order: int = 0
@@ -133,6 +134,7 @@ class HeroSlideUpdate(BaseModel):
     title: Optional[str] = None
     subtitle: Optional[str] = None
     image: Optional[str] = None
+    video_url: Optional[str] = None
     link: Optional[str] = None
     active: Optional[bool] = None
     sort_order: Optional[int] = None
@@ -228,6 +230,7 @@ def row_to_hero_slide(row):
         "title": row["title"],
         "subtitle": row["subtitle"],
         "image": row["image"],
+        "video_url": row["video_url"] if "video_url" in row.keys() else "",
         "link": row["link"],
         "active": bool(row["active"]),
         "sort_order": row["sort_order"],
@@ -789,8 +792,8 @@ async def admin_create_hero_slide(slide: HeroSlideCreate, username: str = Depend
     db = await aiosqlite.connect(DB_PATH)
     try:
         cursor = await db.execute(
-            "INSERT INTO hero_slides (title, subtitle, image, link, active, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
-            (slide.title, slide.subtitle, slide.image, slide.link, int(slide.active), slide.sort_order)
+            "INSERT INTO hero_slides (title, subtitle, image, video_url, link, active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (slide.title, slide.subtitle, slide.image, slide.video_url, slide.link, int(slide.active), slide.sort_order)
         )
         await db.commit()
         slide_id = cursor.lastrowid
@@ -812,6 +815,7 @@ async def admin_update_hero_slide(slide_id: int, slide: HeroSlideUpdate, usernam
         if slide.title is not None: updates["title"] = slide.title
         if slide.subtitle is not None: updates["subtitle"] = slide.subtitle
         if slide.image is not None: updates["image"] = slide.image
+        if slide.video_url is not None: updates["video_url"] = slide.video_url
         if slide.link is not None: updates["link"] = slide.link
         if slide.active is not None: updates["active"] = int(slide.active)
         if slide.sort_order is not None: updates["sort_order"] = slide.sort_order

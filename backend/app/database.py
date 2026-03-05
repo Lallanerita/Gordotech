@@ -117,12 +117,20 @@ async def init_db():
             title TEXT NOT NULL DEFAULT '',
             subtitle TEXT NOT NULL DEFAULT '',
             image TEXT NOT NULL DEFAULT '',
+            video_url TEXT NOT NULL DEFAULT '',
             link TEXT NOT NULL DEFAULT '',
             active INTEGER NOT NULL DEFAULT 1,
             sort_order INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # Migration: add video_url column to hero_slides if missing
+    try:
+        await db.execute("SELECT video_url FROM hero_slides LIMIT 1")
+    except Exception:
+        await db.execute("ALTER TABLE hero_slides ADD COLUMN video_url TEXT NOT NULL DEFAULT ''")
+
 
     # Marquee texts table
     await db.execute("""

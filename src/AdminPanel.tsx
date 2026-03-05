@@ -51,6 +51,7 @@ type HeroSlide = {
   title: string
   subtitle: string
   image: string
+  video_url: string
   link: string
   active: boolean
   sort_order: number
@@ -756,7 +757,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   
   // Slide editing
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null | 'new'>(null)
-  const [slideForm, setSlideForm] = useState({ title: '', subtitle: '', image: '', link: '', sort_order: 0 })
+  const [slideForm, setSlideForm] = useState({ title: '', subtitle: '', image: '', video_url: '', link: '', sort_order: 0 })
   const [savingSlide, setSavingSlide] = useState(false)
   
   // Marquee editing
@@ -1204,7 +1205,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>HERO SLIDESHOW ({heroSlides.length})</h2>
-              <button onClick={() => { setEditingSlide('new'); setSlideForm({ title: '', subtitle: '', image: '', link: '#productos', sort_order: heroSlides.length }) }} className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors">
+              <button onClick={() => { setEditingSlide('new'); setSlideForm({ title: '', subtitle: '', image: '', video_url: '', link: '#productos', sort_order: heroSlides.length }) }} className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors">
                 <Plus className="w-4 h-4" /> Nuevo Slide
               </button>
             </div>
@@ -1228,7 +1229,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     <button onClick={async () => { await apiPost(`/api/admin/hero-slides/${slide.id}/toggle`, {}, token); loadHeroSlides() }} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-yellow-400" title={slide.active ? 'Desactivar' : 'Activar'}>
                       {slide.active ? <ToggleRight className="w-5 h-5 text-green-400" /> : <ToggleLeft className="w-5 h-5" />}
                     </button>
-                    <button onClick={() => { setEditingSlide(slide); setSlideForm({ title: slide.title, subtitle: slide.subtitle, image: slide.image, link: slide.link, sort_order: slide.sort_order }) }} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
+                    <button onClick={() => { setEditingSlide(slide); setSlideForm({ title: slide.title, subtitle: slide.subtitle, image: slide.image, video_url: slide.video_url || '', link: slide.link, sort_order: slide.sort_order }) }} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
                       <Edit3 className="w-4 h-4" />
                     </button>
                     <button onClick={() => setDeleteConfirm({ type: 'slide', id: slide.id, name: slide.title || 'Slide' })} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-red-400">
@@ -1254,6 +1255,12 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     <div>
                       <label className="block text-gray-400 text-sm mb-1">Imagen del slide</label>
                       <ImageUploader token={token} currentImage={slideForm.image} onUpload={url => setSlideForm({...slideForm, image: url})} />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Video URL (YouTube) - opcional</label>
+                      <input value={slideForm.video_url} onChange={e => setSlideForm({...slideForm, video_url: e.target.value})}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: https://www.youtube.com/watch?v=_-AS5DtDeqs" />
+                      <p className="text-gray-500 text-xs mt-1">Si pones un video, se mostrara en lugar de la imagen. Soporta YouTube.</p>
                     </div>
                     <div>
                       <label className="block text-gray-400 text-sm mb-1">Titulo</label>
@@ -1292,7 +1299,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                         loadHeroSlides()
                         loadStats()
                       } catch { alert('Error guardando slide') } finally { setSavingSlide(false) }
-                    }} disabled={savingSlide || !slideForm.image} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                    }} disabled={savingSlide || (!slideForm.image && !slideForm.video_url)} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
                       <Save className="w-4 h-4" />
                       {savingSlide ? 'Guardando...' : 'Guardar'}
                     </button>

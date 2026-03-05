@@ -12,9 +12,24 @@ type HeroSlide = {
   title: string
   subtitle: string
   image: string
+  video_url: string
   link: string
   active: boolean
   sort_order: number
+}
+
+function getYouTubeEmbedUrl(url: string): string | null {
+  if (!url) return null
+  // Handle youtube.com/watch?v=ID
+  const watchMatch = url.match(/(?:youtube\.com\/watch\?v=)([\w-]+)/)
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${watchMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`
+  // Handle youtu.be/ID
+  const shortMatch = url.match(/(?:youtu\.be\/)([\w-]+)/)
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${shortMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`
+  // Handle youtube.com/embed/ID
+  const embedMatch = url.match(/(?:youtube\.com\/embed\/)([\w-]+)/)
+  if (embedMatch) return `https://www.youtube.com/embed/${embedMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${embedMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`
+  return null
 }
 
 type MarqueeText = {
@@ -350,14 +365,26 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
-          {/* Background image with Ken Burns zoom */}
-          <img
-            key={`img-${slide.id}-${i === current ? animKey : 'idle'}`}
-            src={slide.image}
-            alt={slide.title}
-            className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
-            onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
-          />
+          {/* Background: video or image */}
+          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
+            <iframe
+              key={`video-${slide.id}`}
+              src={i === current ? getYouTubeEmbedUrl(slide.video_url)! : undefined}
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              style={{ border: 'none', transform: 'scale(1.2)', transformOrigin: 'center center' }}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              title={slide.title}
+            />
+          ) : (
+            <img
+              key={`img-${slide.id}-${i === current ? animKey : 'idle'}`}
+              src={slide.image}
+              alt={slide.title}
+              className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
+              onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
+            />
+          )}
           {/* Gradient overlays - more dramatic */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
