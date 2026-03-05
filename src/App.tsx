@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -259,7 +259,7 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
 }
 
 // Main Store Component
-function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void }) {
+function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -1077,6 +1077,10 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
               <a href="#" className="hover:text-white transition-colors">Terminos</a>
               <a href="#" className="hover:text-white transition-colors">Privacidad</a>
               <a href="#" className="hover:text-white transition-colors">Garantia</a>
+              <button onClick={onAdminClick} className="flex items-center gap-1.5 hover:text-white transition-colors" title="Panel de Administración">
+                <Settings className="w-3.5 h-3.5" />
+                Admin
+              </button>
             </div>
           </div>
         </div>
@@ -1140,7 +1144,7 @@ function App() {
     return <CitySelector onSelect={handleCitySelect} />
   }
 
-  return <Store city={city} onChangeCity={handleChangeCity} />
+  return <Store city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />
 }
 
 export default App
