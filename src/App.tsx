@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, ZoomIn, ChevronLeft } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -265,7 +265,32 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  
+  const [galleryIndex, setGalleryIndex] = useState(0)
+  const [zoomOpen, setZoomOpen] = useState(false)
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 })
+  const galleryRef = useRef<HTMLDivElement>(null)
+
+  // Generate gallery images from the product main image
+  const getGalleryImages = useCallback((product: Product | null) => {
+    if (!product) return []
+    const base = product.image
+    const name = product.name
+    // Main image + color-based placeholder variants to simulate multiple views
+    const images = [
+      { src: base, label: 'Frontal' },
+      { src: `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(name + '\nVista Trasera')}`, label: 'Trasera' },
+      { src: `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(name + '\nVista Lateral')}`, label: 'Lateral' },
+      { src: `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(name + '\nDetalle')}`, label: 'Detalle' },
+    ]
+    return images
+  }, [])
+
+  // Reset gallery index when product changes
+  useEffect(() => {
+    setGalleryIndex(0)
+    setZoomOpen(false)
+  }, [selectedProduct])
+
   // API-loaded data with fallback to static
   const [apiProducts, setApiProducts] = useState<Product[]>(products)
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
@@ -683,13 +708,121 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             </button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
-              {/* Product Image */}
-              <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10">
-                {selectedProduct.badge && (
-                  <div className="absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
-                )}
-                <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover rounded-2xl" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }} />
+              {/* Product Image Gallery */}
+              <div ref={galleryRef}>
+                {/* Main Image with Zoom */}
+                <div
+                  className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10 cursor-zoom-in group"
+                  onClick={() => setZoomOpen(true)}
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    setZoomPosition({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 })
+                  }}
+                >
+                  {selectedProduct.badge && (
+                    <div className="absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
+                  )}
+                  <div className="absolute top-6 right-6 z-10 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ZoomIn className="w-5 h-5 text-white" />
+                  </div>
+                  {/* Navigation Arrows */}
+                  {getGalleryImages(selectedProduct).length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i > 0 ? i - 1 : getGalleryImages(selectedProduct).length - 1) }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/60 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronLeft className="w-5 h-5 text-white" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i < getGalleryImages(selectedProduct).length - 1 ? i + 1 : 0) }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/60 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronRight className="w-5 h-5 text-white" />
+                      </button>
+                    </>
+                  )}
+                  <img
+                    src={getGalleryImages(selectedProduct)[galleryIndex]?.src || selectedProduct.image}
+                    alt={`${selectedProduct.name} - ${getGalleryImages(selectedProduct)[galleryIndex]?.label || 'Foto'}`}
+                    className="w-full h-full object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }}
+                  />
+                  {/* Image counter */}
+                  <div className="absolute bottom-4 right-4 z-10 px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs text-white">
+                    {galleryIndex + 1} / {getGalleryImages(selectedProduct).length}
+                  </div>
+                </div>
+
+                {/* Thumbnails */}
+                <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+                  {getGalleryImages(selectedProduct).map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setGalleryIndex(i)}
+                      className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
+                        galleryIndex === i ? 'border-blue-500 shadow-lg shadow-blue-500/20' : 'border-white/10 hover:border-white/30'
+                      }`}
+                    >
+                      <img src={img.src} alt={img.label} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/200x200/1a1a2e/7BA3C9/png?text=${encodeURIComponent(img.label)}` }} />
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Zoom Modal */}
+              {zoomOpen && (
+                <div
+                  className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center cursor-zoom-out"
+                  onClick={() => setZoomOpen(false)}
+                >
+                  <button onClick={() => setZoomOpen(false)} className="absolute top-6 right-6 z-10 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <X className="w-6 h-6 text-white" />
+                  </button>
+                  {/* Nav arrows in modal */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i > 0 ? i - 1 : getGalleryImages(selectedProduct).length - 1) }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i < getGalleryImages(selectedProduct).length - 1 ? i + 1 : 0) }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
+                  <div
+                    className="max-w-4xl max-h-[85vh] overflow-hidden"
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      setZoomPosition({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 })
+                    }}
+                  >
+                    <img
+                      src={getGalleryImages(selectedProduct)[galleryIndex]?.src || selectedProduct.image}
+                      alt={selectedProduct.name}
+                      className="w-full h-full object-contain transition-transform duration-200"
+                      style={{ transform: 'scale(1.5)', transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  {/* Thumbnail strip in modal */}
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 bg-black/60 backdrop-blur-sm rounded-2xl p-2">
+                    {getGalleryImages(selectedProduct).map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={(e) => { e.stopPropagation(); setGalleryIndex(i) }}
+                        className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
+                          galleryIndex === i ? 'border-blue-500' : 'border-transparent hover:border-white/30'
+                        }`}
+                      >
+                        <img src={img.src} alt={img.label} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Product Info */}
               <div className="flex flex-col justify-center">
