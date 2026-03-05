@@ -199,7 +199,7 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
         {/* Greeting */}
         <div className={`mb-12 transition-all duration-1000 delay-300 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
           <h2 className="text-2xl md:text-4xl text-white font-light mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Hola! <span className="inline-block animate-bounce">👋</span>
+            Hola
           </h2>
           <p className="text-gray-400 text-lg md:text-xl">En que ciudad te encuentras?</p>
         </div>
