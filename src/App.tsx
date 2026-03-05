@@ -420,7 +420,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
-  const [hoveredBubble, setHoveredBubble] = useState<{image: string; x: number; y: number} | null>(null)
+  const [hoveredBubbleId, setHoveredBubbleId] = useState<string | null>(null)
   const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   
   // Hero slideshow + marquee data
@@ -653,37 +653,36 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
       <section className="py-8 md:py-12 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-start gap-5 md:gap-8 overflow-x-auto pb-4 pt-2 px-2 scrollbar-hide">
-            {modelBubbles.map(model => (
+            {modelBubbles.map(model => {
+              const isHovered = hoveredBubbleId === model.id
+              return (
               <button
                 key={model.id}
                 onClick={() => {
                   setActiveModel(model.id)
-                  setHoveredBubble(null)
+                  setHoveredBubbleId(null)
                   document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
                 }}
-                onMouseEnter={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect()
-                  setHoveredBubble({ image: model.image, x: rect.left + rect.width / 2, y: rect.top })
-                }}
-                onMouseLeave={() => setHoveredBubble(null)}
-                onTouchStart={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect()
-                  setHoveredBubble({ image: model.image, x: rect.left + rect.width / 2, y: rect.top })
+                onMouseEnter={() => setHoveredBubbleId(model.id)}
+                onMouseLeave={() => setHoveredBubbleId(null)}
+                onTouchStart={() => {
+                  setHoveredBubbleId(model.id)
                   if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
-                  hoverTimeout.current = setTimeout(() => setHoveredBubble(null), 1500)
+                  hoverTimeout.current = setTimeout(() => setHoveredBubbleId(null), 1500)
                 }}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 relative"
               >
-                {/* Normal bubble */}
-                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 overflow-hidden bg-gray-900 transition-all duration-300 ${
-                  activeModel === model.id
-                    ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
-                    : 'border-gray-600 group-hover:border-blue-400'
+                <div className={`transition-all duration-300 bg-gray-900 border-2 ${
+                  isHovered
+                    ? 'w-28 h-28 md:w-32 md:h-32 rounded-2xl border-blue-500 shadow-lg shadow-blue-500/30 z-50 -translate-y-2'
+                    : activeModel === model.id
+                      ? 'w-20 h-20 md:w-24 md:h-24 rounded-full border-blue-500 shadow-lg shadow-blue-500/30 scale-110 overflow-hidden'
+                      : 'w-20 h-20 md:w-24 md:h-24 rounded-full border-gray-600 group-hover:border-blue-400 overflow-hidden'
                 }`}>
                   <img
                     src={model.image}
                     alt={model.label}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full transition-all duration-300 ${isHovered ? 'object-contain p-1' : 'object-cover'}`}
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
@@ -693,30 +692,11 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                   {model.label}
                 </span>
               </button>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
-
-      {/* Expanded bubble image overlay - rendered outside scroll container */}
-      {hoveredBubble && (
-        <div
-          className="fixed z-[9999] pointer-events-none"
-          style={{
-            left: hoveredBubble.x,
-            top: hoveredBubble.y - 10,
-            transform: 'translate(-50%, -100%)',
-          }}
-        >
-          <div className="w-40 h-40 md:w-48 md:h-48 animate-[fadeInScale_0.25s_ease-out_forwards]">
-            <img
-              src={hoveredBubble.image}
-              alt=""
-              className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.8)]"
-            />
-          </div>
-        </div>
-      )}
 
       {/* Recomendado para ti */}
       {!selectedProduct && recommendedProducts.length > 0 && (
