@@ -367,15 +367,27 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         >
           {/* Background: video or image */}
           {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
-            <iframe
-              key={`video-${slide.id}`}
-              src={i === current ? getYouTubeEmbedUrl(slide.video_url)! : undefined}
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              style={{ border: 'none', transform: 'scale(1.2)', transformOrigin: 'center center' }}
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-              title={slide.title}
-            />
+            <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
+              <iframe
+                key={`video-${slide.id}`}
+                src={i === current ? getYouTubeEmbedUrl(slide.video_url)! : undefined}
+                className="pointer-events-none"
+                style={{
+                  border: 'none',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  width: '177.78vh',
+                  height: '100vh',
+                  minWidth: '100%',
+                  minHeight: '100%',
+                  transform: 'translate(-50%, -50%)',
+                }}
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                title={slide.title}
+              />
+            </div>
           ) : (
             <img
               key={`img-${slide.id}-${i === current ? animKey : 'idle'}`}
@@ -385,9 +397,18 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
               onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
             />
           )}
-          {/* Gradient overlays - more dramatic */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+          {/* Gradient overlays - lighter for video, dramatic for images */}
+          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+            </>
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+            </>
+          )}
           
           {/* Content - Apple-style dramatic entrance */}
           <div className="absolute inset-0 flex items-center">
