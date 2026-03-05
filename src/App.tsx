@@ -415,9 +415,9 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <img src="/images/gordotech-icon.png" alt="Gordotech" className="h-10 md:h-12" />
-            </div>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10 md:h-12" />
+            </button>
 
             {/* Nav Links - Desktop */}
             <nav className="hidden md:flex items-center gap-8">
