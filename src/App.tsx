@@ -660,7 +660,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                 }}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0"
               >
-                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 transition-all duration-300 ${
+                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 overflow-hidden bg-gray-900 transition-all duration-300 ${
                   activeModel === model.id
                     ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
                     : 'border-gray-600 hover:border-blue-400 hover:scale-105'
@@ -668,7 +668,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                   <img
                     src={model.image}
                     alt={model.label}
-                    className="w-full h-full object-cover rounded-full"
+                    className="w-full h-full object-contain scale-125"
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
