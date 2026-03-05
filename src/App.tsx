@@ -658,18 +658,27 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                   setActiveModel(model.id)
                   document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
                 }}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0"
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 relative"
               >
-                <div className={`relative w-20 h-20 md:w-24 md:h-24 rounded-full border-2 overflow-hidden bg-gray-900 transition-all duration-500 ease-out ${
+                {/* Normal bubble */}
+                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 overflow-hidden bg-gray-900 transition-all duration-300 ${
                   activeModel === model.id
                     ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
-                    : 'border-gray-600 hover:border-blue-400 hover:scale-[1.35] hover:shadow-xl hover:shadow-blue-500/20 hover:z-10 active:scale-[1.35] active:shadow-xl active:shadow-blue-500/20 active:z-10'
+                    : 'border-gray-600 group-hover:border-blue-400'
                 }`}>
                   <img
                     src={model.image}
                     alt={model.label}
-                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 group-active:scale-110"
+                    className="w-full h-full object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
+                  />
+                </div>
+                {/* Expanded image on hover/touch - shows full product */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-gray-900/95 backdrop-blur-sm border border-blue-500/50 shadow-2xl shadow-blue-500/30 opacity-0 scale-75 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto group-active:opacity-100 group-active:scale-100 transition-all duration-300 ease-out z-50 overflow-hidden">
+                  <img
+                    src={model.image}
+                    alt={model.label}
+                    className="w-full h-full object-contain p-2"
                   />
                 </div>
                 <span className={`text-xs font-medium text-center leading-tight transition-colors ${
