@@ -408,36 +408,6 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         </>
       )}
 
-      {/* Dot indicators */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              className={`transition-all duration-300 rounded-full ${
-                i === current
-                  ? 'w-8 h-2.5 bg-blue-500 shadow-lg shadow-blue-500/50'
-                  : 'w-2.5 h-2.5 bg-white/40 hover:bg-white/70'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Progress bar */}
-      {slides.length > 1 && !isPaused && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 h-0.5 bg-white/10">
-          <div 
-            className="h-full bg-blue-500 transition-none"
-            style={{ 
-              animation: 'slideProgress 5s linear infinite',
-              width: '100%'
-            }}
-            key={current}
-          />
-        </div>
-      )}
     </section>
   )
 }
