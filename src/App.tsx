@@ -416,7 +416,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <img src="/images/gordotech-logo.png" alt="Gordotech" className="h-10 md:h-12" />
+              <img src="/images/gordotech-icon.png" alt="Gordotech" className="h-10 md:h-12" />
             </div>
 
             {/* Nav Links - Desktop */}
