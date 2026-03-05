@@ -420,6 +420,8 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
+  const [hoveredBubble, setHoveredBubble] = useState<{image: string; x: number; y: number} | null>(null)
+  const hoverTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   
   // Hero slideshow + marquee data
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([])
@@ -656,7 +658,19 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                 key={model.id}
                 onClick={() => {
                   setActiveModel(model.id)
+                  setHoveredBubble(null)
                   document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setHoveredBubble({ image: model.image, x: rect.left + rect.width / 2, y: rect.top })
+                }}
+                onMouseLeave={() => setHoveredBubble(null)}
+                onTouchStart={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setHoveredBubble({ image: model.image, x: rect.left + rect.width / 2, y: rect.top })
+                  if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
+                  hoverTimeout.current = setTimeout(() => setHoveredBubble(null), 1500)
                 }}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 relative"
               >
@@ -673,14 +687,6 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
-                {/* Expanded image on hover/touch - shows full product */}
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-36 h-36 md:w-44 md:h-44 opacity-0 scale-75 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto group-active:opacity-100 group-active:scale-100 transition-all duration-300 ease-out z-50">
-                  <img
-                    src={model.image}
-                    alt={model.label}
-                    className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.8)]"
-                  />
-                </div>
                 <span className={`text-xs font-medium text-center leading-tight transition-colors ${
                   activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
                 }`}>
@@ -691,6 +697,26 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
           </div>
         </div>
       </section>
+
+      {/* Expanded bubble image overlay - rendered outside scroll container */}
+      {hoveredBubble && (
+        <div
+          className="fixed z-[9999] pointer-events-none"
+          style={{
+            left: hoveredBubble.x,
+            top: hoveredBubble.y - 10,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          <div className="w-40 h-40 md:w-48 md:h-48 animate-[fadeInScale_0.25s_ease-out_forwards]">
+            <img
+              src={hoveredBubble.image}
+              alt=""
+              className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.8)]"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Recomendado para ti */}
       {!selectedProduct && recommendedProducts.length > 0 && (

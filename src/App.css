@@ -24,6 +24,12 @@
   100% { transform: scaleX(1); transform-origin: left; }
 }
 
+/* Bubble hover popup animation */
+@keyframes fadeInScale {
+  0% { opacity: 0; transform: scale(0.75); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 /* Scrollbar hide utility */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
