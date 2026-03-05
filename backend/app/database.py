@@ -42,6 +42,7 @@ async def init_db():
             category TEXT NOT NULL DEFAULT '',
             condition TEXT NOT NULL DEFAULT 'Semi-usado',
             image TEXT NOT NULL DEFAULT '',
+            images TEXT NOT NULL DEFAULT '[]',
             colors TEXT NOT NULL DEFAULT '[]',
             storage_options TEXT NOT NULL DEFAULT '[]',
             badge TEXT,
@@ -61,6 +62,12 @@ async def init_db():
         await db.execute("SELECT category FROM products LIMIT 1")
     except Exception:
         await db.execute("ALTER TABLE products ADD COLUMN category TEXT NOT NULL DEFAULT ''")
+
+    # Migration: add images column if missing (JSON array of image URLs)
+    try:
+        await db.execute("SELECT images FROM products LIMIT 1")
+    except Exception:
+        await db.execute("ALTER TABLE products ADD COLUMN images TEXT NOT NULL DEFAULT '[]'")
     
     # Model bubbles table
     await db.execute("""
@@ -214,10 +221,12 @@ async def seed_default_data():
         ]
         
         for p in semi_usados + nuevos + ipads_data + macbooks_data + airpods_data + watches_data + accesorios_data:
+            # p = (name, category, condition, image, colors_json, storage_json, badge, available_json, price, description, featured_recommended, featured_trending, sort_order)
+            images_json = json.dumps([p[3]]) if p[3] else '[]'
             await db.execute(
-                """INSERT INTO products (name, category, condition, image, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                p
+                """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                p[:4] + (images_json,) + p[4:]
             )
     
     # Check if bubbles exist

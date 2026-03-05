@@ -56,6 +56,7 @@ class ProductCreate(BaseModel):
     category: str = ""
     condition: str = "Semi-usado"
     image: str = ""
+    images: list[str] = []
     colors: list[str] = []
     storage_options: list[str] = []
     badge: Optional[str] = None
@@ -71,6 +72,7 @@ class ProductUpdate(BaseModel):
     category: Optional[str] = None
     condition: Optional[str] = None
     image: Optional[str] = None
+    images: Optional[list[str]] = None
     colors: Optional[list[str]] = None
     storage_options: Optional[list[str]] = None
     badge: Optional[str] = None
@@ -147,12 +149,24 @@ async def get_current_admin(authorization: str = Query(None, alias="token")):
 
 # Helper to parse row to dict
 def row_to_product(row):
+    keys = row.keys()
+    images_raw = row["images"] if "images" in keys else "[]"
+    try:
+        images = json.loads(images_raw) if images_raw else []
+    except (json.JSONDecodeError, TypeError):
+        images = []
+
+    # Backward compatibility: if images is empty but image exists, use it as the first image
+    if (not isinstance(images, list) or len(images) == 0) and row["image"]:
+        images = [row["image"]]
+
     return {
         "id": row["id"],
         "name": row["name"],
-        "category": row["category"] if "category" in row.keys() else "",
+        "category": row["category"] if "category" in keys else "",
         "condition": row["condition"],
         "image": row["image"],
+        "images": images,
         "colors": json.loads(row["colors"]),
         "storage_options": json.loads(row["storage_options"]),
         "badge": row["badge"],
@@ -378,10 +392,13 @@ async def admin_create_product(product: ProductCreate, username: str = Depends(g
     db = await aiosqlite.connect(DB_PATH)
     db.row_factory = aiosqlite.Row
     try:
+        images = product.images or ([product.image] if product.image else [])
+        primary_image = images[0] if images else product.image
+
         cursor = await db.execute(
-            """INSERT INTO products (name, category, condition, image, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (product.name, product.category, product.condition, product.image, json.dumps(product.colors),
+            """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (product.name, product.category, product.condition, primary_image, json.dumps(images), json.dumps(product.colors),
              json.dumps(product.storage_options), product.badge, json.dumps(product.available),
              product.price, product.description, int(product.featured_recommended),
              int(product.featured_trending), product.sort_order)
@@ -413,6 +430,9 @@ async def admin_update_product(product_id: int, product: ProductUpdate, username
             updates["condition"] = product.condition
         if product.image is not None:
             updates["image"] = product.image
+        if product.images is not None:
+            updates["images"] = json.dumps(product.images)
+            updates["image"] = product.images[0] if len(product.images) > 0 else ""
         if product.colors is not None:
             updates["colors"] = json.dumps(product.colors)
         if product.storage_options is not None:
