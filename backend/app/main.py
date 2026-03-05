@@ -121,6 +121,32 @@ class RepairServiceUpdate(BaseModel):
     icon: Optional[str] = None
     sort_order: Optional[int] = None
 
+class HeroSlideCreate(BaseModel):
+    title: str = ""
+    subtitle: str = ""
+    image: str = ""
+    link: str = ""
+    active: bool = True
+    sort_order: int = 0
+
+class HeroSlideUpdate(BaseModel):
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    image: Optional[str] = None
+    link: Optional[str] = None
+    active: Optional[bool] = None
+    sort_order: Optional[int] = None
+
+class MarqueeTextCreate(BaseModel):
+    text: str = ""
+    active: bool = True
+    sort_order: int = 0
+
+class MarqueeTextUpdate(BaseModel):
+    text: Optional[str] = None
+    active: Optional[bool] = None
+    sort_order: Optional[int] = None
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
@@ -193,6 +219,25 @@ def row_to_bubble(row):
         "model_id": row["model_id"],
         "label": row["label"],
         "image": row["image"],
+        "sort_order": row["sort_order"],
+    }
+
+def row_to_hero_slide(row):
+    return {
+        "id": row["id"],
+        "title": row["title"],
+        "subtitle": row["subtitle"],
+        "image": row["image"],
+        "link": row["link"],
+        "active": bool(row["active"]),
+        "sort_order": row["sort_order"],
+    }
+
+def row_to_marquee(row):
+    return {
+        "id": row["id"],
+        "text": row["text"],
+        "active": bool(row["active"]),
         "sort_order": row["sort_order"],
     }
 
@@ -702,7 +747,167 @@ async def admin_delete_service(service_id: int, username: str = Depends(get_curr
     finally:
         await db.close()
 
-# ==================== IMAGE UPLOAD ====================
+# ==================== HERO SLIDES (PUBLIC) ====================
+
+@app.get("/api/hero-slides")
+async def get_hero_slides():
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM hero_slides WHERE active = 1 ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"slides": [row_to_hero_slide(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.get("/api/marquee-texts")
+async def get_marquee_texts():
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM marquee_texts WHERE active = 1 ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"texts": [row_to_marquee(r) for r in rows]}
+    finally:
+        await db.close()
+
+# ==================== ADMIN HERO SLIDES ====================
+
+@app.get("/api/admin/hero-slides")
+async def admin_get_hero_slides(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM hero_slides ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"slides": [row_to_hero_slide(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/hero-slides")
+async def admin_create_hero_slide(slide: HeroSlideCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "INSERT INTO hero_slides (title, subtitle, image, link, active, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
+            (slide.title, slide.subtitle, slide.image, slide.link, int(slide.active), slide.sort_order)
+        )
+        await db.commit()
+        slide_id = cursor.lastrowid
+        return {"message": "Slide creado", "id": slide_id}
+    finally:
+        await db.close()
+
+@app.put("/api/admin/hero-slides/{slide_id}")
+async def admin_update_hero_slide(slide_id: int, slide: HeroSlideUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM hero_slides WHERE id = ?", (slide_id,))
+        existing = await cursor.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Slide no encontrado")
+        
+        updates = {}
+        if slide.title is not None: updates["title"] = slide.title
+        if slide.subtitle is not None: updates["subtitle"] = slide.subtitle
+        if slide.image is not None: updates["image"] = slide.image
+        if slide.link is not None: updates["link"] = slide.link
+        if slide.active is not None: updates["active"] = int(slide.active)
+        if slide.sort_order is not None: updates["sort_order"] = slide.sort_order
+        
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [slide_id]
+            await db.execute(f"UPDATE hero_slides SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        
+        return {"message": "Slide actualizado"}
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/hero-slides/{slide_id}")
+async def admin_delete_hero_slide(slide_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("DELETE FROM hero_slides WHERE id = ?", (slide_id,))
+        await db.commit()
+        return {"message": "Slide eliminado"}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/hero-slides/{slide_id}/toggle")
+async def admin_toggle_hero_slide(slide_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("UPDATE hero_slides SET active = CASE WHEN active = 1 THEN 0 ELSE 1 END WHERE id = ?", (slide_id,))
+        await db.commit()
+        return {"message": "Slide actualizado"}
+    finally:
+        await db.close()
+
+# ==================== ADMIN MARQUEE TEXTS ====================
+
+@app.get("/api/admin/marquee-texts")
+async def admin_get_marquee_texts(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM marquee_texts ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"texts": [row_to_marquee(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/marquee-texts")
+async def admin_create_marquee_text(mt: MarqueeTextCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "INSERT INTO marquee_texts (text, active, sort_order) VALUES (?, ?, ?)",
+            (mt.text, int(mt.active), mt.sort_order)
+        )
+        await db.commit()
+        return {"message": "Texto creado", "id": cursor.lastrowid}
+    finally:
+        await db.close()
+
+@app.put("/api/admin/marquee-texts/{text_id}")
+async def admin_update_marquee_text(text_id: int, mt: MarqueeTextUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM marquee_texts WHERE id = ?", (text_id,))
+        existing = await cursor.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Texto no encontrado")
+        
+        updates = {}
+        if mt.text is not None: updates["text"] = mt.text
+        if mt.active is not None: updates["active"] = int(mt.active)
+        if mt.sort_order is not None: updates["sort_order"] = mt.sort_order
+        
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [text_id]
+            await db.execute(f"UPDATE marquee_texts SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        
+        return {"message": "Texto actualizado"}
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/marquee-texts/{text_id}")
+async def admin_delete_marquee_text(text_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("DELETE FROM marquee_texts WHERE id = ?", (text_id,))
+        await db.commit()
+        return {"message": "Texto eliminado"}
+    finally:
+        await db.close()
+
+# ==================== IMAGE UPLOAD ==
 
 @app.post("/api/admin/upload")
 async def upload_image(file: UploadFile = File(...), username: str = Depends(get_current_admin)):
@@ -743,6 +948,9 @@ async def admin_stats(username: str = Depends(get_current_admin)):
         cursor = await db.execute("SELECT COUNT(*) FROM categories")
         category_count = (await cursor.fetchone())[0]
         
+        cursor = await db.execute("SELECT COUNT(*) FROM hero_slides")
+        slides_count = (await cursor.fetchone())[0]
+        
         return {
             "total_products": total_products,
             "new_products": new_count,
@@ -750,6 +958,7 @@ async def admin_stats(username: str = Depends(get_current_admin)):
             "categories": category_count,
             "bubbles": bubble_count,
             "repair_services": service_count,
+            "hero_slides": slides_count,
         }
     finally:
         await db.close()

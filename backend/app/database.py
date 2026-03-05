@@ -109,6 +109,30 @@ async def init_db():
             value TEXT NOT NULL DEFAULT ''
         )
     """)
+
+    # Hero slides table
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS hero_slides (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL DEFAULT '',
+            subtitle TEXT NOT NULL DEFAULT '',
+            image TEXT NOT NULL DEFAULT '',
+            link TEXT NOT NULL DEFAULT '',
+            active INTEGER NOT NULL DEFAULT 1,
+            sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # Marquee texts table
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS marquee_texts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            text TEXT NOT NULL DEFAULT '',
+            active INTEGER NOT NULL DEFAULT 1,
+            sort_order INTEGER DEFAULT 0
+        )
+    """)
     
     await db.commit()
     await db.close()
@@ -128,6 +152,38 @@ async def seed_default_data():
     row = await cursor.fetchone()
     cat_count = row[0]
     
+    # Seed hero slides if empty
+    cursor = await db.execute("SELECT COUNT(*) as cnt FROM hero_slides")
+    row = await cursor.fetchone()
+    slides_count = row[0]
+    
+    if slides_count == 0:
+        default_slides = [
+            ("iPhone 17 Pro Max", "El mas poderoso. Disponible ahora.", "https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=1200&h=600&fit=crop", "#productos", 1, 0),
+            ("MacBook Air M4", "Potencia portatil. Desde $4.999.990.", "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&h=600&fit=crop", "#productos", 1, 1),
+            ("Apple Watch Ultra 3", "Aventura sin limites.", "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1200&h=600&fit=crop", "#productos", 1, 2),
+            ("AirPods Pro 3", "Sonido inmersivo. Cancelacion total.", "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=1200&h=600&fit=crop", "#productos", 1, 3),
+        ]
+        for s in default_slides:
+            await db.execute("INSERT INTO hero_slides (title, subtitle, image, link, active, sort_order) VALUES (?, ?, ?, ?, ?, ?)", s)
+        await db.commit()
+
+    # Seed marquee texts if empty
+    cursor = await db.execute("SELECT COUNT(*) as cnt FROM marquee_texts")
+    row = await cursor.fetchone()
+    marquee_count = row[0]
+
+    if marquee_count == 0:
+        default_marquees = [
+            ("Gordotech - Tu destino Apple en Boyaca", 1, 0),
+            ("Garantia en todos nuestros productos", 1, 1),
+            ("Envios a toda Colombia", 1, 2),
+            ("iPhone nuevos y semi-usados al mejor precio", 1, 3),
+        ]
+        for m in default_marquees:
+            await db.execute("INSERT INTO marquee_texts (text, active, sort_order) VALUES (?, ?, ?)", m)
+        await db.commit()
+
     if cat_count == 0:
         default_categories = [
             ("iphones", "iPhones", "https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop", 0),

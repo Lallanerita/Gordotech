@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
 import AdminPanel from './AdminPanel'
@@ -6,6 +6,23 @@ import AdminPanel from './AdminPanel'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 type City = 'duitama' | 'tunja' | null
+
+type HeroSlide = {
+  id: number
+  title: string
+  subtitle: string
+  image: string
+  link: string
+  active: boolean
+  sort_order: number
+}
+
+type MarqueeText = {
+  id: number
+  text: string
+  active: boolean
+  sort_order: number
+}
 
 // Product data - Semi-usados
 const semiUsados = [
@@ -265,6 +282,166 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
 }
 
 // Main Store Component
+// ==================== ANIMATED MARQUEE BANNER ====================
+function AnimatedMarquee({ texts }: { texts: string[] }) {
+  if (texts.length === 0) return null
+  const marqueeContent = texts.join('  \u2022  ')
+  const repeated = `${marqueeContent}  \u2022  `.repeat(4)
+  
+  return (
+    <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white overflow-hidden whitespace-nowrap relative" style={{ height: '36px' }}>
+      <div className="absolute inset-0 flex items-center">
+        <div className="animate-marquee inline-block" style={{ animationDuration: `${Math.max(20, texts.length * 12)}s` }}>
+          <span className="text-xs md:text-sm font-medium tracking-wide">
+            {repeated}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ==================== HERO SLIDESHOW ====================
+function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
+  const [current, setCurrent] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const goTo = useCallback((index: number) => {
+    if (isTransitioning || index === current) return
+    setIsTransitioning(true)
+    setCurrent(index)
+    setTimeout(() => setIsTransitioning(false), 700)
+  }, [current, isTransitioning])
+
+  const goNext = useCallback(() => {
+    if (slides.length <= 1) return
+    goTo((current + 1) % slides.length)
+  }, [current, slides.length, goTo])
+
+  const goPrev = useCallback(() => {
+    if (slides.length <= 1) return
+    goTo((current - 1 + slides.length) % slides.length)
+  }, [current, slides.length, goTo])
+
+  useEffect(() => {
+    if (isPaused || slides.length <= 1) return
+    timerRef.current = setInterval(goNext, 5000)
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [goNext, isPaused, slides.length])
+
+  if (slides.length === 0) return null
+
+  return (
+    <section 
+      className="relative w-full overflow-hidden bg-gray-950"
+      style={{ height: 'clamp(300px, 50vw, 550px)' }}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Slides */}
+      {slides.map((slide, i) => (
+        <div
+          key={slide.id}
+          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+            i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+          }`}
+        >
+          {/* Background image */}
+          <img
+            src={slide.image}
+            alt={slide.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
+          />
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-gray-950/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-gray-950/30" />
+          
+          {/* Content */}
+          <div className="absolute inset-0 flex items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+              <div className={`max-w-xl transition-all duration-700 delay-200 ${
+                i === current ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+              }`}>
+                {slide.title && (
+                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 leading-tight drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>
+                    {slide.title}
+                  </h2>
+                )}
+                {slide.subtitle && (
+                  <p className="text-base md:text-xl text-gray-200 mb-6 max-w-md drop-shadow-md">
+                    {slide.subtitle}
+                  </p>
+                )}
+                {slide.link && (
+                  <a
+                    href={slide.link}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 text-sm md:text-base"
+                  >
+                    Ver Ahora
+                    <ChevronRight className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* Navigation Arrows */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={goPrev}
+            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all hover:scale-110 border border-white/10"
+          >
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+          <button
+            onClick={goNext}
+            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all hover:scale-110 border border-white/10"
+          >
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+        </>
+      )}
+
+      {/* Dot indicators */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={`transition-all duration-300 rounded-full ${
+                i === current
+                  ? 'w-8 h-2.5 bg-blue-500 shadow-lg shadow-blue-500/50'
+                  : 'w-2.5 h-2.5 bg-white/40 hover:bg-white/70'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Progress bar */}
+      {slides.length > 1 && !isPaused && (
+        <div className="absolute bottom-0 left-0 right-0 z-20 h-0.5 bg-white/10">
+          <div 
+            className="h-full bg-blue-500 transition-none"
+            style={{ 
+              animation: 'slideProgress 5s linear infinite',
+              width: '100%'
+            }}
+            key={current}
+          />
+        </div>
+      )}
+    </section>
+  )
+}
+
 function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
@@ -273,6 +450,10 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
+  
+  // Hero slideshow + marquee data
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([])
+  const [marqueeTexts, setMarqueeTexts] = useState<string[]>([])
   
   // API-loaded data with fallback to static
   const [apiProducts, setApiProducts] = useState<Product[]>(products)
@@ -294,12 +475,14 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [productsRes, recommendedRes, trendingRes, bubblesRes, servicesRes] = await Promise.all([
+        const [productsRes, recommendedRes, trendingRes, bubblesRes, servicesRes, slidesRes, marqueeRes] = await Promise.all([
           fetch(`${API_URL}/api/products?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/products/recommended?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/products/trending?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/bubbles`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/repair-services`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/hero-slides`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/marquee-texts`).then(r => r.ok ? r.json() : null),
         ])
         if (productsRes?.products) {
           setApiProducts(productsRes.products.map((p: Record<string, unknown>) => ({
@@ -348,6 +531,12 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             description: s.description as string,
             price: s.price as string,
           })))
+        }
+        if (slidesRes?.slides) {
+          setHeroSlides(slidesRes.slides)
+        }
+        if (marqueeRes?.texts) {
+          setMarqueeTexts(marqueeRes.texts.map((t: { text: string }) => t.text))
         }
       } catch {
         // Fallback to static data if API unavailable
@@ -476,103 +665,16 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
         </div>
       </header>
 
+      {/* Animated Marquee Banner */}
+      <div className="pt-16 md:pt-20">
+        <AnimatedMarquee texts={marqueeTexts} />
+      </div>
+
+      {/* Hero Slideshow */}
+      <HeroSlideshow slides={heroSlides} />
+
       {/* Main Content */}
       <main>
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl" />
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(123,163,201,0.4) 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-                <Zap className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-400 text-sm font-medium">Disponible en {cityName}</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                TU PROXIMO<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">iPHONE</span><br />
-                TE ESPERA
-              </h2>
-              <p className="text-gray-400 text-lg md:text-xl mb-8 max-w-lg">
-                Encuentra los mejores iPhones nuevos y semi-usados con garantia. {city === 'duitama' ? 'Ademas, contamos con centro de reparacion especializado.' : 'Los mejores precios de Tunja.'}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <a href="#productos" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25">
-                  Ver Catalogo
-                  <ChevronRight className="w-5 h-5" />
-                </a>
-                {city === 'duitama' && (
-                  <a href="#reparacion" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold rounded-2xl transition-all">
-                    <Wrench className="w-5 h-5" />
-                    Reparacion
-                  </a>
-                )}
-              </div>
-
-              {/* Trust badges */}
-              <div className="flex flex-wrap items-center gap-6 mt-10 justify-center md:justify-start">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Shield className="w-4 h-4 text-blue-400" />
-                  <span>Garantia incluida</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Truck className="w-4 h-4 text-blue-400" />
-                  <span>Envio en Boyaca</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Award className="w-4 h-4 text-blue-400" />
-                  <span>100% Originales</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Hero Image */}
-            <div className="flex-1 relative">
-              <div className="relative w-72 md:w-96 mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent rounded-3xl blur-3xl" />
-                <img
-                  src="/images/hero-iphone.png"
-                  alt="iPhone de alta gama disponible en Gordotech"
-                  className="relative z-10 w-full drop-shadow-2xl"
-                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x500/1a1a2e/7BA3C9/png?text=iPhone+16+Pro' }}
-                />
-                {/* Floating badges */}
-                <div className="absolute top-4 -left-4 md:-left-8 z-20 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl animate-bounce" style={{ animationDuration: '3s' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <Shield className="w-4 h-4 text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Garantia</p>
-                      <p className="text-sm font-bold text-white">12 Meses</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute bottom-12 -right-4 md:-right-8 z-20 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <Star className="w-4 h-4 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Calificacion</p>
-                      <p className="text-sm font-bold text-white">4.9 / 5.0</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Model Bubbles - Newest to Oldest */}
       <section className="py-8 md:py-12 border-y border-white/5">
