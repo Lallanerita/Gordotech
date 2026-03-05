@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -98,6 +98,7 @@ type Product = {
   category: string
   condition: string
   image: string
+  images: string[]
   colors: string[]
   storageOptions: string[]
   badge: string | null
@@ -109,6 +110,7 @@ const products: Product[] = [
     ...p,
     category: 'iphones',
     condition: 'Nuevo' as const,
+    images: [p.image],
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
@@ -116,6 +118,7 @@ const products: Product[] = [
     ...p,
     category: 'iphones',
     condition: 'Semi-usado' as const,
+    images: [p.image],
     badge: null as string | null,
     available: ['duitama', 'tunja'],
   })),
@@ -123,6 +126,7 @@ const products: Product[] = [
     ...p,
     category: 'ipads',
     condition: 'Nuevo' as const,
+    images: [p.image],
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
@@ -130,6 +134,7 @@ const products: Product[] = [
     ...p,
     category: 'macbook',
     condition: 'Nuevo' as const,
+    images: [p.image],
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
@@ -137,6 +142,7 @@ const products: Product[] = [
     ...p,
     category: 'airpods',
     condition: 'Nuevo' as const,
+    images: [p.image],
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
@@ -144,6 +150,7 @@ const products: Product[] = [
     ...p,
     category: 'apple-watch',
     condition: 'Nuevo' as const,
+    images: [p.image],
     badge: 'Nuevo' as string | null,
     available: ['duitama', 'tunja'],
   })),
@@ -151,6 +158,7 @@ const products: Product[] = [
     ...p,
     category: 'accesorios',
     condition: 'Nuevo' as const,
+    images: [p.image],
     badge: null as string | null,
     available: ['duitama', 'tunja'],
   })),
@@ -199,7 +207,7 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
         {/* Greeting */}
         <div className={`mb-12 transition-all duration-1000 delay-300 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
           <h2 className="text-2xl md:text-4xl text-white font-light mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Hola! <span className="inline-block animate-bounce">👋</span>
+            Hola
           </h2>
           <p className="text-gray-400 text-lg md:text-xl">En que ciudad te encuentras?</p>
         </div>
@@ -220,7 +228,6 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'duitama' ? 'text-blue-400' : 'text-gray-400'}`} />
             <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>DUITAMA</h3>
-            <p className="text-gray-400 text-sm">Tienda + Centro de Reparacion</p>
             <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-sm">Explorar</span>
               <ArrowRight className="w-4 h-4" />
@@ -241,7 +248,6 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'tunja' ? 'text-blue-400' : 'text-gray-400'}`} />
             <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>TUNJA</h3>
-            <p className="text-gray-400 text-sm">Punto de Venta</p>
             <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-sm">Explorar</span>
               <ArrowRight className="w-4 h-4" />
@@ -259,12 +265,14 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
 }
 
 // Main Store Component
-function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void }) {
+function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [galleryIndex, setGalleryIndex] = useState(0)
+  const [zoomOpen, setZoomOpen] = useState(false)
   
   // API-loaded data with fallback to static
   const [apiProducts, setApiProducts] = useState<Product[]>(products)
@@ -300,6 +308,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             category: (p.category as string) || '',
             condition: p.condition as string,
             image: p.image as string,
+            images: (p.images as string[]) || [],
             colors: p.colors as string[],
             storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null,
@@ -312,7 +321,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           setRecommendedProducts(recommendedRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
-            image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', description: (p.description as string) || '',
           })))
@@ -321,7 +330,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           setTrendingProducts(trendingRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
-            image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', description: (p.description as string) || '',
           })))
@@ -359,7 +368,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           setRelatedProducts(data.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
-            image: p.image as string, colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', description: (p.description as string) || '',
           })))
@@ -415,9 +424,9 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <img src="/images/gordotech-icon.png" alt="Gordotech" className="h-10 md:h-12" />
-            </div>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10 md:h-12" />
+            </button>
 
             {/* Nav Links - Desktop */}
             <nav className="hidden md:flex items-center gap-8">
@@ -611,18 +620,18 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {recommendedProducts.map(product => (
-                <button key={product.id} onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
-                  <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
-                    {product.badge && (
-                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
-                    )}
-                    <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Heart className="w-4 h-4 text-gray-300" />
-                    </div>
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
-                  </div>
-                  <div className="p-3 md:p-4">
-                    <p className="text-xs text-blue-400 font-medium mb-1">{product.condition}</p>
+                                <button key={product.id} onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                                  <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
+                                    {product.badge && (
+                                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
+                                    )}
+                                    <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Heart className="w-4 h-4 text-gray-300" />
+                                    </div>
+                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                                  </div>
+                                  <div className="p-3 md:p-4">
+                                    <p className="text-xs text-blue-400 font-medium mb-1">{product.condition}</p>
                     <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                     <div className="flex flex-wrap gap-1 mb-2">
                       {product.storageOptions.map((s, i) => (
@@ -648,7 +657,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {trendingProducts.map(product => (
-                <button key={product.id} onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
+                <button key={product.id} onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                     <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Trending</div>
                     <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -674,22 +683,115 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
       )}
 
       {/* Product Detail View */}
-      {selectedProduct && (
+      {selectedProduct && (() => {
+        const galleryImages = selectedProduct.images && selectedProduct.images.length > 0
+          ? selectedProduct.images
+          : [selectedProduct.image]
+        return (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <button onClick={() => setSelectedProduct(null)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
+            <button onClick={() => { setSelectedProduct(null); setGalleryIndex(0); setZoomOpen(false) }} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
               <ArrowLeft className="w-4 h-4" />
               Volver a productos
             </button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
-              {/* Product Image */}
-              <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10">
-                {selectedProduct.badge && (
-                  <div className="absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
+              {/* Product Image Gallery */}
+              <div className="space-y-4">
+                <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10 group">
+                  {selectedProduct.badge && (
+                    <div className="absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
+                  )}
+                  <img
+                    src={galleryImages[galleryIndex] || selectedProduct.image}
+                    alt={`${selectedProduct.name} - Foto ${galleryIndex + 1}`}
+                    className="w-full h-full object-cover rounded-2xl cursor-pointer"
+                    onClick={() => setZoomOpen(true)}
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }}
+                  />
+                  {/* Navigation arrows */}
+                  {galleryImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setGalleryIndex(i => i > 0 ? i - 1 : galleryImages.length - 1)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => setGalleryIndex(i => i < galleryImages.length - 1 ? i + 1 : 0)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                  {/* Zoom button */}
+                  <button
+                    onClick={() => setZoomOpen(true)}
+                    className="absolute bottom-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                  >
+                    <ZoomIn className="w-5 h-5" />
+                  </button>
+                  {/* Image counter */}
+                  {galleryImages.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/60 rounded-full text-white text-xs font-medium z-20">
+                      {galleryIndex + 1} / {galleryImages.length}
+                    </div>
+                  )}
+                </div>
+                {/* Thumbnails */}
+                {galleryImages.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {galleryImages.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setGalleryIndex(i)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${i === galleryIndex ? 'border-blue-500 ring-1 ring-blue-500/50' : 'border-white/10 hover:border-white/30'}`}
+                      >
+                        <img src={img} alt={`${selectedProduct.name} - Miniatura ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/100x100/1a1a2e/7BA3C9/png?text=${i + 1}` }} />
+                      </button>
+                    ))}
+                  </div>
                 )}
-                <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover rounded-2xl" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }} />
               </div>
+
+              {/* Zoom Modal */}
+              {zoomOpen && (
+                <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setZoomOpen(false)}>
+                  <button onClick={() => setZoomOpen(false)} className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white z-50">
+                    <X className="w-6 h-6" />
+                  </button>
+                  {galleryImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i > 0 ? i - 1 : galleryImages.length - 1) }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white z-50"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i < galleryImages.length - 1 ? i + 1 : 0) }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white z-50"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </>
+                  )}
+                  <img
+                    src={galleryImages[galleryIndex] || selectedProduct.image}
+                    alt={selectedProduct.name}
+                    className="max-w-full max-h-[90vh] object-contain rounded-xl"
+                    onClick={(e) => e.stopPropagation()}
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/800x800/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }}
+                  />
+                  {galleryImages.length > 1 && (
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 rounded-full text-white text-sm font-medium">
+                      {galleryIndex + 1} / {galleryImages.length}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Product Info */}
               <div className="flex flex-col justify-center">
@@ -733,33 +835,34 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
               <h3 className="text-2xl md:text-4xl font-bold mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRODUCTOS RELACIONADOS</h3>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {relatedProducts.map(product => (
-                  <button key={product.id} onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
-                    <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
-                      {product.badge && (
-                        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
-                      )}
-                      <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Heart className="w-4 h-4 text-gray-300" />
-                      </div>
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                  <button key={product.id} onClick={() => {       setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                          <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
+                            {product.badge && (
+                              <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
+                            )}
+                            <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Heart className="w-4 h-4 text-gray-300" />
+                            </div>
+                            <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                          </div>
+                          <div className="p-3 md:p-4">
+                            <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                            <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {product.storageOptions.map((s, i) => (
+                                <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
+                              ))}
+                            </div>
+                            <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                    <div className="p-3 md:p-4">
-                      <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
-                      <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {product.storageOptions.map((s, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
-                        ))}
-                      </div>
-                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+                  </div>
+                </div>
+              </section>
+              )
+            })()}
 
       {/* Products Section */}
       {!selectedProduct && (
@@ -794,7 +897,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             {filteredProducts.map((product) => (
               <button
                 key={product.id}
-                onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
               >
                 {/* Badge */}
@@ -1077,6 +1180,10 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
               <a href="#" className="hover:text-white transition-colors">Terminos</a>
               <a href="#" className="hover:text-white transition-colors">Privacidad</a>
               <a href="#" className="hover:text-white transition-colors">Garantia</a>
+              <button onClick={onAdminClick} className="flex items-center gap-1.5 hover:text-white transition-colors" title="Panel de Administración">
+                <Settings className="w-3.5 h-3.5" />
+                Admin
+              </button>
             </div>
           </div>
         </div>
@@ -1140,7 +1247,7 @@ function App() {
     return <CitySelector onSelect={handleCitySelect} />
   }
 
-  return <Store city={city} onChangeCity={handleChangeCity} />
+  return <Store city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />
 }
 
 export default App

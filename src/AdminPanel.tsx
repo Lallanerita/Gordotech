@@ -9,6 +9,7 @@ type Product = {
   category: string
   condition: string
   image: string
+  images: string[]
   colors: string[]
   storage_options: string[]
   badge: string | null
@@ -228,6 +229,75 @@ function ImageUploader({ token, currentImage, onUpload }: { token: string; curre
   )
 }
 
+// ==================== MULTI IMAGE UPLOADER ====================
+
+function MultiImageUploader({ token, images, onChange }: { token: string; images: string[]; onChange: (images: string[]) => void }) {
+  const [uploading, setUploading] = useState(false)
+
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    setUploading(true)
+    try {
+      const newUrls: string[] = []
+      for (let i = 0; i < files.length; i++) {
+        const data = await apiUpload(files[i], token)
+        newUrls.push(`${API_URL}${data.url}`)
+      }
+      onChange([...images, ...newUrls])
+    } catch {
+      alert('Error subiendo imagenes')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  const removeImage = (index: number) => {
+    onChange(images.filter((_, i) => i !== index))
+  }
+
+  const moveImage = (from: number, to: number) => {
+    if (to < 0 || to >= images.length) return
+    const updated = [...images]
+    const [moved] = updated.splice(from, 1)
+    updated.splice(to, 0, moved)
+    onChange(updated)
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-3">
+        {images.map((img, i) => (
+          <div key={i} className="relative group w-20 h-20">
+            <img src={img} alt={`Foto ${i + 1}`} className="w-full h-full rounded-lg object-cover bg-gray-800 border border-white/10" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/200x200/1a1a2e/7BA3C9/png?text=Error' }} />
+            <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+              {i > 0 && (
+                <button onClick={() => moveImage(i, i - 1)} className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-xs hover:bg-white/40" title="Mover izquierda">&larr;</button>
+              )}
+              <button onClick={() => removeImage(i)} className="w-6 h-6 bg-red-500/80 rounded-full flex items-center justify-center text-white hover:bg-red-600" title="Eliminar">
+                <X className="w-3 h-3" />
+              </button>
+              {i < images.length - 1 && (
+                <button onClick={() => moveImage(i, i + 1)} className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-xs hover:bg-white/40" title="Mover derecha">&rarr;</button>
+              )}
+            </div>
+            {i === 0 && (
+              <div className="absolute -top-1 -left-1 px-1.5 py-0.5 bg-blue-500 rounded text-white text-[10px] font-bold">Principal</div>
+            )}
+          </div>
+        ))}
+        <label className={`w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors ${uploading ? 'opacity-50' : ''}`}>
+          <Plus className="w-5 h-5 text-gray-400" />
+          <span className="text-[10px] text-gray-500 mt-1">{uploading ? 'Subiendo...' : 'Agregar'}</span>
+          <input type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" disabled={uploading} />
+        </label>
+      </div>
+      <p className="text-xs text-gray-500">La primera imagen sera la principal. Puedes reordenar pasando el mouse y usando las flechas.</p>
+    </div>
+  )
+}
+
 // ==================== PRODUCT FORM ====================
 
 function ProductForm({ product, token, categories, onSave, onCancel }: {
@@ -242,6 +312,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
     category: product?.category || '',
     condition: product?.condition || 'Semi-usado',
     image: product?.image || '',
+    images: product?.images || [],
     colors: product?.colors?.join(', ') || '',
     storage_options: product?.storage_options?.join(', ') || '',
     badge: product?.badge || '',
@@ -266,7 +337,8 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
         name: form.name,
         category: form.category,
         condition: form.condition,
-        image: form.image,
+        image: form.images.length > 0 ? form.images[0] : form.image,
+        images: form.images,
         colors: form.colors.split(',').map(c => c.trim()).filter(Boolean),
         storage_options: form.storage_options.split(',').map(s => s.trim()).filter(Boolean),
         badge: form.badge || null,
@@ -328,8 +400,12 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
           </div>
 
           <div>
-            <label className="block text-gray-400 text-sm mb-1">Imagen</label>
-            <ImageUploader token={token} currentImage={form.image} onUpload={url => setForm({...form, image: url})} />
+            <label className="block text-gray-400 text-sm mb-1">Imagenes del producto</label>
+            <MultiImageUploader
+              token={token}
+              images={form.images}
+              onChange={imgs => setForm({ ...form, images: imgs, image: imgs.length > 0 ? imgs[0] : form.image })}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
