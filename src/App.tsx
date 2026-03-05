@@ -421,7 +421,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
   const [hoveredBubble, setHoveredBubble] = useState<{image: string; x: number; y: number} | null>(null)
-  const hoverTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   
   // Hero slideshow + marquee data
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([])
