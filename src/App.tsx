@@ -228,7 +228,6 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'duitama' ? 'text-blue-400' : 'text-gray-400'}`} />
             <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>DUITAMA</h3>
-            <p className="text-gray-400 text-sm">Tienda + Centro de Reparacion</p>
             <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-sm">Explorar</span>
               <ArrowRight className="w-4 h-4" />
@@ -249,7 +248,6 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'tunja' ? 'text-blue-400' : 'text-gray-400'}`} />
             <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>TUNJA</h3>
-            <p className="text-gray-400 text-sm">Punto de Venta</p>
             <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-sm">Explorar</span>
               <ArrowRight className="w-4 h-4" />
