@@ -24,6 +24,44 @@
   100% { transform: scaleX(1); transform-origin: left; }
 }
 
+/* Apple-style Ken Burns slow zoom on hero image */
+@keyframes kenBurns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+.animate-ken-burns {
+  animation: kenBurns 8s ease-out forwards;
+}
+
+/* Apple-style hero text entrance animations */
+@keyframes heroTitleIn {
+  0% { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes heroSubtitleIn {
+  0% { opacity: 0; transform: translateY(25px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroButtonIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-hero-title {
+  animation: heroTitleIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.animate-hero-subtitle {
+  animation: heroSubtitleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+.animate-hero-button {
+  animation: heroButtonIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
+}
+
 /* Bubble hover popup animation */
 @keyframes fadeInScale {
   0% { opacity: 0; transform: scale(0.75); }

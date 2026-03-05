@@ -306,13 +306,15 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
+  const [animKey, setAnimKey] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const goTo = useCallback((index: number) => {
     if (isTransitioning || index === current) return
     setIsTransitioning(true)
     setCurrent(index)
-    setTimeout(() => setIsTransitioning(false), 700)
+    setAnimKey(k => k + 1)
+    setTimeout(() => setIsTransitioning(false), 900)
   }, [current, isTransitioning])
 
   const goNext = useCallback(() => {
@@ -327,7 +329,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
 
   useEffect(() => {
     if (isPaused || slides.length <= 1) return
-    timerRef.current = setInterval(goNext, 5000)
+    timerRef.current = setInterval(goNext, 7000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [goNext, isPaused, slides.length])
 
@@ -335,8 +337,8 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
 
   return (
     <section 
-      className="relative w-full overflow-hidden bg-gray-950"
-      style={{ height: 'clamp(300px, 50vw, 550px)' }}
+      className="relative w-full overflow-hidden bg-black"
+      style={{ height: 'clamp(400px, 60vw, 650px)' }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -344,47 +346,52 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
       {slides.map((slide, i) => (
         <div
           key={slide.id}
-          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-            i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+          className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${
+            i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
-          {/* Background image */}
+          {/* Background image with Ken Burns zoom */}
           <img
+            key={`img-${slide.id}-${i === current ? animKey : 'idle'}`}
             src={slide.image}
             alt={slide.title}
-            className="absolute inset-0 w-full h-full object-cover"
+            className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
             onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
           />
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-gray-950/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-gray-950/30" />
+          {/* Gradient overlays - more dramatic */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
           
-          {/* Content */}
+          {/* Content - Apple-style dramatic entrance */}
           <div className="absolute inset-0 flex items-center">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-              <div className={`max-w-xl transition-all duration-700 delay-200 ${
-                i === current ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-              }`}>
-                {slide.title && (
-                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 leading-tight drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>
-                    {slide.title}
-                  </h2>
-                )}
-                {slide.subtitle && (
-                  <p className="text-base md:text-xl text-gray-200 mb-6 max-w-md drop-shadow-md">
-                    {slide.subtitle}
-                  </p>
-                )}
-                {slide.link && (
-                  <a
-                    href={slide.link}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 text-sm md:text-base"
-                  >
-                    Ver Ahora
-                    <ChevronRight className="w-4 h-4" />
-                  </a>
-                )}
-              </div>
+              {i === current ? (
+                <div key={`content-${animKey}`} className="max-w-2xl">
+                  {slide.title && (
+                    <h2 className="animate-hero-title text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-[0.95] drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '3px' }}>
+                      {slide.title}
+                    </h2>
+                  )}
+                  {slide.subtitle && (
+                    <p className="animate-hero-subtitle text-lg md:text-2xl text-gray-200/90 mb-8 max-w-lg font-light tracking-wide">
+                      {slide.subtitle}
+                    </p>
+                  )}
+                  {slide.link && (
+                    <a
+                      href={slide.link}
+                      className="animate-hero-button inline-flex items-center gap-2 px-8 py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 text-sm md:text-base"
+                    >
+                      Ver Ahora
+                      <ChevronRight className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div className="max-w-2xl opacity-0">
+                  {slide.title && <h2 className="text-4xl">{slide.title}</h2>}
+                </div>
+              )}
             </div>
           </div>
         </div>
