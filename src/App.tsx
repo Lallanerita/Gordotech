@@ -467,6 +467,8 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         </div>
       </header>
 
+      {/* Main Content */}
+      <main>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
         {/* Background effects */}
@@ -1002,6 +1004,8 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           </div>
         </div>
       </section>
+
+      </main>
 
       {/* Footer */}
       <footer id="contacto" className="border-t border-white/5 pt-16 pb-8">
