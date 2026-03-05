@@ -715,7 +715,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                 </div>
 
                 <a
-                  href={`https://wa.me/573001234567?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition}). ¿Tienen disponible y cuál es el precio?`)}`}
+                  href={`https://wa.me/573144810431?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition}). ¿Tienen disponible y cuál es el precio?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
@@ -877,7 +877,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
 
             <div className="text-center mt-12">
               <a
-                href="https://wa.me/573001234567?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion"
+                href="https://wa.me/573144810431?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
@@ -927,7 +927,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href="https://wa.me/573001234567" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href="https://wa.me/573144810431" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   WhatsApp
                 </a>
                 <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
@@ -962,7 +962,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href="https://wa.me/573007654321" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href="https://wa.me/573144810431" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   WhatsApp
                 </a>
                 <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
@@ -990,7 +990,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                 Escribenos por WhatsApp y te asesoramos para que encuentres el iPhone perfecto para ti al mejor precio
               </p>
               <a
-                href="https://wa.me/573001234567?text=Hola%20Gordotech%2C%20quiero%20información%20sobre%20iPhones"
+                href="https://wa.me/573144810431?text=Hola%20Gordotech%2C%20quiero%20información%20sobre%20iPhones"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-700 font-bold rounded-2xl transition-all hover:scale-105 hover:shadow-lg"
@@ -1020,7 +1020,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
                 <a href="#" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
                   <Facebook className="w-5 h-5 text-gray-400" />
                 </a>
-                <a href="https://wa.me/573001234567" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <a href="https://wa.me/573144810431" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
                   <MessageCircle className="w-5 h-5 text-gray-400" />
                 </a>
               </div>
@@ -1080,7 +1080,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/573001234567?text=Hola%20Gordotech%2C%20necesito%20información"
+        href="https://wa.me/573144810431?text=Hola%20Gordotech%2C%20necesito%20información"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-all"
