@@ -674,7 +674,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                   />
                 </div>
                 {/* Expanded image on hover/touch - shows full product */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-gray-900/95 backdrop-blur-sm shadow-2xl shadow-black/50 opacity-0 scale-75 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto group-active:opacity-100 group-active:scale-100 transition-all duration-300 ease-out z-50 overflow-hidden">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-gray-900/95 backdrop-blur-sm opacity-0 scale-75 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto group-active:opacity-100 group-active:scale-100 transition-all duration-300 ease-out z-50 overflow-hidden">
                   <img
                     src={model.image}
                     alt={model.label}
