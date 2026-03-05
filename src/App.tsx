@@ -192,7 +192,7 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
         {/* Logo */}
         <div className="mb-12">
           <div className="flex items-center justify-center mb-4">
-            <img src="/images/gordotech-logo.jpg" alt="Gordotech Logo" className="w-48 md:w-64 rounded-2xl" />
+            <img src="/images/gordotech-logo.png" alt="Gordotech Logo" className="w-48 md:w-64" />
           </div>
         </div>
 
@@ -416,7 +416,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <img src="/images/gordotech-logo.jpg" alt="Gordotech" className="h-10 md:h-12 rounded-lg" />
+              <img src="/images/gordotech-logo.png" alt="Gordotech" className="h-10 md:h-12" />
             </div>
 
             {/* Nav Links - Desktop */}
@@ -1010,7 +1010,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
             {/* Brand */}
             <div className="md:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                <img src="/images/gordotech-logo.jpg" alt="Gordotech" className="h-12 rounded-lg" />
+                <img src="/images/gordotech-logo.png" alt="Gordotech" className="h-12" />
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y semi-usados en Boyaca.</p>
               <div className="flex gap-3 mt-4">
