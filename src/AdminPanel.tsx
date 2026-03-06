@@ -745,6 +745,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [conditionFilter, setConditionFilter] = useState('todos')
   const [categoryFilter, setCategoryFilter] = useState('todos')
+  const [cityFilter, setCityFilter] = useState('todos')
   
   // Form modals
   const [editingProduct, setEditingProduct] = useState<Product | null | 'new'>(null)
@@ -906,7 +907,8 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       (conditionFilter === 'nuevos' && p.condition === 'Nuevo') ||
       (conditionFilter === 'semi-usados' && p.condition === 'Semi-usado')
     const matchesCategory = categoryFilter === 'todos' || p.category === categoryFilter
-    return matchesSearch && matchesCondition && matchesCategory
+    const matchesCity = cityFilter === 'todos' || p.available.includes(cityFilter)
+    return matchesSearch && matchesCondition && matchesCategory && matchesCity
   })
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -1003,6 +1005,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     placeholder="Buscar producto..."
                     className="w-full bg-gray-800/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
                   />
+                </div>
+                <div className="flex gap-2">
+                  {['todos', 'duitama', 'tunja'].map(f => (
+                    <button key={f} onClick={() => setCityFilter(f)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${cityFilter === f ? 'bg-green-500 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-white border border-white/10'}`}>
+                      {f === 'todos' ? 'Todas' : f === 'duitama' ? 'Duitama' : 'Tunja'}
+                    </button>
+                  ))}
                 </div>
                 <div className="flex gap-2">
                   {['todos', 'nuevos', 'semi-usados'].map(f => (
