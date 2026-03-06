@@ -371,9 +371,16 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
-          {/* Background: video or image */}
-          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
-            <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
+          {/* Background image (always shown as fallback/placeholder) */}
+          <img
+            src={slide.image}
+            alt={slide.title}
+            className={`absolute inset-0 w-full h-full object-cover ${i === current && !(slide.video_url && getYouTubeEmbedUrl(slide.video_url)) ? 'animate-ken-burns' : ''}`}
+            onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
+          />
+          {/* Video overlay - fades in on top of image once loaded */}
+          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) && (
+            <div className="absolute inset-0 transition-opacity duration-1000" style={{ overflow: 'hidden' }}>
               <iframe
                 key={`video-${slide.id}`}
                 src={i === current ? getYouTubeEmbedUrl(slide.video_url)! : undefined}
@@ -394,14 +401,6 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                 title={slide.title}
               />
             </div>
-          ) : (
-            <img
-              key={`img-${slide.id}-${i === current ? animKey : 'idle'}`}
-              src={slide.image}
-              alt={slide.title}
-              className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
-              onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
-            />
           )}
           {/* Gradient overlays - lighter for video, dramatic for images */}
           {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
