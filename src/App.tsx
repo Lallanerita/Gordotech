@@ -18,22 +18,23 @@ type HeroSlide = {
   sort_order: number
 }
 
+function isVideoUrl(url: string): boolean {
+  if (!url) return false
+  return url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.mov') || url.includes('/videos/')
+}
+
 function getYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null
+  if (isVideoUrl(url)) return null // MP4 files are handled natively
   let videoId: string | null = null
-  // Handle youtube.com/watch?v=ID
   const watchMatch = url.match(/(?:youtube\.com\/watch\?v=)([\w-]+)/)
   if (watchMatch) videoId = watchMatch[1]
-  // Handle youtu.be/ID
   if (!videoId) { const shortMatch = url.match(/(?:youtu\.be\/)([\w-]+)/); if (shortMatch) videoId = shortMatch[1] }
-  // Handle youtube.com/embed/ID
   if (!videoId) { const embedMatch = url.match(/(?:youtube\.com\/embed\/)([\w-]+)/); if (embedMatch) videoId = embedMatch[1] }
   if (!videoId) return null
-  // Extract start time from URL if present (e.g. &t=60 or &t=1m30s)
   let startTime = 0
   const tMatch = url.match(/[?&]t=(\d+)/)
   if (tMatch) startTime = parseInt(tMatch[1])
-  // Default start at 60s if no explicit time in URL
   if (!startTime) startTime = 60
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=${startTime}&vq=hd1080&hd=1`
 }
@@ -354,12 +355,12 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
     setVideoLoaded(false)
   }, [current])
 
-  // Timer: for video slides, start 13s countdown only after video loads
+  // Timer: for video slides, start 13s countdown only after video loads/plays
   // For image-only slides, start 13s countdown immediately
   useEffect(() => {
     if (isPaused || slides.length <= 1) return
     const currentSlide = slides[current]
-    const hasVideo = currentSlide?.video_url && getYouTubeEmbedUrl(currentSlide.video_url)
+    const hasVideo = currentSlide?.video_url && (isVideoUrl(currentSlide.video_url) || getYouTubeEmbedUrl(currentSlide.video_url))
     if (hasVideo && !videoLoaded) return // Wait for video to load
     timerRef.current = setTimeout(goNext, 13000)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
@@ -383,7 +384,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
           }`}
         >
           {/* Background: black for video slides, image with Ken Burns for image-only slides */}
-          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
+          {slide.video_url && (isVideoUrl(slide.video_url) || getYouTubeEmbedUrl(slide.video_url)) ? (
             <div className="absolute inset-0 bg-black" />
           ) : (
             <img
@@ -393,8 +394,33 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
               onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
             />
           )}
-          {/* Video overlay - shown on all devices */}
-          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) && (
+          {/* Native MP4 video - loads fast like Apple */}
+          {slide.video_url && isVideoUrl(slide.video_url) && (
+            <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
+              <video
+                key={`video-${slide.id}`}
+                src={slide.video_url}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                onCanPlay={i === current ? () => setVideoLoaded(true) : undefined}
+                className="pointer-events-none"
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transform: 'translate(-50%, -50%)',
+                }}
+              />
+            </div>
+          )}
+          {/* YouTube iframe fallback */}
+          {slide.video_url && !isVideoUrl(slide.video_url) && getYouTubeEmbedUrl(slide.video_url) && (
             <div className="absolute inset-0 transition-opacity duration-1000" style={{ overflow: 'hidden' }}>
               <iframe
                 key={`video-${slide.id}`}
@@ -417,7 +443,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             </div>
           )}
           {/* Gradient overlays - lighter for video, dramatic for images */}
-          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
+          {slide.video_url && (isVideoUrl(slide.video_url) || getYouTubeEmbedUrl(slide.video_url)) ? (
             <>
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
