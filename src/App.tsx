@@ -751,14 +751,23 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
     loadData()
   }, [city])
 
+  const scrollToTop = useCallback(() => {
+    // iOS Safari sometimes ignores smooth scrolling after route/state changes
+    window.scrollTo(0, 0)
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [])
+
   // Navigate to product URL and select product
   const selectProduct = useCallback((product: Product) => {
+    scrollToTop()
     setSelectedProduct(product)
     setGalleryIndex(0)
     const slug = getProductSlug(product)
     navigate(`/producto/${product.id}/${slug}`, { state: { product } })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [navigate])
+    // extra safety after navigation/render
+    setTimeout(scrollToTop, 50)
+  }, [navigate, scrollToTop])
 
   // Clear product selection and go back to home
   const clearProduct = useCallback(() => {
@@ -789,6 +798,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
     if (found && (!selectedProduct || String(selectedProduct.id) !== String(found.id))) {
       setSelectedProduct(found)
       setGalleryIndex(0)
+      scrollToTop()
       return
     }
     // If not found locally, fetch from API by ID or slug
@@ -811,6 +821,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             }
             setSelectedProduct(product)
             setGalleryIndex(0)
+            scrollToTop()
           }
         } catch {
           // Product not found, stay on home
@@ -818,7 +829,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
       }
       fetchProduct()
     }
-  }, [productSlug, productId, apiProducts, selectedProduct])
+  }, [productSlug, productId, apiProducts, selectedProduct, scrollToTop])
 
   const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
 
