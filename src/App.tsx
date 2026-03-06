@@ -1062,18 +1062,22 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                         <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                       ))}
                     </div>
-                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />       Retira Hoy en {pickupAddress.short}</p>
-                          <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                        </div>
-                      </button>
-                      </ScrollReveal>
-                    ))}
+                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
+                    {product.price && product.price !== '-' ? (
+                      <p className="text-sm font-bold text-white">$ {product.price}</p>
+                    ) : (
+                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                    )}
                   </div>
-                </div>
-              </section>
-            )}
+                </button>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-            {/* Tendencia Ahora */}
+      {/* Tendencia Ahora */}
       {!selectedProduct && trendingProducts.length > 0 && (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1102,18 +1106,22 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                         <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                       ))}
                     </div>
-                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />       Retira Hoy en {pickupAddress.short}</p>
-                          <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                        </div>
-                      </button>
-                      </ScrollReveal>
-                    ))}
+                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
+                    {product.price && product.price !== '-' ? (
+                      <p className="text-sm font-bold text-white">$ {product.price}</p>
+                    ) : (
+                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                    )}
                   </div>
-                </div>
-              </section>
-            )}
+                </button>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-            {/* Product Detail View */}
+      {/* Product Detail View */}
       {selectedProduct && (() => {
         // Build gallery: always start with main image, then add any additional gallery images (no duplicates)
         const mainImg = selectedProduct.image
@@ -1293,7 +1301,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                   </div>
                                 </div>
 
-                                {/* Retira Hoy badge */}
+                                {/* Price */}
+                {selectedProduct.price && selectedProduct.price !== '-' && (
+                  <div className="mb-6">
+                    <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>$ {selectedProduct.price}</p>
+                  </div>
+                )}
+
+                {/* Retira Hoy badge */}
                 <div className="mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20">
                   <MapPin className="w-5 h-5 text-green-400 flex-shrink-0" />
                   <div>
@@ -1309,7 +1324,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
                 >
                   <MessageCircle className="w-5 h-5" />
-                  Consultar Precio por WhatsApp
+                  {selectedProduct.price && selectedProduct.price !== '-' ? 'Comprar por WhatsApp' : 'Consultar Precio por WhatsApp'}
                 </a>
               </div>
             </div>
@@ -1337,15 +1352,19 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                 <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                               ))}
                             </div>
-                            <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />               Retira Hoy en {pickupAddress.short}</p>
-                                          <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                                        </div>
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </section>
+                            <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
+                            {product.price && product.price !== '-' ? (
+                              <p className="text-sm font-bold text-white">$ {product.price}</p>
+                            ) : (
+                              <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
               )
             })()}
 
@@ -1424,18 +1443,22 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                     ))}
                   </div>
 
-                  <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />       Retira Hoy en {pickupAddress.short}</p>
-                        <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                      </div>
-                    </button>
-                    </ScrollReveal>
-                  ))}
+                  <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
+                  {product.price && product.price !== '-' ? (
+                    <p className="text-sm font-bold text-white">$ {product.price}</p>
+                  ) : (
+                    <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                  )}
                 </div>
-              </div>
-            </section>
-            )}
+              </button>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+      )}
 
-            {/* Repair Section - Only for Duitama, hidden on product detail */}
+      {/* Repair Section - Only for Duitama, hidden on product detail */}
       {!selectedProduct && city === 'duitama' && (
         <section id="reparacion" className="py-16 md:py-24 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
