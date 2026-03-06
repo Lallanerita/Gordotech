@@ -529,13 +529,19 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
     setVideoLoaded(false)
   }, [current])
 
-  // Timer: for video slides, start 13s countdown only after video loads/plays
+  // Timer: for video slides, wait for video to end then advance
   // For image-only slides, start 13s countdown immediately
   useEffect(() => {
     if (isPaused || slides.length <= 1) return
     const currentSlide = slides[current]
-    const hasVideo = currentSlide?.video_url && (isVideoUrl(currentSlide.video_url) || getYouTubeEmbedUrl(currentSlide.video_url))
-    if (hasVideo && !videoLoaded) return // Wait for video to load
+    const hasVideo = currentSlide?.video_url && isVideoUrl(currentSlide.video_url)
+    if (hasVideo) {
+      // For native video slides, don't use timer - onEnded handles it
+      if (!videoLoaded) return
+      // Fallback: if video somehow doesn't fire onEnded, advance after 15s
+      timerRef.current = setTimeout(goNext, 15000)
+      return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+    }
     timerRef.current = setTimeout(goNext, 13000)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [goNext, isPaused, slides.length, current, videoLoaded, slides])
@@ -572,13 +578,14 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
           {slide.video_url && isVideoUrl(slide.video_url) && (
             <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
               <video
-                key={`video-${slide.id}`}
+                key={`video-${slide.id}-${current}`}
                 src={slide.video_url}
                 autoPlay
                 muted
                 playsInline
                 preload="auto"
                 onCanPlay={i === current ? () => setVideoLoaded(true) : undefined}
+                onEnded={i === current ? () => { if (!isPaused) goNext() } : undefined}
                 className="pointer-events-none"
                 style={{
                   position: 'absolute',
