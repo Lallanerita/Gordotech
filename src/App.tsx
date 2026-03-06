@@ -576,7 +576,6 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                 src={slide.video_url}
                 autoPlay
                 muted
-                loop
                 playsInline
                 preload="auto"
                 onCanPlay={i === current ? () => setVideoLoaded(true) : undefined}
