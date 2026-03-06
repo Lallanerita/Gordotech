@@ -76,6 +76,12 @@ const CITY_SOCIALS: Record<'duitama' | 'tunja', { instagram: string; tiktok: str
   },
 }
 
+// City store addresses for "Retira Hoy"
+const CITY_ADDRESSES: Record<'duitama' | 'tunja', string> = {
+  duitama: 'Gordotech Duitama',
+  tunja: 'Gordotech Tunja',
+}
+
 function TikTokIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -612,6 +618,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
 function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initialProduct }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
   const navigate = useNavigate()
   const socials = CITY_SOCIALS[city || 'duitama']
+  const pickupAddress = CITY_ADDRESSES[city || 'duitama']
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -1038,6 +1045,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                         <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                       ))}
                     </div>
+                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
                     <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                   </div>
                 </button>
@@ -1077,6 +1085,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                         <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                       ))}
                     </div>
+                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
                     <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                   </div>
                 </button>
@@ -1267,6 +1276,15 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   </div>
                 </div>
 
+                {/* Retira Hoy badge */}
+                <div className="mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                  <MapPin className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-green-400 font-semibold text-sm">Retira Hoy</p>
+                    <p className="text-gray-400 text-xs">{pickupAddress}</p>
+                  </div>
+                </div>
+
                 <a
                   href={`https://wa.me/${socials.whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition}). ¿Tienen disponible y cuál es el precio?`)}`}
                   target="_blank"
@@ -1302,6 +1320,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                 <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                               ))}
                             </div>
+                            <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
                             <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                           </div>
                         </button>
@@ -1388,6 +1407,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                     ))}
                   </div>
 
+                  <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
                   <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                 </div>
               </button>
