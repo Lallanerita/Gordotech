@@ -390,10 +390,8 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                   position: 'absolute',
                   top: '50%',
                   left: '50%',
-                  width: '177.78vh',
-                  height: '100vh',
-                  minWidth: '100%',
-                  minHeight: '100%',
+                  width: 'max(177.78vh, 300vw)',
+                  height: 'max(56.25vw, 200%)',
                   transform: 'translate(-50%, -50%)',
                 }}
                 allow="autoplay; encrypted-media"
