@@ -371,13 +371,17 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
-          {/* Background image (placeholder while video loads) */}
-          <img
-            src={slide.image}
-            alt={slide.title}
-            className={`absolute inset-0 w-full h-full object-cover ${i === current && !(slide.video_url && getYouTubeEmbedUrl(slide.video_url)) ? 'animate-ken-burns' : ''}`}
-            onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
-          />
+          {/* Background: black for video slides, image with Ken Burns for image-only slides */}
+          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
+            <div className="absolute inset-0 bg-black" />
+          ) : (
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
+              onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
+            />
+          )}
           {/* Video overlay - shown on all devices */}
           {slide.video_url && getYouTubeEmbedUrl(slide.video_url) && (
             <div className="absolute inset-0 transition-opacity duration-1000" style={{ overflow: 'hidden' }}>
