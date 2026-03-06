@@ -30,6 +30,33 @@ function PhoneModel({ url, onLoaded }: { url: string; onLoaded?: (height: number
         -center.z * scaleFactor
       )
 
+      // Brighten dark materials so camera lenses are visible
+      scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh
+          const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+          materials.forEach((mat) => {
+            if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
+              // Reduce metalness on very dark parts so light reflects better
+              if (mat.metalness > 0.8) {
+                mat.metalness = 0.6
+              }
+              // Increase roughness slightly to catch more diffuse light
+              if (mat.roughness < 0.2) {
+                mat.roughness = 0.3
+              }
+              // Add slight emissive glow to very dark materials
+              if (mat.color && mat.color.r < 0.1 && mat.color.g < 0.1 && mat.color.b < 0.1) {
+                mat.emissive = new THREE.Color(0x222222)
+                mat.emissiveIntensity = 0.3
+              }
+              mat.envMapIntensity = 2.0
+              mat.needsUpdate = true
+            }
+          })
+        }
+      })
+
       onLoaded?.(desiredHeight)
     }
   }, [scene, onLoaded])
@@ -102,7 +129,7 @@ export default function ProductViewer3D({ modelUrl }: { modelUrl: string; produc
       <Canvas
         camera={{ position: [1, 0.5, 3.5], fov: 35 }}
         style={{ background: 'transparent' }}
-        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
+        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.8 }}
         dpr={[1, 2]}
       >
         {/* Lighting - bright studio to show camera detail */}
