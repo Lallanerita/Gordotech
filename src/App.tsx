@@ -328,7 +328,8 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [animKey, setAnimKey] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [videoLoaded, setVideoLoaded] = useState(false)
 
   const goTo = useCallback((index: number) => {
     if (isTransitioning || index === current) return
@@ -348,11 +349,21 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
     goTo((current - 1 + slides.length) % slides.length)
   }, [current, slides.length, goTo])
 
+  // Reset videoLoaded when slide changes
+  useEffect(() => {
+    setVideoLoaded(false)
+  }, [current])
+
+  // Timer: for video slides, start 13s countdown only after video loads
+  // For image-only slides, start 13s countdown immediately
   useEffect(() => {
     if (isPaused || slides.length <= 1) return
-    timerRef.current = setInterval(goNext, 13000)
-    return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [goNext, isPaused, slides.length])
+    const currentSlide = slides[current]
+    const hasVideo = currentSlide?.video_url && getYouTubeEmbedUrl(currentSlide.video_url)
+    if (hasVideo && !videoLoaded) return // Wait for video to load
+    timerRef.current = setTimeout(goNext, 13000)
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [goNext, isPaused, slides.length, current, videoLoaded, slides])
 
   if (slides.length === 0) return null
 
@@ -389,6 +400,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                 key={`video-${slide.id}`}
                 src={i === current ? getYouTubeEmbedUrl(slide.video_url)! : undefined}
                 className="pointer-events-none"
+                onLoad={i === current ? () => setVideoLoaded(true) : undefined}
                 style={{
                   border: 'none',
                   position: 'absolute',
