@@ -888,12 +888,12 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
               <div className="space-y-4">
                 <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10 group">
                   {selectedProduct.badge && (
-                    <div className="absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
+                    <div className="absolute top-6 right-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
                   )}
                   <img
                     src={galleryImages[galleryIndex] || selectedProduct.image}
                     alt={`${selectedProduct.name} - Foto ${galleryIndex + 1}`}
-                    className="w-full h-full object-cover rounded-2xl cursor-pointer"
+                    className="w-full h-full object-contain rounded-2xl cursor-pointer"
                     onClick={() => setZoomOpen(true)}
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }}
                   />
