@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Routes, Route, useNavigate, useParams } from 'react-router-dom'
+import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
 import AdminPanel from './AdminPanel'
@@ -565,13 +565,13 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   )
 }
 
-function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string }) {
+function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initialProduct }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
   const navigate = useNavigate()
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
   const [hoveredBubbleId, setHoveredBubbleId] = useState<string | null>(null)
@@ -678,7 +678,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
     setSelectedProduct(product)
     setGalleryIndex(0)
     const slug = getProductSlug(product)
-    navigate(`/producto/${slug}`)
+    navigate(`/producto/${product.id}/${slug}`, { state: { product } })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [navigate])
 
@@ -690,27 +690,36 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
     navigate('/')
   }, [navigate])
 
-  // Load product from URL slug (for direct links / sharing)
+  // Load product from URL (for direct links / sharing)
   useEffect(() => {
-    if (!productSlug) {
+    if (!productSlug && !productId) {
       if (selectedProduct) {
         setSelectedProduct(null)
         setGalleryIndex(0)
       }
       return
     }
-    // First try to find in already loaded products
-    const found = apiProducts.find(p => getProductSlug(p) === productSlug)
-    if (found && (!selectedProduct || getProductSlug(selectedProduct) !== productSlug)) {
+    // If already have the right product selected (e.g. from initialProduct or route state), skip
+    if (selectedProduct && productId && String(selectedProduct.id) === productId) {
+      return
+    }
+    // Find by product ID first (unique), then fall back to slug
+    const found = productId
+      ? apiProducts.find(p => String(p.id) === productId)
+      : apiProducts.find(p => getProductSlug(p) === productSlug)
+    if (found && (!selectedProduct || String(selectedProduct.id) !== String(found.id))) {
       setSelectedProduct(found)
       setGalleryIndex(0)
       return
     }
-    // If not found locally, fetch from API by slug
+    // If not found locally, fetch from API by ID or slug
     if (!found && !selectedProduct) {
-      const fetchBySlug = async () => {
+      const fetchProduct = async () => {
         try {
-          const res = await fetch(`${API_URL}/api/products/by-slug/${productSlug}`)
+          const url = productId
+            ? `${API_URL}/api/products/${productId}`
+            : `${API_URL}/api/products/by-slug/${productSlug}`
+          const res = await fetch(url)
           if (res.ok) {
             const data = await res.json()
             const product: Product = {
@@ -726,9 +735,9 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
           // Product not found, stay on home
         }
       }
-      fetchBySlug()
+      fetchProduct()
     }
-  }, [productSlug, apiProducts, selectedProduct])
+  }, [productSlug, productId, apiProducts, selectedProduct])
 
   const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
 
@@ -1552,6 +1561,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
 }
 
 function ProductPageWrapper({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
+  const { id, slug } = useParams<{ id: string; slug: string }>()
+  const location = useLocation()
+  const initialProduct = (location.state as { product?: Product })?.product
+  return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} />
+}
+
+// Legacy slug-only wrapper for backwards compatibility
+function ProductPageWrapperLegacy({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
   const { slug } = useParams<{ slug: string }>()
   return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} />
 }
@@ -1607,7 +1624,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/producto/:slug" element={<ProductPageWrapper city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="/producto/:id/:slug" element={<ProductPageWrapper city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="/producto/:slug" element={<ProductPageWrapperLegacy city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="*" element={<Store city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
     </Routes>
   )
