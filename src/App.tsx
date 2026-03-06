@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -59,6 +59,30 @@ function ScrollReveal({ children, className = '', delay = 0, animation = 'fade-u
 }
 
 type City = 'duitama' | 'tunja' | null
+
+// City-based social media links
+const CITY_SOCIALS: Record<'duitama' | 'tunja', { instagram: string; tiktok: string; whatsapp: string; whatsappNumber: string }> = {
+  duitama: {
+    instagram: 'https://www.instagram.com/gordotechduitama',
+    tiktok: 'https://www.tiktok.com/@gordotech1',
+    whatsapp: 'https://api.whatsapp.com/message/LXBP7OHGAN7SP1?autoload=1&app_absent=0',
+    whatsappNumber: '573144810431',
+  },
+  tunja: {
+    instagram: 'https://www.instagram.com/gordotechtunja',
+    tiktok: 'https://www.tiktok.com/@gordotech1',
+    whatsapp: 'https://wa.me/573219863883',
+    whatsappNumber: '573219863883',
+  },
+}
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.73a8.19 8.19 0 004.76 1.52V6.8a4.84 4.84 0 01-1-.11z" />
+    </svg>
+  )
+}
 
 type HeroSlide = {
   id: number
@@ -587,6 +611,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
 
 function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initialProduct }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
   const navigate = useNavigate()
+  const socials = CITY_SOCIALS[city || 'duitama']
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -1231,7 +1256,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 </div>
 
                 <a
-                  href={`https://wa.me/573144810431?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition}). ¿Tienen disponible y cuál es el precio?`)}`}
+                  href={`https://wa.me/${socials.whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition}). ¿Tienen disponible y cuál es el precio?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
@@ -1401,7 +1426,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             <ScrollReveal delay={0.3}>
             <div className="text-center mt-12">
               <a
-                href="https://wa.me/573144810431?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion"
+                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
@@ -1456,9 +1481,9 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href="https://wa.me/573144810431" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
-                  WhatsApp
-                </a>
+                                <a href={`https://wa.me/${socials.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                                  WhatsApp
+                                </a>
                 <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   Ver en Mapa
                 </a>
@@ -1493,9 +1518,9 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href="https://wa.me/573144810431" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
-                  WhatsApp
-                </a>
+                                <a href={`https://wa.me/${socials.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                                  WhatsApp
+                                </a>
                 <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   Ver en Mapa
                 </a>
@@ -1525,7 +1550,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 Escribenos por WhatsApp y te asesoramos para que encuentres el iPhone perfecto para ti al mejor precio
               </p>
               <a
-                href="https://wa.me/573144810431?text=Hola%20Gordotech%2C%20quiero%20información%20sobre%20iPhones"
+                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20quiero%20información%20sobre%20iPhones`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-700 font-bold rounded-2xl transition-all hover:scale-105 hover:shadow-lg"
@@ -1554,13 +1579,13 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y semi-usados en Boyaca.</p>
               <div className="flex gap-3 mt-4">
-                <a href="#" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
                   <Instagram className="w-5 h-5 text-gray-400" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
-                  <Facebook className="w-5 h-5 text-gray-400" />
+                <a href={socials.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <TikTokIcon className="w-5 h-5 text-gray-400" />
                 </a>
-                <a href="https://wa.me/573144810431" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <a href={socials.whatsapp} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
                   <MessageCircle className="w-5 h-5 text-gray-400" />
                 </a>
               </div>
@@ -1625,7 +1650,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/573144810431?text=Hola%20Gordotech%2C%20necesito%20información"
+        href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20necesito%20información`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-all"
