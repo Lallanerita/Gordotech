@@ -504,7 +504,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   const [isPaused, setIsPaused] = useState(false)
   const [animKey, setAnimKey] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [videoLoaded, setVideoLoaded] = useState(false)
+  const [videoPlaying, setVideoPlaying] = useState(false)
 
   const goTo = useCallback((index: number) => {
     if (isTransitioning || index === current) return
@@ -524,27 +524,28 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
     goTo((current - 1 + slides.length) % slides.length)
   }, [current, slides.length, goTo])
 
-  // Reset videoLoaded when slide changes
+  // Reset videoPlaying when slide changes
   useEffect(() => {
-    setVideoLoaded(false)
+    setVideoPlaying(false)
   }, [current])
 
-  // Timer: for video slides, wait for video to end then advance
+  // Timer: for video slides, onEnded handles advancement
   // For image-only slides, start 13s countdown immediately
   useEffect(() => {
     if (isPaused || slides.length <= 1) return
     const currentSlide = slides[current]
     const hasVideo = currentSlide?.video_url && isVideoUrl(currentSlide.video_url)
     if (hasVideo) {
-      // For native video slides, don't use timer - onEnded handles it
-      if (!videoLoaded) return
-      // Fallback: if video somehow doesn't fire onEnded, advance after 15s
-      timerRef.current = setTimeout(goNext, 15000)
+      // For native video slides, onEnded handles advancement
+      // Only set fallback timer once video starts playing
+      if (!videoPlaying) return
+      // Fallback: if onEnded doesn't fire, advance after 20s from play start
+      timerRef.current = setTimeout(goNext, 20000)
       return () => { if (timerRef.current) clearTimeout(timerRef.current) }
     }
     timerRef.current = setTimeout(goNext, 13000)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
-  }, [goNext, isPaused, slides.length, current, videoLoaded, slides])
+  }, [goNext, isPaused, slides.length, current, videoPlaying, slides])
 
   if (slides.length === 0) return null
 
@@ -584,7 +585,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                 muted
                 playsInline
                 preload="auto"
-                onCanPlay={i === current ? () => setVideoLoaded(true) : undefined}
+                onPlaying={i === current ? () => setVideoPlaying(true) : undefined}
                 onEnded={i === current ? () => { if (!isPaused) goNext() } : undefined}
                 className="pointer-events-none"
                 style={{
@@ -606,7 +607,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                 key={`video-${slide.id}`}
                 src={i === current ? getYouTubeEmbedUrl(slide.video_url)! : undefined}
                 className="pointer-events-none"
-                onLoad={i === current ? () => setVideoLoaded(true) : undefined}
+                onLoad={i === current ? () => setVideoPlaying(true) : undefined}
                 style={{
                   border: 'none',
                   position: 'absolute',
