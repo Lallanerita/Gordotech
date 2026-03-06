@@ -1059,7 +1059,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                     <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                                       <Heart className="w-4 h-4 text-gray-300" />
                                     </div>
-                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                                   </div>
                                   <div className="p-3 md:p-4">
                                     <p className="text-xs text-blue-400 font-medium mb-1">{product.condition}</p>
@@ -1108,7 +1108,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                     <div className="absolute top-12 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <Heart className="w-4 h-4 text-gray-300" />
                     </div>
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
                   <div className="p-3 md:p-4">
                     <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
@@ -1362,7 +1362,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                             <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                               <Heart className="w-4 h-4 text-gray-300" />
                             </div>
-                            <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                            <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                           </div>
                           <div className="p-3 md:p-4">
                             <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
@@ -1442,7 +1442,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
                   />
                 </div>
