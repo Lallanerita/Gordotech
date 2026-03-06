@@ -1064,10 +1064,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                   <div className="p-3 md:p-4">
                                     <p className="text-xs text-blue-400 font-medium mb-1">{product.condition}</p>
                     <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                    <div className="flex flex-wrap gap-1 mb-2">
+                    <div className="flex flex-wrap items-center gap-1 mb-2">
                       {product.storageOptions.map((s, i) => (
                               <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
                             ))}
+                      {product.colors.length > 0 && <span className="mx-0.5" />}
+                      {product.colors.map((color, i) => (
+                        <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                      ))}
                           </div>
                           {product.price && product.price !== '-' ? (
                             <div className="mb-1">
@@ -1113,10 +1117,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <div className="p-3 md:p-4">
                     <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
                     <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                    <div className="flex flex-wrap gap-1 mb-2">
+                    <div className="flex flex-wrap items-center gap-1 mb-2">
                       {product.storageOptions.map((s, i) => (
                               <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
                             ))}
+                      {product.colors.length > 0 && <span className="mx-0.5" />}
+                      {product.colors.map((color, i) => (
+                        <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                      ))}
                           </div>
                           {product.price && product.price !== '-' ? (
                             <div className="mb-1">
@@ -1367,10 +1375,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                           <div className="p-3 md:p-4">
                             <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
                             <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                            <div className="flex flex-wrap gap-1 mb-2">
+                            <div className="flex flex-wrap items-center gap-1 mb-2">
                               {product.storageOptions.map((s, i) => (
                                                             <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
                                                           ))}
+                              {product.colors.length > 0 && <span className="mx-0.5" />}
+                              {product.colors.map((color, i) => (
+                                <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                              ))}
                                                         </div>
                                                         {product.price && product.price !== '-' ? (
                                                           <div className="mb-1">
@@ -1452,19 +1464,16 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
                   <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                   
-                  {/* Storage Options */}
-                  <div className="flex flex-wrap gap-1 mb-2">
+                  {/* Storage Options + Colors */}
+                  <div className="flex flex-wrap items-center gap-1 mb-2">
                     {product.storageOptions.map((storage, i) => (
                                             <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">
                                               {storage}
                                             </span>
                     ))}
-                  </div>
-
-                  {/* Colors */}
-                  <div className="flex items-center gap-1 mb-2">
+                    {product.colors.length > 0 && <span className="mx-0.5" />}
                     {product.colors.map((color, i) => (
-                      <div key={i} className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                      <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
                     ))}
                   </div>
 
