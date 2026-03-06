@@ -7,6 +7,7 @@ from typing import Optional
 import aiosqlite
 import json
 import os
+import re
 import uuid
 import shutil
 from datetime import datetime, timedelta
@@ -176,6 +177,20 @@ async def get_current_admin(authorization: str = Query(None, alias="token")):
     return await verify_token(authorization)
 
 # Helper to parse row to dict
+def generate_slug(name: str) -> str:
+    """Generate a URL-friendly slug from a product name."""
+    slug = name.lower().strip()
+    slug = re.sub(r'[áàäâ]', 'a', slug)
+    slug = re.sub(r'[éèëê]', 'e', slug)
+    slug = re.sub(r'[íìïî]', 'i', slug)
+    slug = re.sub(r'[óòöô]', 'o', slug)
+    slug = re.sub(r'[úùüû]', 'u', slug)
+    slug = re.sub(r'[ñ]', 'n', slug)
+    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+    slug = re.sub(r'[\s]+', '-', slug)
+    slug = re.sub(r'-+', '-', slug)
+    return slug.strip('-')
+
 def row_to_product(row):
     keys = row.keys()
     images_raw = row["images"] if "images" in keys else "[]"
@@ -188,9 +203,11 @@ def row_to_product(row):
     if (not isinstance(images, list) or len(images) == 0) and row["image"]:
         images = [row["image"]]
 
+    product_name = row["name"]
     return {
         "id": row["id"],
-        "name": row["name"],
+        "name": product_name,
+        "slug": generate_slug(product_name),
         "category": row["category"] if "category" in keys else "",
         "condition": row["condition"],
         "image": row["image"],
@@ -310,6 +327,21 @@ async def get_trending(city: Optional[str] = None):
         if city:
             products = [p for p in products if city in p["available"]]
         return {"products": products}
+    finally:
+        await db.close()
+
+@app.get("/api/products/by-slug/{slug}")
+async def get_product_by_slug(slug: str):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM products ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        for row in rows:
+            product = row_to_product(row)
+            if product["slug"] == slug:
+                return product
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
     finally:
         await db.close()
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
 import AdminPanel from './AdminPanel'
@@ -134,6 +135,7 @@ const accesorios = [
 type Product = {
   id: number
   name: string
+  slug?: string
   category: string
   condition: string
   image: string
@@ -142,6 +144,24 @@ type Product = {
   storageOptions: string[]
   badge: string | null
   available: string[]
+}
+
+function generateSlug(name: string): string {
+  let slug = name.toLowerCase().trim()
+  slug = slug.replace(/[áàäâ]/g, 'a')
+  slug = slug.replace(/[éèëê]/g, 'e')
+  slug = slug.replace(/[íìïî]/g, 'i')
+  slug = slug.replace(/[óòöô]/g, 'o')
+  slug = slug.replace(/[úùüû]/g, 'u')
+  slug = slug.replace(/[ñ]/g, 'n')
+  slug = slug.replace(/[^a-z0-9\s-]/g, '')
+  slug = slug.replace(/[\s]+/g, '-')
+  slug = slug.replace(/-+/g, '-')
+  return slug.replace(/^-|-$/g, '')
+}
+
+function getProductSlug(product: Product): string {
+  return product.slug || generateSlug(product.name)
 }
 
 const products: Product[] = [
@@ -512,7 +532,8 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   )
 }
 
-function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
+function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string }) {
+  const navigate = useNavigate()
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -618,6 +639,84 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
     }
     loadData()
   }, [city])
+
+  // Navigate to product URL and select product
+  const selectProduct = useCallback((product: Product) => {
+    setSelectedProduct(product)
+    setGalleryIndex(0)
+    const slug = getProductSlug(product)
+    navigate(`/producto/${slug}`)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [navigate])
+
+  // Clear product selection and go back to home
+  const clearProduct = useCallback(() => {
+    setSelectedProduct(null)
+    setGalleryIndex(0)
+    setZoomOpen(false)
+    navigate('/')
+  }, [navigate])
+
+  // Load product from URL slug (for direct links / sharing)
+  useEffect(() => {
+    if (!productSlug) {
+      if (selectedProduct) {
+        setSelectedProduct(null)
+        setGalleryIndex(0)
+      }
+      return
+    }
+    // First try to find in already loaded products
+    const found = apiProducts.find(p => getProductSlug(p) === productSlug)
+    if (found && (!selectedProduct || getProductSlug(selectedProduct) !== productSlug)) {
+      setSelectedProduct(found)
+      setGalleryIndex(0)
+      return
+    }
+    // If not found locally, fetch from API by slug
+    if (!found && !selectedProduct) {
+      const fetchBySlug = async () => {
+        try {
+          const res = await fetch(`${API_URL}/api/products/by-slug/${productSlug}`)
+          if (res.ok) {
+            const data = await res.json()
+            const product: Product = {
+              id: data.id, name: data.name, slug: data.slug, category: data.category || '',
+              condition: data.condition, image: data.image, images: data.images || [],
+              colors: data.colors, storageOptions: data.storage_options,
+              badge: data.badge || null, available: data.available,
+            }
+            setSelectedProduct(product)
+            setGalleryIndex(0)
+          }
+        } catch {
+          // Product not found, stay on home
+        }
+      }
+      fetchBySlug()
+    }
+  }, [productSlug, apiProducts, selectedProduct])
+
+  // Update page title and meta tags for SEO
+  useEffect(() => {
+    if (selectedProduct) {
+      document.title = `${selectedProduct.name} - Gordotech | Tu destino Apple en Boyaca`
+      const metaDesc = document.querySelector('meta[name="description"]')
+      if (metaDesc) metaDesc.setAttribute('content', `${selectedProduct.name} (${selectedProduct.condition}) disponible en Gordotech ${cityName}. Envios a toda Colombia.`)
+      const ogTitle = document.querySelector('meta[property="og:title"]')
+      if (ogTitle) ogTitle.setAttribute('content', `${selectedProduct.name} - Gordotech`)
+      const ogDesc = document.querySelector('meta[property="og:description"]')
+      if (ogDesc) ogDesc.setAttribute('content', `${selectedProduct.name} (${selectedProduct.condition}) disponible en Gordotech.`)
+      const ogImage = document.querySelector('meta[property="og:image"]')
+      if (ogImage) ogImage.setAttribute('content', selectedProduct.image)
+      const ogUrl = document.querySelector('meta[property="og:url"]')
+      if (ogUrl) ogUrl.setAttribute('content', `https://gordotech.com/producto/${getProductSlug(selectedProduct)}`)
+    } else {
+      document.title = 'Gordotech - iPhones, iPads, MacBooks y mas | Tu destino Apple en Boyaca'
+      const metaDesc = document.querySelector('meta[name="description"]')
+      if (metaDesc) metaDesc.setAttribute('content', 'Gordotech - Tu destino Apple en Boyaca. iPhones nuevos y semi-usados, iPads, MacBooks, AirPods y Apple Watch al mejor precio. Envios a toda Colombia.')
+    }
+  }, [selectedProduct, cityName])
 
   // Load related products when a product is selected
   useEffect(() => {
@@ -808,7 +907,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {recommendedProducts.map(product => (
-                                <button key={product.id} onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                                <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
                                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                                     {product.badge && (
                                       <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
@@ -845,7 +944,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {trendingProducts.map(product => (
-                <button key={product.id} onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
+                <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                     <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Trending</div>
                     <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -878,7 +977,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
         return (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <button onClick={() => { setSelectedProduct(null); setGalleryIndex(0); setZoomOpen(false) }} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
+            <button onClick={clearProduct} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
               <ArrowLeft className="w-4 h-4" />
               Volver a productos
             </button>
@@ -1023,7 +1122,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
               <h3 className="text-2xl md:text-4xl font-bold mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRODUCTOS RELACIONADOS</h3>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {relatedProducts.map(product => (
-                  <button key={product.id} onClick={() => {       setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                  <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
                           <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                             {product.badge && (
                               <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
@@ -1085,7 +1184,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             {filteredProducts.map((product) => (
               <button
                 key={product.id}
-                onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => selectProduct(product)}
                 className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
               >
                 {/* Badge */}
@@ -1390,6 +1489,11 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   )
 }
 
+function ProductPageWrapper({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
+  const { slug } = useParams<{ slug: string }>()
+  return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} />
+}
+
 function App() {
   const [city, setCity] = useState<City>(() => {
     const saved = localStorage.getItem('gordotech-city')
@@ -1435,7 +1539,12 @@ function App() {
     return <CitySelector onSelect={handleCitySelect} />
   }
 
-  return <Store city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />
+  return (
+    <Routes>
+      <Route path="/producto/:slug" element={<ProductPageWrapper city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="*" element={<Store city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+    </Routes>
+  )
 }
 
 export default App
