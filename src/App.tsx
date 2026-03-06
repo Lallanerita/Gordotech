@@ -622,6 +622,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
   const [show3DView, setShow3DView] = useState(false)
   const [hoveredBubbleId, setHoveredBubbleId] = useState<string | null>(null)
   const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [dataLoaded, setDataLoaded] = useState(false)
   
   // Hero slideshow + marquee data
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([])
@@ -714,6 +715,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
       } catch {
         // Fallback to static data if API unavailable
         console.log('Using static data (API unavailable)')
+      } finally {
+        setDataLoaded(true)
       }
     }
     loadData()
@@ -866,6 +869,18 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
     }
     return true
   })
+
+  // Loading screen while API data is being fetched
+  if (!dataLoaded && !selectedProduct) {
+    return (
+      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <div className="flex flex-col items-center gap-4">
+          <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-16 animate-pulse" />
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
