@@ -7,6 +7,7 @@ from typing import Optional
 import aiosqlite
 import json
 import os
+import re
 import uuid
 import shutil
 from datetime import datetime, timedelta
@@ -121,6 +122,34 @@ class RepairServiceUpdate(BaseModel):
     icon: Optional[str] = None
     sort_order: Optional[int] = None
 
+class HeroSlideCreate(BaseModel):
+    title: str = ""
+    subtitle: str = ""
+    image: str = ""
+    video_url: str = ""
+    link: str = ""
+    active: bool = True
+    sort_order: int = 0
+
+class HeroSlideUpdate(BaseModel):
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    image: Optional[str] = None
+    video_url: Optional[str] = None
+    link: Optional[str] = None
+    active: Optional[bool] = None
+    sort_order: Optional[int] = None
+
+class MarqueeTextCreate(BaseModel):
+    text: str = ""
+    active: bool = True
+    sort_order: int = 0
+
+class MarqueeTextUpdate(BaseModel):
+    text: Optional[str] = None
+    active: Optional[bool] = None
+    sort_order: Optional[int] = None
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
@@ -148,6 +177,20 @@ async def get_current_admin(authorization: str = Query(None, alias="token")):
     return await verify_token(authorization)
 
 # Helper to parse row to dict
+def generate_slug(name: str) -> str:
+    """Generate a URL-friendly slug from a product name."""
+    slug = name.lower().strip()
+    slug = re.sub(r'[áàäâ]', 'a', slug)
+    slug = re.sub(r'[éèëê]', 'e', slug)
+    slug = re.sub(r'[íìïî]', 'i', slug)
+    slug = re.sub(r'[óòöô]', 'o', slug)
+    slug = re.sub(r'[úùüû]', 'u', slug)
+    slug = re.sub(r'[ñ]', 'n', slug)
+    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+    slug = re.sub(r'[\s]+', '-', slug)
+    slug = re.sub(r'-+', '-', slug)
+    return slug.strip('-')
+
 def row_to_product(row):
     keys = row.keys()
     images_raw = row["images"] if "images" in keys else "[]"
@@ -160,9 +203,11 @@ def row_to_product(row):
     if (not isinstance(images, list) or len(images) == 0) and row["image"]:
         images = [row["image"]]
 
+    product_name = row["name"]
     return {
         "id": row["id"],
-        "name": row["name"],
+        "name": product_name,
+        "slug": generate_slug(product_name),
         "category": row["category"] if "category" in keys else "",
         "condition": row["condition"],
         "image": row["image"],
@@ -193,6 +238,26 @@ def row_to_bubble(row):
         "model_id": row["model_id"],
         "label": row["label"],
         "image": row["image"],
+        "sort_order": row["sort_order"],
+    }
+
+def row_to_hero_slide(row):
+    return {
+        "id": row["id"],
+        "title": row["title"],
+        "subtitle": row["subtitle"],
+        "image": row["image"],
+        "video_url": row["video_url"] if "video_url" in row.keys() else "",
+        "link": row["link"],
+        "active": bool(row["active"]),
+        "sort_order": row["sort_order"],
+    }
+
+def row_to_marquee(row):
+    return {
+        "id": row["id"],
+        "text": row["text"],
+        "active": bool(row["active"]),
         "sort_order": row["sort_order"],
     }
 
@@ -262,6 +327,21 @@ async def get_trending(city: Optional[str] = None):
         if city:
             products = [p for p in products if city in p["available"]]
         return {"products": products}
+    finally:
+        await db.close()
+
+@app.get("/api/products/by-slug/{slug}")
+async def get_product_by_slug(slug: str):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM products ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        for row in rows:
+            product = row_to_product(row)
+            if product["slug"] == slug:
+                return product
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
     finally:
         await db.close()
 
@@ -702,19 +782,206 @@ async def admin_delete_service(service_id: int, username: str = Depends(get_curr
     finally:
         await db.close()
 
-# ==================== IMAGE UPLOAD ====================
+# ==================== HERO SLIDES (PUBLIC) ====================
+
+@app.get("/api/hero-slides")
+async def get_hero_slides():
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM hero_slides WHERE active = 1 ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"slides": [row_to_hero_slide(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.get("/api/marquee-texts")
+async def get_marquee_texts():
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM marquee_texts WHERE active = 1 ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"texts": [row_to_marquee(r) for r in rows]}
+    finally:
+        await db.close()
+
+# ==================== ADMIN HERO SLIDES ====================
+
+@app.get("/api/admin/hero-slides")
+async def admin_get_hero_slides(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM hero_slides ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"slides": [row_to_hero_slide(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/hero-slides")
+async def admin_create_hero_slide(slide: HeroSlideCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "INSERT INTO hero_slides (title, subtitle, image, video_url, link, active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (slide.title, slide.subtitle, slide.image, slide.video_url, slide.link, int(slide.active), slide.sort_order)
+        )
+        await db.commit()
+        slide_id = cursor.lastrowid
+        return {"message": "Slide creado", "id": slide_id}
+    finally:
+        await db.close()
+
+@app.put("/api/admin/hero-slides/{slide_id}")
+async def admin_update_hero_slide(slide_id: int, slide: HeroSlideUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM hero_slides WHERE id = ?", (slide_id,))
+        existing = await cursor.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Slide no encontrado")
+        
+        updates = {}
+        if slide.title is not None: updates["title"] = slide.title
+        if slide.subtitle is not None: updates["subtitle"] = slide.subtitle
+        if slide.image is not None: updates["image"] = slide.image
+        if slide.video_url is not None: updates["video_url"] = slide.video_url
+        if slide.link is not None: updates["link"] = slide.link
+        if slide.active is not None: updates["active"] = int(slide.active)
+        if slide.sort_order is not None: updates["sort_order"] = slide.sort_order
+        
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [slide_id]
+            await db.execute(f"UPDATE hero_slides SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        
+        return {"message": "Slide actualizado"}
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/hero-slides/{slide_id}")
+async def admin_delete_hero_slide(slide_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("DELETE FROM hero_slides WHERE id = ?", (slide_id,))
+        await db.commit()
+        return {"message": "Slide eliminado"}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/hero-slides/{slide_id}/toggle")
+async def admin_toggle_hero_slide(slide_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("UPDATE hero_slides SET active = CASE WHEN active = 1 THEN 0 ELSE 1 END WHERE id = ?", (slide_id,))
+        await db.commit()
+        return {"message": "Slide actualizado"}
+    finally:
+        await db.close()
+
+# ==================== ADMIN MARQUEE TEXTS ====================
+
+@app.get("/api/admin/marquee-texts")
+async def admin_get_marquee_texts(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM marquee_texts ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"texts": [row_to_marquee(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/marquee-texts")
+async def admin_create_marquee_text(mt: MarqueeTextCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "INSERT INTO marquee_texts (text, active, sort_order) VALUES (?, ?, ?)",
+            (mt.text, int(mt.active), mt.sort_order)
+        )
+        await db.commit()
+        return {"message": "Texto creado", "id": cursor.lastrowid}
+    finally:
+        await db.close()
+
+@app.put("/api/admin/marquee-texts/{text_id}")
+async def admin_update_marquee_text(text_id: int, mt: MarqueeTextUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM marquee_texts WHERE id = ?", (text_id,))
+        existing = await cursor.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Texto no encontrado")
+        
+        updates = {}
+        if mt.text is not None: updates["text"] = mt.text
+        if mt.active is not None: updates["active"] = int(mt.active)
+        if mt.sort_order is not None: updates["sort_order"] = mt.sort_order
+        
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [text_id]
+            await db.execute(f"UPDATE marquee_texts SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        
+        return {"message": "Texto actualizado"}
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/marquee-texts/{text_id}")
+async def admin_delete_marquee_text(text_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("DELETE FROM marquee_texts WHERE id = ?", (text_id,))
+        await db.commit()
+        return {"message": "Texto eliminado"}
+    finally:
+        await db.close()
+
+# ==================== IMAGE UPLOAD ==
 
 @app.post("/api/admin/upload")
 async def upload_image(file: UploadFile = File(...), username: str = Depends(get_current_admin)):
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos de imagen")
     
+    content = await file.read()
     ext = os.path.splitext(file.filename or "image.jpg")[1] or ".jpg"
+    
+    # Auto-crop transparent padding from PNG images
+    try:
+        from PIL import Image
+        import io
+        img = Image.open(io.BytesIO(content))
+        if img.mode == "RGBA":
+            bbox = img.getbbox()
+            if bbox:
+                # Add small padding (5% of dimensions)
+                pad_x = max(int((bbox[2] - bbox[0]) * 0.05), 2)
+                pad_y = max(int((bbox[3] - bbox[1]) * 0.05), 2)
+                crop_box = (
+                    max(0, bbox[0] - pad_x),
+                    max(0, bbox[1] - pad_y),
+                    min(img.width, bbox[2] + pad_x),
+                    min(img.height, bbox[3] + pad_y),
+                )
+                cropped = img.crop(crop_box)
+                buf = io.BytesIO()
+                cropped.save(buf, format="PNG")
+                content = buf.getvalue()
+                ext = ".png"
+    except Exception:
+        pass  # If cropping fails, use original image
+    
     filename = f"{uuid.uuid4().hex}{ext}"
     filepath = os.path.join(UPLOAD_DIR, filename)
     
     with open(filepath, "wb") as f:
-        content = await file.read()
         f.write(content)
     
     return {"url": f"/uploads/{filename}", "filename": filename}
@@ -743,6 +1010,9 @@ async def admin_stats(username: str = Depends(get_current_admin)):
         cursor = await db.execute("SELECT COUNT(*) FROM categories")
         category_count = (await cursor.fetchone())[0]
         
+        cursor = await db.execute("SELECT COUNT(*) FROM hero_slides")
+        slides_count = (await cursor.fetchone())[0]
+        
         return {
             "total_products": total_products,
             "new_products": new_count,
@@ -750,6 +1020,7 @@ async def admin_stats(username: str = Depends(get_current_admin)):
             "categories": category_count,
             "bubbles": bubble_count,
             "repair_services": service_count,
+            "hero_slides": slides_count,
         }
     finally:
         await db.close()

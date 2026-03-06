@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
 import AdminPanel from './AdminPanel'
@@ -6,6 +7,45 @@ import AdminPanel from './AdminPanel'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 type City = 'duitama' | 'tunja' | null
+
+type HeroSlide = {
+  id: number
+  title: string
+  subtitle: string
+  image: string
+  video_url: string
+  link: string
+  active: boolean
+  sort_order: number
+}
+
+function isVideoUrl(url: string): boolean {
+  if (!url) return false
+  return url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.mov') || url.includes('/videos/')
+}
+
+function getYouTubeEmbedUrl(url: string): string | null {
+  if (!url) return null
+  if (isVideoUrl(url)) return null // MP4 files are handled natively
+  let videoId: string | null = null
+  const watchMatch = url.match(/(?:youtube\.com\/watch\?v=)([\w-]+)/)
+  if (watchMatch) videoId = watchMatch[1]
+  if (!videoId) { const shortMatch = url.match(/(?:youtu\.be\/)([\w-]+)/); if (shortMatch) videoId = shortMatch[1] }
+  if (!videoId) { const embedMatch = url.match(/(?:youtube\.com\/embed\/)([\w-]+)/); if (embedMatch) videoId = embedMatch[1] }
+  if (!videoId) return null
+  let startTime = 0
+  const tMatch = url.match(/[?&]t=(\d+)/)
+  if (tMatch) startTime = parseInt(tMatch[1])
+  if (!startTime) startTime = 60
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=${startTime}&vq=hd1080&hd=1`
+}
+
+type MarqueeText = {
+  id: number
+  text: string
+  active: boolean
+  sort_order: number
+}
 
 // Product data - Semi-usados
 const semiUsados = [
@@ -95,6 +135,7 @@ const accesorios = [
 type Product = {
   id: number
   name: string
+  slug?: string
   category: string
   condition: string
   image: string
@@ -103,6 +144,24 @@ type Product = {
   storageOptions: string[]
   badge: string | null
   available: string[]
+}
+
+function generateSlug(name: string): string {
+  let slug = name.toLowerCase().trim()
+  slug = slug.replace(/[áàäâ]/g, 'a')
+  slug = slug.replace(/[éèëê]/g, 'e')
+  slug = slug.replace(/[íìïî]/g, 'i')
+  slug = slug.replace(/[óòöô]/g, 'o')
+  slug = slug.replace(/[úùüû]/g, 'u')
+  slug = slug.replace(/[ñ]/g, 'n')
+  slug = slug.replace(/[^a-z0-9\s-]/g, '')
+  slug = slug.replace(/[\s]+/g, '-')
+  slug = slug.replace(/-+/g, '-')
+  return slug.replace(/^-|-$/g, '')
+}
+
+function getProductSlug(product: Product): string {
+  return product.slug || generateSlug(product.name)
 }
 
 const products: Product[] = [
@@ -265,7 +324,216 @@ function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
 }
 
 // Main Store Component
-function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
+// ==================== ANIMATED MARQUEE BANNER ====================
+function AnimatedMarquee({ texts }: { texts: string[] }) {
+  if (texts.length === 0) return null
+  const marqueeContent = texts.join('  \u2022  ')
+  const repeated = `${marqueeContent}  \u2022  `.repeat(4)
+  
+  return (
+    <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white overflow-hidden whitespace-nowrap relative" style={{ height: '36px' }}>
+      <div className="absolute inset-0 flex items-center">
+        <div className="animate-marquee inline-block" style={{ animationDuration: `${Math.max(20, texts.length * 12)}s` }}>
+          <span className="text-xs md:text-sm font-medium tracking-wide">
+            {repeated}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ==================== HERO SLIDESHOW ====================
+function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
+  const [current, setCurrent] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [animKey, setAnimKey] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [videoLoaded, setVideoLoaded] = useState(false)
+
+  const goTo = useCallback((index: number) => {
+    if (isTransitioning || index === current) return
+    setIsTransitioning(true)
+    setCurrent(index)
+    setAnimKey(k => k + 1)
+    setTimeout(() => setIsTransitioning(false), 900)
+  }, [current, isTransitioning])
+
+  const goNext = useCallback(() => {
+    if (slides.length <= 1) return
+    goTo((current + 1) % slides.length)
+  }, [current, slides.length, goTo])
+
+  const goPrev = useCallback(() => {
+    if (slides.length <= 1) return
+    goTo((current - 1 + slides.length) % slides.length)
+  }, [current, slides.length, goTo])
+
+  // Reset videoLoaded when slide changes
+  useEffect(() => {
+    setVideoLoaded(false)
+  }, [current])
+
+  // Timer: for video slides, start 13s countdown only after video loads/plays
+  // For image-only slides, start 13s countdown immediately
+  useEffect(() => {
+    if (isPaused || slides.length <= 1) return
+    const currentSlide = slides[current]
+    const hasVideo = currentSlide?.video_url && (isVideoUrl(currentSlide.video_url) || getYouTubeEmbedUrl(currentSlide.video_url))
+    if (hasVideo && !videoLoaded) return // Wait for video to load
+    timerRef.current = setTimeout(goNext, 13000)
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [goNext, isPaused, slides.length, current, videoLoaded, slides])
+
+  if (slides.length === 0) return null
+
+  return (
+    <section 
+      className="relative w-full overflow-hidden bg-black"
+      style={{ height: 'clamp(400px, 60vw, 650px)' }}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Slides */}
+      {slides.map((slide, i) => (
+        <div
+          key={slide.id}
+          className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${
+            i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
+          }`}
+        >
+          {/* Background: black for video slides, image with Ken Burns for image-only slides */}
+          {slide.video_url && (isVideoUrl(slide.video_url) || getYouTubeEmbedUrl(slide.video_url)) ? (
+            <div className="absolute inset-0 bg-black" />
+          ) : (
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
+              onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
+            />
+          )}
+          {/* Native MP4 video - loads fast like Apple */}
+          {slide.video_url && isVideoUrl(slide.video_url) && (
+            <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
+              <video
+                key={`video-${slide.id}`}
+                src={slide.video_url}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                onCanPlay={i === current ? () => setVideoLoaded(true) : undefined}
+                className="pointer-events-none"
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transform: 'translate(-50%, -50%)',
+                }}
+              />
+            </div>
+          )}
+          {/* YouTube iframe fallback */}
+          {slide.video_url && !isVideoUrl(slide.video_url) && getYouTubeEmbedUrl(slide.video_url) && (
+            <div className="absolute inset-0 transition-opacity duration-1000" style={{ overflow: 'hidden' }}>
+              <iframe
+                key={`video-${slide.id}`}
+                src={i === current ? getYouTubeEmbedUrl(slide.video_url)! : undefined}
+                className="pointer-events-none"
+                onLoad={i === current ? () => setVideoLoaded(true) : undefined}
+                style={{
+                  border: 'none',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  width: 'max(177.78vh, 100vw)',
+                  height: 'max(56.25vw, 100%)',
+                  transform: 'translate(-50%, -50%)',
+                }}
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                title={slide.title}
+              />
+            </div>
+          )}
+          {/* Gradient overlays - lighter for video, dramatic for images */}
+          {slide.video_url && (isVideoUrl(slide.video_url) || getYouTubeEmbedUrl(slide.video_url)) ? (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+            </>
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+            </>
+          )}
+          
+          {/* Content - Apple-style dramatic entrance */}
+          <div className="absolute inset-0 flex items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+              {i === current ? (
+                <div key={`content-${animKey}`} className="max-w-2xl">
+                  {slide.title && (
+                    <h2 className="animate-hero-title text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-[0.95] drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '3px' }}>
+                      {slide.title}
+                    </h2>
+                  )}
+                  {slide.subtitle && (
+                    <p className="animate-hero-subtitle text-lg md:text-2xl text-gray-200/90 mb-8 max-w-lg font-light tracking-wide">
+                      {slide.subtitle}
+                    </p>
+                  )}
+                  {slide.link && (
+                    <a
+                      href={slide.link}
+                      className="animate-hero-button inline-flex items-center gap-2 px-8 py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 text-sm md:text-base"
+                    >
+                      Ver Ahora
+                      <ChevronRight className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div className="max-w-2xl opacity-0">
+                  {slide.title && <h2 className="text-4xl">{slide.title}</h2>}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* Navigation Arrows */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={goPrev}
+            className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
+          >
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+          <button
+            onClick={goNext}
+            className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
+          >
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+        </>
+      )}
+
+    </section>
+  )
+}
+
+function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string }) {
+  const navigate = useNavigate()
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -273,6 +541,12 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
+  const [hoveredBubbleId, setHoveredBubbleId] = useState<string | null>(null)
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  
+  // Hero slideshow + marquee data
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([])
+  const [marqueeTexts, setMarqueeTexts] = useState<string[]>([])
   
   // API-loaded data with fallback to static
   const [apiProducts, setApiProducts] = useState<Product[]>(products)
@@ -294,12 +568,14 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [productsRes, recommendedRes, trendingRes, bubblesRes, servicesRes] = await Promise.all([
+        const [productsRes, recommendedRes, trendingRes, bubblesRes, servicesRes, slidesRes, marqueeRes] = await Promise.all([
           fetch(`${API_URL}/api/products?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/products/recommended?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/products/trending?city=${city || 'duitama'}`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/bubbles`).then(r => r.ok ? r.json() : null),
           fetch(`${API_URL}/api/repair-services`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/hero-slides`).then(r => r.ok ? r.json() : null),
+          fetch(`${API_URL}/api/marquee-texts`).then(r => r.ok ? r.json() : null),
         ])
         if (productsRes?.products) {
           setApiProducts(productsRes.products.map((p: Record<string, unknown>) => ({
@@ -336,9 +612,10 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
           })))
         }
         if (bubblesRes?.bubbles) {
-          setModelBubbles(bubblesRes.bubbles.map((b: Record<string, unknown>) => ({
+          const apiBubbles = bubblesRes.bubbles.map((b: Record<string, unknown>) => ({
             id: b.model_id as string, label: b.label as string, image: b.image as string,
-          })))
+          }))
+          setModelBubbles(apiBubbles)
         }
         if (servicesRes?.services) {
           const iconMap: Record<string, typeof Smartphone> = { Smartphone, Zap, Shield, Award, Wrench }
@@ -349,6 +626,12 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             price: s.price as string,
           })))
         }
+        if (slidesRes?.slides) {
+          setHeroSlides(slidesRes.slides)
+        }
+        if (marqueeRes?.texts) {
+          setMarqueeTexts(marqueeRes.texts.map((t: { text: string }) => t.text))
+        }
       } catch {
         // Fallback to static data if API unavailable
         console.log('Using static data (API unavailable)')
@@ -356,6 +639,84 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
     }
     loadData()
   }, [city])
+
+  // Navigate to product URL and select product
+  const selectProduct = useCallback((product: Product) => {
+    setSelectedProduct(product)
+    setGalleryIndex(0)
+    const slug = getProductSlug(product)
+    navigate(`/producto/${slug}`)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [navigate])
+
+  // Clear product selection and go back to home
+  const clearProduct = useCallback(() => {
+    setSelectedProduct(null)
+    setGalleryIndex(0)
+    setZoomOpen(false)
+    navigate('/')
+  }, [navigate])
+
+  // Load product from URL slug (for direct links / sharing)
+  useEffect(() => {
+    if (!productSlug) {
+      if (selectedProduct) {
+        setSelectedProduct(null)
+        setGalleryIndex(0)
+      }
+      return
+    }
+    // First try to find in already loaded products
+    const found = apiProducts.find(p => getProductSlug(p) === productSlug)
+    if (found && (!selectedProduct || getProductSlug(selectedProduct) !== productSlug)) {
+      setSelectedProduct(found)
+      setGalleryIndex(0)
+      return
+    }
+    // If not found locally, fetch from API by slug
+    if (!found && !selectedProduct) {
+      const fetchBySlug = async () => {
+        try {
+          const res = await fetch(`${API_URL}/api/products/by-slug/${productSlug}`)
+          if (res.ok) {
+            const data = await res.json()
+            const product: Product = {
+              id: data.id, name: data.name, slug: data.slug, category: data.category || '',
+              condition: data.condition, image: data.image, images: data.images || [],
+              colors: data.colors, storageOptions: data.storage_options,
+              badge: data.badge || null, available: data.available,
+            }
+            setSelectedProduct(product)
+            setGalleryIndex(0)
+          }
+        } catch {
+          // Product not found, stay on home
+        }
+      }
+      fetchBySlug()
+    }
+  }, [productSlug, apiProducts, selectedProduct])
+
+  // Update page title and meta tags for SEO
+  useEffect(() => {
+    if (selectedProduct) {
+      document.title = `${selectedProduct.name} - Gordotech | Tu destino Apple en Boyaca`
+      const metaDesc = document.querySelector('meta[name="description"]')
+      if (metaDesc) metaDesc.setAttribute('content', `${selectedProduct.name} (${selectedProduct.condition}) disponible en Gordotech ${cityName}. Envios a toda Colombia.`)
+      const ogTitle = document.querySelector('meta[property="og:title"]')
+      if (ogTitle) ogTitle.setAttribute('content', `${selectedProduct.name} - Gordotech`)
+      const ogDesc = document.querySelector('meta[property="og:description"]')
+      if (ogDesc) ogDesc.setAttribute('content', `${selectedProduct.name} (${selectedProduct.condition}) disponible en Gordotech.`)
+      const ogImage = document.querySelector('meta[property="og:image"]')
+      if (ogImage) ogImage.setAttribute('content', selectedProduct.image)
+      const ogUrl = document.querySelector('meta[property="og:url"]')
+      if (ogUrl) ogUrl.setAttribute('content', `https://gordotech.com/producto/${getProductSlug(selectedProduct)}`)
+    } else {
+      document.title = 'Gordotech - iPhones, iPads, MacBooks y mas | Tu destino Apple en Boyaca'
+      const metaDesc = document.querySelector('meta[name="description"]')
+      if (metaDesc) metaDesc.setAttribute('content', 'Gordotech - Tu destino Apple en Boyaca. iPhones nuevos y semi-usados, iPads, MacBooks, AirPods y Apple Watch al mejor precio. Envios a toda Colombia.')
+    }
+  }, [selectedProduct, cityName])
 
   // Load related products when a product is selected
   useEffect(() => {
@@ -476,126 +837,51 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
         </div>
       </header>
 
+      {/* Animated Marquee Banner */}
+      <div className="pt-16 md:pt-20">
+        <AnimatedMarquee texts={marqueeTexts} />
+      </div>
+
+      {/* Hero Slideshow */}
+      <HeroSlideshow slides={heroSlides} />
+
       {/* Main Content */}
       <main>
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl" />
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(123,163,201,0.4) 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-                <Zap className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-400 text-sm font-medium">Disponible en {cityName}</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                TU PROXIMO<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">iPHONE</span><br />
-                TE ESPERA
-              </h2>
-              <p className="text-gray-400 text-lg md:text-xl mb-8 max-w-lg">
-                Encuentra los mejores iPhones nuevos y semi-usados con garantia. {city === 'duitama' ? 'Ademas, contamos con centro de reparacion especializado.' : 'Los mejores precios de Tunja.'}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <a href="#productos" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25">
-                  Ver Catalogo
-                  <ChevronRight className="w-5 h-5" />
-                </a>
-                {city === 'duitama' && (
-                  <a href="#reparacion" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold rounded-2xl transition-all">
-                    <Wrench className="w-5 h-5" />
-                    Reparacion
-                  </a>
-                )}
-              </div>
-
-              {/* Trust badges */}
-              <div className="flex flex-wrap items-center gap-6 mt-10 justify-center md:justify-start">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Shield className="w-4 h-4 text-blue-400" />
-                  <span>Garantia incluida</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Truck className="w-4 h-4 text-blue-400" />
-                  <span>Envio en Boyaca</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Award className="w-4 h-4 text-blue-400" />
-                  <span>100% Originales</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Hero Image */}
-            <div className="flex-1 relative">
-              <div className="relative w-72 md:w-96 mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent rounded-3xl blur-3xl" />
-                <img
-                  src="/images/hero-iphone.png"
-                  alt="iPhone de alta gama disponible en Gordotech"
-                  className="relative z-10 w-full drop-shadow-2xl"
-                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x500/1a1a2e/7BA3C9/png?text=iPhone+16+Pro' }}
-                />
-                {/* Floating badges */}
-                <div className="absolute top-4 -left-4 md:-left-8 z-20 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl animate-bounce" style={{ animationDuration: '3s' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <Shield className="w-4 h-4 text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Garantia</p>
-                      <p className="text-sm font-bold text-white">12 Meses</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute bottom-12 -right-4 md:-right-8 z-20 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <Star className="w-4 h-4 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Calificacion</p>
-                      <p className="text-sm font-bold text-white">4.9 / 5.0</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Model Bubbles - Newest to Oldest */}
       <section className="py-8 md:py-12 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-start gap-5 md:gap-8 overflow-x-auto pb-4 pt-2 px-2 scrollbar-hide">
-            {modelBubbles.map(model => (
+            {modelBubbles.map(model => {
+              const isHovered = hoveredBubbleId === model.id
+              return (
               <button
                 key={model.id}
                 onClick={() => {
                   setActiveModel(model.id)
+                  setHoveredBubbleId(null)
                   document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
                 }}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0"
+                onMouseEnter={() => setHoveredBubbleId(model.id)}
+                onMouseLeave={() => setHoveredBubbleId(null)}
+                onTouchStart={() => {
+                  setHoveredBubbleId(model.id)
+                  if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
+                  hoverTimeout.current = setTimeout(() => setHoveredBubbleId(null), 1500)
+                }}
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 relative"
               >
-                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-2 transition-all duration-300 ${
-                  activeModel === model.id
-                    ? 'border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
-                    : 'border-gray-600 hover:border-blue-400 hover:scale-105'
+                <div className={`transition-all duration-300 bg-gray-900 border-2 ${
+                  isHovered
+                    ? 'w-28 h-28 md:w-32 md:h-32 rounded-2xl border-blue-500 shadow-lg shadow-blue-500/30 z-50 -translate-y-2'
+                    : activeModel === model.id
+                      ? 'w-20 h-20 md:w-24 md:h-24 rounded-full border-blue-500 shadow-lg shadow-blue-500/30 scale-110 overflow-hidden'
+                      : 'w-20 h-20 md:w-24 md:h-24 rounded-full border-gray-600 group-hover:border-blue-400 overflow-hidden'
                 }`}>
                   <img
                     src={model.image}
                     alt={model.label}
-                    className="w-full h-full object-cover rounded-full"
+                    className={`w-full h-full transition-all duration-300 ${isHovered ? 'object-contain p-1' : 'object-cover'}`}
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
@@ -605,7 +891,8 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
                   {model.label}
                 </span>
               </button>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -620,7 +907,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {recommendedProducts.map(product => (
-                                <button key={product.id} onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                                <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
                                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                                     {product.badge && (
                                       <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
@@ -657,7 +944,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {trendingProducts.map(product => (
-                <button key={product.id} onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
+                <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                     <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Trending</div>
                     <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -690,7 +977,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
         return (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <button onClick={() => { setSelectedProduct(null); setGalleryIndex(0); setZoomOpen(false) }} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
+            <button onClick={clearProduct} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
               <ArrowLeft className="w-4 h-4" />
               Volver a productos
             </button>
@@ -700,12 +987,12 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
               <div className="space-y-4">
                 <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10 group">
                   {selectedProduct.badge && (
-                    <div className="absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
+                    <div className="absolute top-6 right-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
                   )}
                   <img
                     src={galleryImages[galleryIndex] || selectedProduct.image}
                     alt={`${selectedProduct.name} - Foto ${galleryIndex + 1}`}
-                    className="w-full h-full object-cover rounded-2xl cursor-pointer"
+                    className="w-full h-full object-contain rounded-2xl cursor-pointer"
                     onClick={() => setZoomOpen(true)}
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/600x600/1a1a2e/7BA3C9/png?text=${encodeURIComponent(selectedProduct.name)}` }}
                   />
@@ -835,7 +1122,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
               <h3 className="text-2xl md:text-4xl font-bold mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRODUCTOS RELACIONADOS</h3>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {relatedProducts.map(product => (
-                  <button key={product.id} onClick={() => {       setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+                  <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
                           <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                             {product.badge && (
                               <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
@@ -897,7 +1184,7 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
             {filteredProducts.map((product) => (
               <button
                 key={product.id}
-                onClick={() => { setSelectedProduct(product); setGalleryIndex(0); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => selectProduct(product)}
                 className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
               >
                 {/* Badge */}
@@ -1202,6 +1489,11 @@ function Store({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity:
   )
 }
 
+function ProductPageWrapper({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
+  const { slug } = useParams<{ slug: string }>()
+  return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} />
+}
+
 function App() {
   const [city, setCity] = useState<City>(() => {
     const saved = localStorage.getItem('gordotech-city')
@@ -1247,7 +1539,12 @@ function App() {
     return <CitySelector onSelect={handleCitySelect} />
   }
 
-  return <Store city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />
+  return (
+    <Routes>
+      <Route path="/producto/:slug" element={<ProductPageWrapper city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="*" element={<Store city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+    </Routes>
+  )
 }
 
 export default App
