@@ -1481,9 +1481,9 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                                <a href={`https://wa.me/${socials.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
-                                  WhatsApp
-                                </a>
+                <a href={CITY_SOCIALS.duitama.whatsapp} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                  WhatsApp
+                </a>
                 <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   Ver en Mapa
                 </a>
@@ -1518,9 +1518,9 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                                <a href={`https://wa.me/${socials.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
-                                  WhatsApp
-                                </a>
+                <a href={CITY_SOCIALS.tunja.whatsapp} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                  WhatsApp
+                </a>
                 <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   Ver en Mapa
                 </a>
