@@ -1014,9 +1014,10 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
 
       {/* Product Detail View */}
       {selectedProduct && (() => {
-        const galleryImages = selectedProduct.images && selectedProduct.images.length > 0
-          ? selectedProduct.images
-          : [selectedProduct.image]
+        // Build gallery: always start with main image, then add any additional gallery images (no duplicates)
+        const mainImg = selectedProduct.image
+        const extraImgs = (selectedProduct.images || []).filter(img => img && img !== mainImg)
+        const galleryImages = [mainImg, ...extraImgs].filter(Boolean)
         return (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
