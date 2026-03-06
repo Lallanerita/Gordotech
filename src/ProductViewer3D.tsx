@@ -30,27 +30,19 @@ function PhoneModel({ url, onLoaded }: { url: string; onLoaded?: (height: number
         -center.z * scaleFactor
       )
 
-      // Brighten dark materials so camera lenses are visible
+      // Adjust materials to match Sketchfab-like rendering
       scene.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh
           const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
           materials.forEach((mat) => {
             if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
-              // Reduce metalness on very dark parts so light reflects better
-              if (mat.metalness > 0.8) {
-                mat.metalness = 0.6
-              }
-              // Increase roughness slightly to catch more diffuse light
-              if (mat.roughness < 0.2) {
-                mat.roughness = 0.3
-              }
-              // Add slight emissive glow to very dark materials
-              if (mat.color && mat.color.r < 0.1 && mat.color.g < 0.1 && mat.color.b < 0.1) {
-                mat.emissive = new THREE.Color(0x222222)
-                mat.emissiveIntensity = 0.3
-              }
-              mat.envMapIntensity = 2.0
+              // Reduce metalness so base color shows through (Sketchfab interpretation)
+              mat.metalness = Math.min(mat.metalness, 0.4)
+              // Increase roughness so surfaces catch diffuse light
+              mat.roughness = Math.max(mat.roughness, 0.35)
+              // Boost environment reflections
+              mat.envMapIntensity = 3.0
               mat.needsUpdate = true
             }
           })
@@ -128,22 +120,26 @@ export default function ProductViewer3D({ modelUrl }: { modelUrl: string; produc
 
       <Canvas
         camera={{ position: [1, 0.5, 3.5], fov: 35 }}
-        style={{ background: 'transparent' }}
-        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.8 }}
+        style={{ background: '#333' }}
+        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.5 }}
         dpr={[1, 2]}
+        onCreated={({ scene: s, gl }) => {
+          s.background = new THREE.Color('#3a3a3a')
+          gl.outputColorSpace = THREE.SRGBColorSpace
+        }}
       >
-        {/* Lighting - bright studio to show camera detail */}
-        <ambientLight intensity={1.5} />
-        <directionalLight position={[5, 10, 5]} intensity={2.5} castShadow />
-        <directionalLight position={[-5, 5, -3]} intensity={1.2} />
-        <directionalLight position={[0, -3, 5]} intensity={0.8} />
-        <pointLight position={[3, 5, 3]} intensity={1.5} />
-        <pointLight position={[-3, 3, -3]} intensity={0.8} />
-        <pointLight position={[0, 0, 4]} intensity={0.6} />
+        {/* Bright lighting */}
+        <ambientLight intensity={2.5} />
+        <directionalLight position={[5, 8, 5]} intensity={3} castShadow />
+        <directionalLight position={[-5, 5, -3]} intensity={2} />
+        <directionalLight position={[3, -2, 8]} intensity={2} />
+        <pointLight position={[3, 5, 3]} intensity={2} />
+        <pointLight position={[-3, 3, -3]} intensity={1.5} />
+        <spotLight position={[0, 5, 0]} angle={0.5} penumbra={1} intensity={3} />
 
-        {/* Environment for realistic reflections */}
+        {/* Environment for reflections - sunset is bright warm HDR */}
         <Suspense fallback={null}>
-          <Environment preset="studio" />
+          <Environment preset="sunset" />
         </Suspense>
 
         {/* Phone model */}
