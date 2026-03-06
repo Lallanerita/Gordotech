@@ -873,11 +873,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
   // Loading screen while API data is being fetched
   if (!dataLoaded && !selectedProduct) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center" style={{ fontFamily: "'Inter', sans-serif" }}>
-        <div className="flex flex-col items-center gap-4">
-          <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-16 animate-pulse" />
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-        </div>
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-16 animate-pulse" />
       </div>
     )
   }
