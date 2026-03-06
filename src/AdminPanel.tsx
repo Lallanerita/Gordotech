@@ -434,7 +434,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
                 className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="128GB, 256GB, 512GB" />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Colores hex (separados por coma)</label>
+              <label className="block text-gray-400 text-sm mb-1">Colores (nombre o hex, separados por coma)</label>
               <input value={form.colors} onChange={e => setForm({...form, colors: e.target.value})}
                 className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="#000000, #FFFFFF, #4169E1" />
             </div>

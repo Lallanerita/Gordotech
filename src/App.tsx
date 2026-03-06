@@ -82,6 +82,23 @@ const CITY_ADDRESSES: Record<'duitama' | 'tunja', { short: string; full: string 
   tunja: { short: 'Gordotech Tunja', full: 'Gordotech Tunja' },
 }
 
+// Spanish color name to CSS color mapping
+const COLOR_MAP: Record<string, string> = {
+  negro: '#000000', blanco: '#FFFFFF', azul: '#0047AB', rojo: '#FF0000',
+  verde: '#008000', amarillo: '#FFD700', naranja: '#FF8C00', rosa: '#FF69B4',
+  morado: '#800080', gris: '#808080', plata: '#C0C0C0', oro: '#FFD700',
+  dorado: '#DAA520', celeste: '#87CEEB', turquesa: '#40E0D0', beige: '#F5F5DC',
+  crema: '#FFFDD0', coral: '#FF7F50', lavanda: '#E6E6FA', marron: '#8B4513',
+  bronce: '#CD7F32', titanio: '#878681', grafito: '#383838', medianoche: '#191970',
+  'azul ultramar': '#120A8F', 'verde menta': '#98FF98', 'rosa pastel': '#FFD1DC',
+  natural: '#D2B48C', desierto: '#EDC9AF',
+}
+
+function resolveColor(color: string): string {
+  const trimmed = color.trim().toLowerCase()
+  return COLOR_MAP[trimmed] || color
+}
+
 function TikTokIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -1271,12 +1288,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <p className="text-gray-400 text-sm mb-3">Colores disponibles</p>
                   <div className="flex items-center gap-3">
                     {selectedProduct.colors.map((color, i) => (
-                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white/20 hover:border-blue-400 transition-colors cursor-pointer" style={{ backgroundColor: color }} />
-                    ))}
-                  </div>
-                </div>
+                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white/20 hover:border-blue-400 transition-colors cursor-pointer"                 style={{ backgroundColor: resolveColor(color) }} />
+                                    ))}
+                                  </div>
+                                </div>
 
-                {/* Retira Hoy badge */}
+                                {/* Retira Hoy badge */}
                 <div className="mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20">
                   <MapPin className="w-5 h-5 text-green-400 flex-shrink-0" />
                   <div>
@@ -1403,7 +1420,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   {/* Colors */}
                   <div className="flex items-center gap-1 mb-2">
                     {product.colors.map((color, i) => (
-                      <div key={i} className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: color }} />
+                      <div key={i} className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
                     ))}
                   </div>
 
