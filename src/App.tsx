@@ -1059,15 +1059,15 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                     <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                     <div className="flex flex-wrap gap-1 mb-2">
                       {product.storageOptions.map((s, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
+                        <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-gray-400">{s}</span>
                       ))}
                     </div>
-                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
                     {product.price && product.price !== '-' ? (
-                      <p className="text-sm font-bold text-white">$ {product.price}</p>
+                      <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
                     ) : (
-                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                     )}
+                    <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
                   </div>
                 </button>
                 </ScrollReveal>
@@ -1103,15 +1103,15 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                     <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                     <div className="flex flex-wrap gap-1 mb-2">
                       {product.storageOptions.map((s, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
+                        <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-gray-400">{s}</span>
                       ))}
                     </div>
-                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
                     {product.price && product.price !== '-' ? (
-                      <p className="text-sm font-bold text-white">$ {product.price}</p>
+                      <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
                     ) : (
-                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                     )}
+                    <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
                   </div>
                 </button>
                 </ScrollReveal>
@@ -1349,15 +1349,15 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                             <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                             <div className="flex flex-wrap gap-1 mb-2">
                               {product.storageOptions.map((s, i) => (
-                                <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
+                                <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-gray-400">{s}</span>
                               ))}
                             </div>
-                            <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
                             {product.price && product.price !== '-' ? (
-                              <p className="text-sm font-bold text-white">$ {product.price}</p>
+                              <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
                             ) : (
-                              <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                              <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                             )}
+                            <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
                           </div>
                         </button>
                       ))}
@@ -1430,7 +1430,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   {/* Storage Options */}
                   <div className="flex flex-wrap gap-1 mb-2">
                     {product.storageOptions.map((storage, i) => (
-                      <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">
+                      <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-gray-400">
                         {storage}
                       </span>
                     ))}
@@ -1443,12 +1443,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                     ))}
                   </div>
 
-                  <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress.short}</p>
                   {product.price && product.price !== '-' ? (
-                    <p className="text-sm font-bold text-white">$ {product.price}</p>
+                    <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
                   ) : (
-                    <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                    <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                   )}
+                  <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
                 </div>
               </button>
               </ScrollReveal>
