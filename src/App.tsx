@@ -77,9 +77,9 @@ const CITY_SOCIALS: Record<'duitama' | 'tunja', { instagram: string; tiktok: str
 }
 
 // City store addresses for "Retira Hoy"
-const CITY_ADDRESSES: Record<'duitama' | 'tunja', string> = {
-  duitama: 'Gordotech Duitama',
-  tunja: 'Gordotech Tunja',
+const CITY_ADDRESSES: Record<'duitama' | 'tunja', { short: string; full: string }> = {
+  duitama: { short: 'C.C Pasaje Solano, Duitama', full: 'C.C Pasaje Solano, Local 1-02, Calle 20a # 12-32' },
+  tunja: { short: 'Gordotech Tunja', full: 'Gordotech Tunja' },
 }
 
 function TikTokIcon({ className }: { className?: string }) {
@@ -1045,18 +1045,18 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                         <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                       ))}
                     </div>
-                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
-                    <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />       Retira Hoy en {pickupAddress.short}</p>
+                          <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                        </div>
+                      </button>
+                      </ScrollReveal>
+                    ))}
                   </div>
-                </button>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+                </div>
+              </section>
+            )}
 
-      {/* Tendencia Ahora */}
+            {/* Tendencia Ahora */}
       {!selectedProduct && trendingProducts.length > 0 && (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1085,18 +1085,18 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                         <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                       ))}
                     </div>
-                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
-                    <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                    <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />       Retira Hoy en {pickupAddress.short}</p>
+                          <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                        </div>
+                      </button>
+                      </ScrollReveal>
+                    ))}
                   </div>
-                </button>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+                </div>
+              </section>
+            )}
 
-      {/* Product Detail View */}
+            {/* Product Detail View */}
       {selectedProduct && (() => {
         // Build gallery: always start with main image, then add any additional gallery images (no duplicates)
         const mainImg = selectedProduct.image
@@ -1281,7 +1281,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <MapPin className="w-5 h-5 text-green-400 flex-shrink-0" />
                   <div>
                     <p className="text-green-400 font-semibold text-sm">Retira Hoy</p>
-                    <p className="text-gray-400 text-xs">{pickupAddress}</p>
+                    <p className="text-gray-400 text-xs">{pickupAddress.full}</p>
                   </div>
                 </div>
 
@@ -1320,15 +1320,15 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                 <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">{s}</span>
                               ))}
                             </div>
-                            <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
-                            <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
+                            <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />               Retira Hoy en {pickupAddress.short}</p>
+                                          <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                                        </div>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </section>
               )
             })()}
 
@@ -1407,18 +1407,18 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                     ))}
                   </div>
 
-                  <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" /> Retira Hoy en {pickupAddress}</p>
-                  <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                  <p className="text-xs text-green-400 font-medium flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />       Retira Hoy en {pickupAddress.short}</p>
+                        <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                      </div>
+                    </button>
+                    </ScrollReveal>
+                  ))}
                 </div>
-              </button>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-      )}
+              </div>
+            </section>
+            )}
 
-      {/* Repair Section - Only for Duitama, hidden on product detail */}
+            {/* Repair Section - Only for Duitama, hidden on product detail */}
       {!selectedProduct && city === 'duitama' && (
         <section id="reparacion" className="py-16 md:py-24 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
