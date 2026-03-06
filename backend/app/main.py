@@ -67,6 +67,7 @@ class ProductCreate(BaseModel):
     featured_recommended: bool = False
     featured_trending: bool = False
     sort_order: int = 0
+    model_3d: str = ""
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
@@ -83,6 +84,7 @@ class ProductUpdate(BaseModel):
     featured_recommended: Optional[bool] = None
     featured_trending: Optional[bool] = None
     sort_order: Optional[int] = None
+    model_3d: Optional[str] = None
 
 class CategoryCreate(BaseModel):
     slug: str
@@ -221,6 +223,7 @@ def row_to_product(row):
         "featured_recommended": bool(row["featured_recommended"]),
         "featured_trending": bool(row["featured_trending"]),
         "sort_order": row["sort_order"],
+        "model_3d": row["model_3d"] if "model_3d" in keys else "",
     }
 
 def row_to_category(row):
@@ -476,12 +479,12 @@ async def admin_create_product(product: ProductCreate, username: str = Depends(g
         primary_image = images[0] if images else product.image
 
         cursor = await db.execute(
-            """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order, model_3d)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (product.name, product.category, product.condition, primary_image, json.dumps(images), json.dumps(product.colors),
              json.dumps(product.storage_options), product.badge, json.dumps(product.available),
              product.price, product.description, int(product.featured_recommended),
-             int(product.featured_trending), product.sort_order)
+             int(product.featured_trending), product.sort_order, product.model_3d)
         )
         await db.commit()
         new_id = cursor.lastrowid
@@ -531,6 +534,8 @@ async def admin_update_product(product_id: int, product: ProductUpdate, username
             updates["featured_trending"] = int(product.featured_trending)
         if product.sort_order is not None:
             updates["sort_order"] = product.sort_order
+        if product.model_3d is not None:
+            updates["model_3d"] = product.model_3d
         
         if updates:
             updates["updated_at"] = datetime.utcnow().isoformat()

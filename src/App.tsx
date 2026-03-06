@@ -1,8 +1,27 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
 import AdminPanel from './AdminPanel'
+import { lazy } from 'react'
+const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
+
+// Local 3D model mapping for products that have GLB files
+const LOCAL_3D_MODELS: Record<string, string> = {
+  'iphone 14 pro': '/models/iphone_14_pro.glb',
+  'iphone 14 pro max': '/models/iphone_14_pro.glb',
+}
+
+function getModel3DUrl(product: { name: string; model_3d?: string }): string | null {
+  // First check if product has a model_3d URL from the backend
+  if (product.model_3d) return product.model_3d
+  // Then check local mappings by product name
+  const nameLower = product.name.toLowerCase()
+  for (const [key, url] of Object.entries(LOCAL_3D_MODELS)) {
+    if (nameLower.includes(key)) return url
+  }
+  return null
+}
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -177,6 +196,7 @@ type Product = {
   storageOptions: string[]
   badge: string | null
   available: string[]
+  model_3d?: string
 }
 
 function generateSlug(name: string): string {
@@ -574,6 +594,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
+  const [show3DView, setShow3DView] = useState(false)
   const [hoveredBubbleId, setHoveredBubbleId] = useState<string | null>(null)
   const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   
@@ -687,6 +708,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
     setSelectedProduct(null)
     setGalleryIndex(0)
     setZoomOpen(false)
+    setShow3DView(false)
     navigate('/')
   }, [navigate])
 
@@ -1034,6 +1056,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
         const mainImg = selectedProduct.image
         const extraImgs = (selectedProduct.images || []).filter(img => img && img !== mainImg)
         const galleryImages = [mainImg, ...extraImgs].filter(Boolean)
+        const model3DUrl = getModel3DUrl(selectedProduct)
         return (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1045,6 +1068,46 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
               {/* Product Image Gallery */}
               <div className="space-y-4">
+                {/* Gallery/3D View Tabs */}
+                {model3DUrl && (
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      onClick={() => setShow3DView(false)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${!show3DView ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'}`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="m21 15-5-5L5 21" />
+                      </svg>
+                      Fotos
+                    </button>
+                    <button
+                      onClick={() => setShow3DView(true)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${show3DView ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'}`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9m-9 9a9 9 0 0 1 9-9" />
+                      </svg>
+                      Vista 360°
+                    </button>
+                  </div>
+                )}
+
+                {/* 3D Viewer */}
+                {show3DView && model3DUrl ? (
+                  <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden">
+                    <Suspense fallback={
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-4" />
+                        <p className="text-gray-400 text-sm">Cargando modelo 3D...</p>
+                      </div>
+                    }>
+                      <ProductViewer3D modelUrl={model3DUrl} productName={selectedProduct.name} />
+                    </Suspense>
+                  </div>
+                ) : (
+                <>
                 <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10 group">
                   {selectedProduct.badge && (
                     <div className="absolute top-6 right-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
@@ -1100,6 +1163,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                       </button>
                     ))}
                   </div>
+                )}
+                </>
                 )}
               </div>
 

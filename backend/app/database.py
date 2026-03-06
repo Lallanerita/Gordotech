@@ -52,6 +52,7 @@ async def init_db():
             featured_recommended INTEGER DEFAULT 0,
             featured_trending INTEGER DEFAULT 0,
             sort_order INTEGER DEFAULT 0,
+            model_3d TEXT DEFAULT '',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -68,6 +69,13 @@ async def init_db():
         await db.execute("SELECT images FROM products LIMIT 1")
     except Exception:
         await db.execute("ALTER TABLE products ADD COLUMN images TEXT NOT NULL DEFAULT '[]'")
+
+    # Migration: add model_3d column if missing
+    try:
+        await db.execute("SELECT model_3d FROM products LIMIT 1")
+    except Exception:
+        await db.execute("ALTER TABLE products ADD COLUMN model_3d TEXT DEFAULT ''")
+
     
     # Model bubbles table
     await db.execute("""
