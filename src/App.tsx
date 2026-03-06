@@ -697,6 +697,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
     }
   }, [productSlug, apiProducts, selectedProduct])
 
+  const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
+
   // Update page title and meta tags for SEO
   useEffect(() => {
     if (selectedProduct) {
@@ -745,8 +747,6 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
     }
     loadRelated()
   }, [selectedProduct, city, apiProducts])
-
-  const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
@@ -1501,6 +1501,10 @@ function App() {
   })
   const [showAdmin, setShowAdmin] = useState(false)
 
+  // If visiting a product URL directly without city selected, default to duitama
+  const isProductRoute = window.location.pathname.startsWith('/producto/')
+  const effectiveCity = city || (isProductRoute ? 'duitama' as City : null)
+
   // Keyboard shortcut: Ctrl+Shift+A to toggle admin panel
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1535,14 +1539,14 @@ function App() {
     return <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
   }
 
-  if (!city) {
+  if (!effectiveCity) {
     return <CitySelector onSelect={handleCitySelect} />
   }
 
   return (
     <Routes>
-      <Route path="/producto/:slug" element={<ProductPageWrapper city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
-      <Route path="*" element={<Store city={city} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="/producto/:slug" element={<ProductPageWrapper city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="*" element={<Store city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
     </Routes>
   )
 }
