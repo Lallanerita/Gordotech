@@ -821,7 +821,9 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
   }, [])
 
   const cartTotal = cartItems.reduce((sum, item) => {
-    const price = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0
+    // Colombian pesos use dots as thousands separator (e.g. 5.750.000)
+    const priceStr = item.price.replace(/[^0-9]/g, '')
+    const price = parseInt(priceStr, 10) || 0
     return sum + price * item.quantity
   }, 0)
 
@@ -837,7 +839,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
       return line
     })
     let msg = `Hola Gordotech! Quiero hacer un pedido:\n\n${lines.join('\n')}`
-    if (cartTotal > 0) msg += `\n\nTotal estimado: $${cartTotal.toLocaleString()}`
+    if (cartTotal > 0) msg += `\n\nTotal estimado: $${cartTotal.toLocaleString('es-CO')}`
     if (checkoutName) msg += `\n\nNombre: ${checkoutName}`
     if (checkoutPhone) msg += `\nTelefono: ${checkoutPhone}`
     if (checkoutNotes) msg += `\nNotas: ${checkoutNotes}`
@@ -1224,7 +1226,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 {cartTotal > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400">Total estimado</span>
-                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString()}</span>
+                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString('es-CO')}</span>
                   </div>
                 )}
                 <button
@@ -1282,7 +1284,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 {cartTotal > 0 && (
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
                     <span className="text-gray-400 font-medium">Total estimado</span>
-                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString()}</span>
+                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString('es-CO')}</span>
                   </div>
                 )}
               </div>
