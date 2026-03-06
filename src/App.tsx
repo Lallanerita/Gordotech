@@ -329,6 +329,14 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   const [isPaused, setIsPaused] = useState(false)
   const [animKey, setAnimKey] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const goTo = useCallback((index: number) => {
     if (isTransitioning || index === current) return
@@ -371,15 +379,15 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
-          {/* Background image (always shown as fallback/placeholder) */}
+          {/* Background image (always shown, Ken Burns on mobile or when no video) */}
           <img
             src={slide.image}
             alt={slide.title}
-            className={`absolute inset-0 w-full h-full object-cover ${i === current && !(slide.video_url && getYouTubeEmbedUrl(slide.video_url)) ? 'animate-ken-burns' : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover ${i === current && (!isDesktop || !(slide.video_url && getYouTubeEmbedUrl(slide.video_url))) ? 'animate-ken-burns' : ''}`}
             onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
           />
-          {/* Video overlay - fades in on top of image once loaded */}
-          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) && (
+          {/* Video overlay - only on desktop (768px+), YouTube quality is too low on mobile */}
+          {isDesktop && slide.video_url && getYouTubeEmbedUrl(slide.video_url) && (
             <div className="absolute inset-0 transition-opacity duration-1000" style={{ overflow: 'hidden' }}>
               <iframe
                 key={`video-${slide.id}`}
@@ -390,8 +398,10 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                   position: 'absolute',
                   top: '50%',
                   left: '50%',
-                  width: 'max(177.78vh, 300vw)',
-                  height: 'max(56.25vw, 200%)',
+                  width: '177.78vh',
+                  height: '100vh',
+                  minWidth: '100%',
+                  minHeight: '100%',
                   transform: 'translate(-50%, -50%)',
                 }}
                 allow="autoplay; encrypted-media"
@@ -400,8 +410,8 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
               />
             </div>
           )}
-          {/* Gradient overlays - lighter for video, dramatic for images */}
-          {slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
+          {/* Gradient overlays - lighter for video on desktop, dramatic for images/mobile */}
+          {isDesktop && slide.video_url && getYouTubeEmbedUrl(slide.video_url) ? (
             <>
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
