@@ -350,7 +350,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
 
   useEffect(() => {
     if (isPaused || slides.length <= 1) return
-    timerRef.current = setInterval(goNext, 10000)
+    timerRef.current = setInterval(goNext, 13000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [goNext, isPaused, slides.length])
 
