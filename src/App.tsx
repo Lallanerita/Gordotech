@@ -1591,7 +1591,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
               <div className="space-y-4 text-gray-300">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
-                  <p className="text-sm">Centro Comercial, Duitama, Boyaca</p>
+                  <p className="text-sm">C.C Pasaje Solano, Local 1-02, Calle 20a # 12-32, Duitama, Boyaca</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
@@ -1599,7 +1599,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <p className="text-sm">+57 300 123 4567</p>
+                  <p className="text-sm">+57 314 481 0431</p>
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
@@ -1636,7 +1636,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <p className="text-sm">+57 300 765 4321</p>
+                  <p className="text-sm">+57 321 986 3883</p>
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
