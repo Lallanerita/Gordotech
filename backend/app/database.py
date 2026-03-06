@@ -53,6 +53,7 @@ async def init_db():
             featured_trending INTEGER DEFAULT 0,
             sort_order INTEGER DEFAULT 0,
             model_3d TEXT DEFAULT '',
+            old_price TEXT DEFAULT '',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -75,6 +76,12 @@ async def init_db():
         await db.execute("SELECT model_3d FROM products LIMIT 1")
     except Exception:
         await db.execute("ALTER TABLE products ADD COLUMN model_3d TEXT DEFAULT ''")
+
+    # Migration: add old_price column if missing
+    try:
+        await db.execute("SELECT old_price FROM products LIMIT 1")
+    except Exception:
+        await db.execute("ALTER TABLE products ADD COLUMN old_price TEXT DEFAULT ''")
 
     
     # Model bubbles table

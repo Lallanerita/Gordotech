@@ -243,6 +243,10 @@ type Product = {
   storageOptions: string[]
   badge: string | null
   available: string[]
+  price?: string
+  oldPrice?: string
+  description?: string
+  sort_order?: number
   model_3d?: string
 }
 
@@ -694,6 +698,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             badge: (p.badge as string) || null,
             available: p.available as string[],
             price: (p.price as string) || '',
+            oldPrice: (p.old_price as string) || '',
             description: (p.description as string) || '',
           })))
         }
@@ -703,7 +708,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             condition: p.condition as string,
             image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
-            price: (p.price as string) || '', description: (p.description as string) || '',
+            price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
           })))
         }
         if (trendingRes?.products) {
@@ -712,7 +717,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             condition: p.condition as string,
             image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
-            price: (p.price as string) || '', description: (p.description as string) || '',
+            price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
           })))
         }
         if (bubblesRes?.bubbles) {
@@ -801,6 +806,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
               condition: data.condition, image: data.image, images: data.images || [],
               colors: data.colors, storageOptions: data.storage_options,
               badge: data.badge || null, available: data.available,
+              price: data.price || '', oldPrice: data.old_price || '', description: data.description || '',
+              model_3d: data.model_3d || '',
             }
             setSelectedProduct(product)
             setGalleryIndex(0)
@@ -849,7 +856,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             condition: p.condition as string,
             image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
-            price: (p.price as string) || '', description: (p.description as string) || '',
+            price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
           })))
         }
       } catch {
@@ -1063,7 +1070,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                             ))}
                           </div>
                           {product.price && product.price !== '-' ? (
-                            <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
+                            <div className="mb-1">
+                              {product.oldPrice && product.oldPrice !== '-' && (
+                                <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                              )}
+                              <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                            </div>
                           ) : (
                             <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                           )}
@@ -1107,7 +1119,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                             ))}
                           </div>
                           {product.price && product.price !== '-' ? (
-                            <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
+                            <div className="mb-1">
+                              {product.oldPrice && product.oldPrice !== '-' && (
+                                <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                              )}
+                              <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                            </div>
                           ) : (
                             <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                           )}
@@ -1304,6 +1321,9 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                 {/* Price */}
                 {selectedProduct.price && selectedProduct.price !== '-' && (
                   <div className="mb-6">
+                    {selectedProduct.oldPrice && selectedProduct.oldPrice !== '-' && (
+                      <p className="text-sm text-red-400 line-through">$ {selectedProduct.oldPrice}</p>
+                    )}
                     <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>$ {selectedProduct.price}</p>
                   </div>
                 )}
@@ -1353,7 +1373,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                                                           ))}
                                                         </div>
                                                         {product.price && product.price !== '-' ? (
-                                                          <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
+                                                          <div className="mb-1">
+                                                            {product.oldPrice && product.oldPrice !== '-' && (
+                                                              <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                                                            )}
+                                                            <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                                                          </div>
                             ) : (
                               <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                             )}
@@ -1444,7 +1469,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   </div>
 
                   {product.price && product.price !== '-' ? (
-                    <p className="text-base md:text-lg font-bold text-white mb-1">$ {product.price}</p>
+                    <div className="mb-1">
+                      {product.oldPrice && product.oldPrice !== '-' && (
+                        <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                      )}
+                      <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                    </div>
                   ) : (
                     <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                   )}

@@ -15,6 +15,7 @@ type Product = {
   badge: string | null
   available: string[]
   price: string
+  old_price: string
   description: string
   featured_recommended: boolean
   featured_trending: boolean
@@ -338,6 +339,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
     available_duitama: product?.available?.includes('duitama') ?? true,
     available_tunja: product?.available?.includes('tunja') ?? true,
     price: product?.price || '',
+    old_price: product?.old_price || '',
     description: product?.description || '',
     featured_recommended: product?.featured_recommended || false,
     featured_trending: product?.featured_trending || false,
@@ -363,6 +365,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
         badge: form.badge || null,
         available,
         price: form.price,
+        old_price: form.old_price,
         description: form.description,
         featured_recommended: form.featured_recommended,
         featured_trending: form.featured_trending,
@@ -442,10 +445,18 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Precio</label>
+              <label className="block text-gray-400 text-sm mb-1">Precio Actual</label>
               <input value={form.price} onChange={e => setForm({...form, price: e.target.value})}
-                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="$2.500.000" />
+                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="2.500.000" />
             </div>
+            <div>
+              <label className="block text-red-400 text-sm mb-1">Precio Anterior (tachado en rojo)</label>
+              <input value={form.old_price} onChange={e => setForm({...form, old_price: e.target.value})}
+                className="w-full bg-gray-800/50 border border-red-500/20 rounded-lg px-3 py-2.5 text-red-400 text-sm focus:outline-none focus:border-red-500/50" placeholder="3.200.000" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-400 text-sm mb-1">Badge / Etiqueta</label>
               <input value={form.badge} onChange={e => setForm({...form, badge: e.target.value})}

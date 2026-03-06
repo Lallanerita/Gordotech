@@ -63,6 +63,7 @@ class ProductCreate(BaseModel):
     badge: Optional[str] = None
     available: list[str] = ["duitama", "tunja"]
     price: str = ""
+    old_price: str = ""
     description: str = ""
     featured_recommended: bool = False
     featured_trending: bool = False
@@ -80,6 +81,7 @@ class ProductUpdate(BaseModel):
     badge: Optional[str] = None
     available: Optional[list[str]] = None
     price: Optional[str] = None
+    old_price: Optional[str] = None
     description: Optional[str] = None
     featured_recommended: Optional[bool] = None
     featured_trending: Optional[bool] = None
@@ -219,6 +221,7 @@ def row_to_product(row):
         "badge": row["badge"],
         "available": json.loads(row["available"]),
         "price": row["price"] or "",
+        "old_price": row["old_price"] if "old_price" in keys else "",
         "description": row["description"] or "",
         "featured_recommended": bool(row["featured_recommended"]),
         "featured_trending": bool(row["featured_trending"]),
@@ -479,11 +482,11 @@ async def admin_create_product(product: ProductCreate, username: str = Depends(g
         primary_image = images[0] if images else product.image
 
         cursor = await db.execute(
-            """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order, model_3d)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, old_price, description, featured_recommended, featured_trending, sort_order, model_3d)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (product.name, product.category, product.condition, primary_image, json.dumps(images), json.dumps(product.colors),
              json.dumps(product.storage_options), product.badge, json.dumps(product.available),
-             product.price, product.description, int(product.featured_recommended),
+             product.price, product.old_price, product.description, int(product.featured_recommended),
              int(product.featured_trending), product.sort_order, product.model_3d)
         )
         await db.commit()
@@ -526,6 +529,8 @@ async def admin_update_product(product_id: int, product: ProductUpdate, username
             updates["available"] = json.dumps(product.available)
         if product.price is not None:
             updates["price"] = product.price
+        if product.old_price is not None:
+            updates["old_price"] = product.old_price
         if product.description is not None:
             updates["description"] = product.description
         if product.featured_recommended is not None:
