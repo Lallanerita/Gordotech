@@ -6,6 +6,39 @@ import AdminPanel from './AdminPanel'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+// Apple-style scroll-triggered animation hook
+function useScrollAnimation(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); observer.unobserve(el) } },
+      { threshold, rootMargin: '0px 0px -40px 0px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [threshold])
+  return { ref, isVisible }
+}
+
+// Reusable scroll-reveal wrapper
+function ScrollReveal({ children, className = '', delay = 0, animation = 'fade-up' }: {
+  children: React.ReactNode; className?: string; delay?: number; animation?: 'fade-up' | 'fade' | 'scale'
+}) {
+  const { ref, isVisible } = useScrollAnimation()
+  const animClass = animation === 'scale' ? 'scroll-animate scroll-animate-scale'
+    : animation === 'fade' ? 'scroll-animate scroll-animate-fade'
+    : 'scroll-animate'
+  return (
+    <div ref={ref} className={`${animClass} ${isVisible ? 'is-visible' : ''} ${className}`}
+      style={delay > 0 ? { animationDelay: `${delay}s` } : undefined}>
+      {children}
+    </div>
+  )
+}
+
 type City = 'duitama' | 'tunja' | null
 
 type HeroSlide = {
@@ -849,6 +882,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
       <main>
 
       {/* Model Bubbles - Newest to Oldest */}
+      <ScrollReveal>
       <section className="py-8 md:py-12 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-start gap-5 md:gap-8 overflow-x-auto pb-4 pt-2 px-2 scrollbar-hide">
@@ -896,18 +930,22 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* Recomendado para ti */}
       {!selectedProduct && recommendedProducts.length > 0 && (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <ScrollReveal>
             <div className="flex items-center gap-3 mb-8">
               <Sparkles className="w-6 h-6 text-blue-400" />
               <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>RECOMENDADO PARA TI</h3>
             </div>
+            </ScrollReveal>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {recommendedProducts.map(product => (
-                                <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
+              {recommendedProducts.map((product, idx) => (
+                <ScrollReveal key={product.id} delay={idx * 0.08} animation="scale">
+                                <button onClick={() => selectProduct(product)} className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
                                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                                     {product.badge && (
                                       <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
@@ -928,6 +966,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                     <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                   </div>
                 </button>
+                </ScrollReveal>
               ))}
             </div>
           </div>
@@ -938,13 +977,16 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
       {!selectedProduct && trendingProducts.length > 0 && (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <ScrollReveal>
             <div className="flex items-center gap-3 mb-8">
               <TrendingUp className="w-6 h-6 text-amber-400" />
               <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TENDENCIA AHORA</h3>
             </div>
+            </ScrollReveal>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {trendingProducts.map(product => (
-                <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
+              {trendingProducts.map((product, idx) => (
+                <ScrollReveal key={product.id} delay={idx * 0.08} animation="scale">
+                <button onClick={() => selectProduct(product)} className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
                     <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Trending</div>
                     <div className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -963,6 +1005,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                     <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                   </div>
                 </button>
+                </ScrollReveal>
               ))}
             </div>
           </div>
@@ -1155,6 +1198,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
       {!selectedProduct && (
       <section id="productos" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <ScrollReveal>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
               <h3 className="text-3xl md:text-5xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
@@ -1179,13 +1223,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
               ))}
             </div>
           </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, idx) => (
+              <ScrollReveal key={product.id} delay={Math.min(idx, 7) * 0.06} animation="scale">
               <button
-                key={product.id}
                 onClick={() => selectProduct(product)}
-                className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
+                className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
               >
                 {/* Badge */}
                 <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
@@ -1227,6 +1272,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                   <p className="text-xs text-blue-400 font-medium flex items-center gap-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                 </div>
               </button>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -1238,6 +1284,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
         <section id="reparacion" className="py-16 md:py-24 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <ScrollReveal>
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
                 <Wrench className="w-4 h-4 text-blue-400" />
@@ -1250,11 +1297,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                 Nuestros tecnicos certificados reparan tu iPhone con repuestos de la mas alta calidad
               </p>
             </div>
+            </ScrollReveal>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {apiRepairServices.map((service, i) => (
+                <ScrollReveal key={i} delay={i * 0.1} animation="fade-up">
                 <div
-                  key={i}
                   className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
                 >
                   <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
@@ -1264,9 +1312,11 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                   <p className="text-gray-400 text-sm mb-4 leading-relaxed">{service.description}</p>
                   <p className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{service.price}</p>
                 </div>
+                </ScrollReveal>
               ))}
             </div>
 
+            <ScrollReveal delay={0.3}>
             <div className="text-center mt-12">
               <a
                 href="https://wa.me/573144810431?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion"
@@ -1278,6 +1328,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                 Agendar Reparacion por WhatsApp
               </a>
             </div>
+            </ScrollReveal>
           </div>
         </section>
       )}
@@ -1285,15 +1336,18 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
       {/* Location Section */}
       <section id="ubicacion" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <ScrollReveal>
           <div className="text-center mb-16">
             <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
               VISITANOS EN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">{cityName.toUpperCase()}</span>
             </h3>
             <p className="text-gray-400 text-lg">Ven a conocer nuestros productos en persona</p>
           </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Duitama */}
+            <ScrollReveal delay={0.1}>
             <div className={`p-8 rounded-3xl border transition-all ${city === 'duitama' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
@@ -1327,8 +1381,10 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                 </a>
               </div>
             </div>
+            </ScrollReveal>
 
             {/* Tunja */}
+            <ScrollReveal delay={0.2}>
             <div className={`p-8 rounded-3xl border transition-all ${city === 'tunja' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
@@ -1362,11 +1418,13 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
                 </a>
               </div>
             </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
       {/* CTA Banner */}
+      <ScrollReveal animation="scale">
       <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="relative rounded-3xl bg-gradient-to-r from-blue-600 to-blue-800 p-10 md:p-16 overflow-hidden">
@@ -1394,10 +1452,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       </main>
 
       {/* Footer */}
+      <ScrollReveal>
       <footer id="contacto" className="border-t border-white/5 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
@@ -1475,6 +1535,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug }: { city: City; 
           </div>
         </div>
       </footer>
+      </ScrollReveal>
 
       {/* WhatsApp Floating Button */}
       <a
