@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2 } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -144,6 +144,56 @@ type MarqueeText = {
   text: string
   active: boolean
   sort_order: number
+}
+
+// Cart types
+type CartItem = {
+  productId: number
+  name: string
+  image: string
+  condition: string
+  selectedStorage: string
+  selectedColor: string
+  price: string
+  quantity: number
+}
+
+type CartData = {
+  items: CartItem[]
+  lastActivity: number // timestamp
+}
+
+const CART_EXPIRY_MS = 10 * 60 * 1000 // 10 minutes
+const CART_STORAGE_KEY = 'gordotech_cart'
+
+function loadCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY)
+    if (!raw) return []
+    const data: CartData = JSON.parse(raw)
+    if (Date.now() - data.lastActivity > CART_EXPIRY_MS) {
+      localStorage.removeItem(CART_STORAGE_KEY)
+      return []
+    }
+    return data.items
+  } catch {
+    return []
+  }
+}
+
+function saveCart(items: CartItem[]) {
+  const data: CartData = { items, lastActivity: Date.now() }
+  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(data))
+}
+
+function touchCart() {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY)
+    if (!raw) return
+    const data: CartData = JSON.parse(raw)
+    data.lastActivity = Date.now()
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(data))
+  } catch { /* ignore */ }
 }
 
 // Product data - Semi-usados
@@ -672,6 +722,122 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
   ])
   const [apiRepairServices, setApiRepairServices] = useState(repairServices)
 
+  // Cart state
+  const [cartItems, setCartItems] = useState<CartItem[]>(loadCart)
+  const [cartOpen, setCartOpen] = useState(false)
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [cartAddedFeedback, setCartAddedFeedback] = useState(false)
+  const [selectedStorage, setSelectedStorage] = useState<string>('')
+  const [selectedColor, setSelectedColor] = useState<string>('')
+  const [checkoutName, setCheckoutName] = useState('')
+  const [checkoutPhone, setCheckoutPhone] = useState('')
+  const [checkoutNotes, setCheckoutNotes] = useState('')
+  const cartExpiryTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    saveCart(cartItems)
+  }, [cartItems])
+
+  // Cart expiration check every 30s
+  useEffect(() => {
+    cartExpiryTimer.current = setInterval(() => {
+      try {
+        const raw = localStorage.getItem(CART_STORAGE_KEY)
+        if (!raw) return
+        const data: CartData = JSON.parse(raw)
+        if (Date.now() - data.lastActivity > CART_EXPIRY_MS) {
+          setCartItems([])
+          localStorage.removeItem(CART_STORAGE_KEY)
+        }
+      } catch { /* ignore */ }
+    }, 30000)
+    return () => { if (cartExpiryTimer.current) clearInterval(cartExpiryTimer.current) }
+  }, [])
+
+  // Reset selected storage/color when product changes
+  useEffect(() => {
+    if (selectedProduct) {
+      setSelectedStorage(selectedProduct.storageOptions[0] || '')
+      setSelectedColor(selectedProduct.colors[0] || '')
+    }
+  }, [selectedProduct])
+
+  const addToCart = useCallback((product: Product, storage: string, color: string) => {
+    touchCart()
+    setCartItems(prev => {
+      const existing = prev.find(
+        item => item.productId === product.id && item.selectedStorage === storage && item.selectedColor === color
+      )
+      if (existing) {
+        return prev.map(item =>
+          item.productId === product.id && item.selectedStorage === storage && item.selectedColor === color
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      }
+      return [...prev, {
+        productId: product.id,
+        name: product.name,
+        image: product.image,
+        condition: product.condition,
+        selectedStorage: storage,
+        selectedColor: color,
+        price: product.price || '',
+        quantity: 1,
+      }]
+    })
+    setCartAddedFeedback(true)
+    setTimeout(() => setCartAddedFeedback(false), 2000)
+  }, [])
+
+  const removeFromCart = useCallback((productId: number, storage: string, color: string) => {
+    touchCart()
+    setCartItems(prev => prev.filter(
+      item => !(item.productId === productId && item.selectedStorage === storage && item.selectedColor === color)
+    ))
+  }, [])
+
+  const updateCartQuantity = useCallback((productId: number, storage: string, color: string, delta: number) => {
+    touchCart()
+    setCartItems(prev => prev.map(item => {
+      if (item.productId === productId && item.selectedStorage === storage && item.selectedColor === color) {
+        const newQty = item.quantity + delta
+        return newQty > 0 ? { ...item, quantity: newQty } : item
+      }
+      return item
+    }).filter(item => item.quantity > 0))
+  }, [])
+
+  const clearCart = useCallback(() => {
+    setCartItems([])
+    localStorage.removeItem(CART_STORAGE_KEY)
+  }, [])
+
+  const cartTotal = cartItems.reduce((sum, item) => {
+    const price = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0
+    return sum + price * item.quantity
+  }, 0)
+
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+
+  const sendCartWhatsApp = useCallback(() => {
+    const lines = cartItems.map((item, i) => {
+      let line = `${i + 1}. ${item.name} (${item.condition})`
+      if (item.selectedStorage) line += ` - ${item.selectedStorage}`
+      if (item.selectedColor) line += ` - ${item.selectedColor}`
+      line += ` x${item.quantity}`
+      if (item.price && item.price !== '-') line += ` - $${item.price}`
+      return line
+    })
+    let msg = `Hola Gordotech! Quiero hacer un pedido:\n\n${lines.join('\n')}`
+    if (cartTotal > 0) msg += `\n\nTotal estimado: $${cartTotal.toLocaleString()}`
+    if (checkoutName) msg += `\n\nNombre: ${checkoutName}`
+    if (checkoutPhone) msg += `\nTelefono: ${checkoutPhone}`
+    if (checkoutNotes) msg += `\nNotas: ${checkoutNotes}`
+    window.open(`https://wa.me/${socials.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank')
+  }, [cartItems, cartTotal, checkoutName, checkoutPhone, checkoutNotes, socials.whatsappNumber])
+
   // Load data from API
   useEffect(() => {
     const loadData = async () => {
@@ -951,9 +1117,11 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                 <MapPin className="w-3.5 h-3.5 text-blue-400" />
                 <span className="text-gray-300">{cityName}</span>
               </button>
-              <button className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+              <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
                 <ShoppingCart className="w-5 h-5 text-gray-300" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full text-xs flex items-center justify-center">0</span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full text-[10px] font-bold flex items-center justify-center text-white animate-pulse">{cartCount}</span>
+                )}
               </button>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -979,6 +1147,197 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
           )}
         </div>
       </header>
+
+      {/* Cart Drawer */}
+      {cartOpen && (
+        <div className="fixed inset-0 z-[60]" onClick={() => setCartOpen(false)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div
+            className="absolute right-0 top-0 h-full w-full max-w-md bg-[#0d0d1a] border-l border-white/10 shadow-2xl flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Cart Header */}
+            <div className="flex items-center justify-between p-6 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-5 h-5 text-blue-400" />
+                <h3 className="text-lg font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>MI CARRITO ({cartCount})</h3>
+              </div>
+              <button onClick={() => setCartOpen(false)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Cart Items */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {cartItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <ShoppingCart className="w-16 h-16 text-gray-600 mb-4" />
+                  <p className="text-gray-400 text-lg font-medium">Tu carrito esta vacio</p>
+                  <p className="text-gray-500 text-sm mt-2">Agrega productos para comenzar</p>
+                  <button onClick={() => setCartOpen(false)} className="mt-6 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all">
+                    Ver Productos
+                  </button>
+                </div>
+              ) : (
+                cartItems.map((item, idx) => (
+                  <div key={`${item.productId}-${item.selectedStorage}-${item.selectedColor}-${idx}`} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                    <img src={item.image} alt={item.name} className="w-20 h-20 object-contain rounded-xl bg-gray-800/50 flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/80x80/1a1a2e/7BA3C9/png?text=P` }} />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-white truncate">{item.name}</h4>
+                      <p className={`text-xs ${item.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{item.condition}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {item.selectedStorage && <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">{item.selectedStorage}</span>}
+                        {item.selectedColor && <div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(item.selectedColor) }} />}
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => updateCartQuantity(item.productId, item.selectedStorage, item.selectedColor, -1)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">
+                            <Minus className="w-3 h-3 text-gray-400" />
+                          </button>
+                          <span className="text-sm font-bold text-white w-6 text-center">{item.quantity}</span>
+                          <button onClick={() => updateCartQuantity(item.productId, item.selectedStorage, item.selectedColor, 1)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">
+                            <Plus className="w-3 h-3 text-gray-400" />
+                          </button>
+                        </div>
+                        {item.price && item.price !== '-' && (
+                          <p className="text-sm font-bold text-white">$ {item.price}</p>
+                        )}
+                      </div>
+                    </div>
+                    <button onClick={() => removeFromCart(item.productId, item.selectedStorage, item.selectedColor)} className="p-1.5 rounded-lg hover:bg-red-500/20 transition-all self-start">
+                      <Trash2 className="w-4 h-4 text-gray-500 hover:text-red-400" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Cart Footer */}
+            {cartItems.length > 0 && (
+              <div className="border-t border-white/10 p-6 space-y-4">
+                {cartTotal > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Total estimado</span>
+                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString()}</span>
+                  </div>
+                )}
+                <button
+                  onClick={() => { setCartOpen(false); setCheckoutOpen(true) }}
+                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  Continuar al Pre-Checkout
+                </button>
+                <button onClick={clearCart} className="w-full py-3 bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 text-gray-400 hover:text-red-400 font-medium rounded-xl transition-all text-sm">
+                  Vaciar Carrito
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Pre-Checkout Modal */}
+      {checkoutOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={() => setCheckoutOpen(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0d1a] border border-white/10 rounded-3xl shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Checkout Header */}
+            <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-[#0d0d1a] z-10 rounded-t-3xl">
+              <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRE-CHECKOUT</h3>
+              <button onClick={() => setCheckoutOpen(false)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Order Summary */}
+              <div>
+                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Resumen del Pedido</h4>
+                <div className="space-y-3">
+                  {cartItems.map((item, idx) => (
+                    <div key={`checkout-${item.productId}-${idx}`} className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+                      <img src={item.image} alt={item.name} className="w-12 h-12 object-contain rounded-lg bg-gray-800/50" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/48x48/1a1a2e/7BA3C9/png?text=P` }} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{item.name}</p>
+                        <p className="text-xs text-gray-400">
+                          {item.selectedStorage}{item.selectedColor ? ` · ${item.selectedColor}` : ''} · x{item.quantity}
+                        </p>
+                      </div>
+                      {item.price && item.price !== '-' && (
+                        <p className="text-sm font-bold text-white flex-shrink-0">$ {item.price}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {cartTotal > 0 && (
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+                    <span className="text-gray-400 font-medium">Total estimado</span>
+                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Customer Info */}
+              <div>
+                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Tus Datos (Opcional)</h4>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Tu nombre"
+                    value={checkoutName}
+                    onChange={e => setCheckoutName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Tu telefono"
+                    value={checkoutPhone}
+                    onChange={e => setCheckoutPhone(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
+                  />
+                  <textarea
+                    placeholder="Notas adicionales (ej: color preferido, metodo de pago...)"
+                    value={checkoutNotes}
+                    onChange={e => setCheckoutNotes(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors text-sm resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Checkout Actions */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => { sendCartWhatsApp(); clearCart(); setCheckoutOpen(false) }}
+                  className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/25 flex items-center justify-center gap-3 text-lg"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Enviar Pedido por WhatsApp
+                </button>
+                <button onClick={() => { setCheckoutOpen(false); setCartOpen(true) }} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-medium rounded-xl transition-all text-sm">
+                  Volver al Carrito
+                </button>
+              </div>
+
+              <p className="text-center text-xs text-gray-500">
+                Tu pedido sera enviado por WhatsApp para confirmar disponibilidad y coordinar el pago y entrega.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cart Added Feedback Toast */}
+      {cartAddedFeedback && (
+        <div className="fixed bottom-6 right-6 z-[80] px-6 py-3 bg-green-600 text-white font-medium rounded-2xl shadow-lg shadow-green-500/25 flex items-center gap-2 animate-bounce">
+          <ShoppingCart className="w-4 h-4" />
+          Producto agregado al carrito
+        </div>
+      )}
 
       {/* Animated Marquee Banner - hidden on product detail */}
       {!selectedProduct && (
@@ -1323,7 +1682,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <p className="text-gray-400 text-sm mb-3">Almacenamiento disponible</p>
                   <div className="flex flex-wrap gap-3">
                     {selectedProduct.storageOptions.map((storage, i) => (
-                      <span key={i} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white font-medium hover:border-blue-500/50 transition-colors cursor-pointer">{storage}</span>
+                      <button key={i} onClick={() => setSelectedStorage(storage)} className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
                     ))}
                   </div>
                 </div>
@@ -1332,12 +1691,12 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <p className="text-gray-400 text-sm mb-3">Colores disponibles</p>
                   <div className="flex items-center gap-3">
                     {selectedProduct.colors.map((color, i) => (
-                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white/20 hover:border-blue-400 transition-colors cursor-pointer"                 style={{ backgroundColor: resolveColor(color) }} />
-                                    ))}
-                                  </div>
-                                </div>
+                      <button key={i} onClick={() => setSelectedColor(color)} className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`} style={{ backgroundColor: resolveColor(color) }} title={color} />
+                    ))}
+                  </div>
+                </div>
 
-                                {/* Price */}
+                {/* Price */}
                 {selectedProduct.price && selectedProduct.price !== '-' && (
                   <div className="mb-6">
                     {selectedProduct.oldPrice && selectedProduct.oldPrice !== '-' && (
@@ -1356,15 +1715,25 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   </div>
                 </div>
 
-                <a
-                  href={`https://wa.me/${socials.whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition}). ¿Tienen disponible y cuál es el precio?`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  {selectedProduct.price && selectedProduct.price !== '-' ? 'Comprar por WhatsApp' : 'Consultar Precio por WhatsApp'}
-                </a>
+                {/* Add to Cart + WhatsApp buttons */}
+                <div className="space-y-3">
+                  <button
+                    onClick={() => addToCart(selectedProduct, selectedStorage, selectedColor)}
+                    className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    Agregar al Carrito
+                  </button>
+                  <a
+                    href={`https://wa.me/${socials.whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-4 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-semibold rounded-2xl transition-all flex items-center justify-center gap-3 text-base"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    {selectedProduct.price && selectedProduct.price !== '-' ? 'Comprar por WhatsApp' : 'Consultar Precio por WhatsApp'}
+                  </a>
+                </div>
               </div>
             </div>
 
