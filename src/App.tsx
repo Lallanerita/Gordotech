@@ -879,18 +879,21 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
         </div>
       </header>
 
-      {/* Animated Marquee Banner */}
+      {/* Animated Marquee Banner - hidden on product detail */}
+      {!selectedProduct && (
       <div className="pt-16 md:pt-20">
         <AnimatedMarquee texts={marqueeTexts} />
       </div>
+      )}
 
-      {/* Hero Slideshow */}
-      <HeroSlideshow slides={heroSlides} />
+      {/* Hero Slideshow - hidden on product detail */}
+      {!selectedProduct && <HeroSlideshow slides={heroSlides} />}
 
       {/* Main Content */}
       <main>
 
-      {/* Model Bubbles - Newest to Oldest */}
+      {/* Model Bubbles - hidden on product detail */}
+      {!selectedProduct && (
       <ScrollReveal>
       <section className="py-8 md:py-12 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -940,6 +943,10 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
         </div>
       </section>
       </ScrollReveal>
+      )}
+
+      {/* Add top padding when viewing product detail (no hero/marquee) */}
+      {selectedProduct && <div className="pt-20 md:pt-24" />}
 
       {/* Recomendado para ti */}
       {!selectedProduct && recommendedProducts.length > 0 && (
@@ -1289,8 +1296,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
       </section>
       )}
 
-      {/* Repair Section - Only for Duitama */}
-      {city === 'duitama' && (
+      {/* Repair Section - Only for Duitama, hidden on product detail */}
+      {!selectedProduct && city === 'duitama' && (
         <section id="reparacion" className="py-16 md:py-24 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -1343,7 +1350,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
         </section>
       )}
 
-      {/* Location Section */}
+      {/* Location Section - hidden on product detail */}
+      {!selectedProduct && (
       <section id="ubicacion" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <ScrollReveal>
@@ -1432,8 +1440,10 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
           </div>
         </div>
       </section>
+      )}
 
-      {/* CTA Banner */}
+      {/* CTA Banner - hidden on product detail */}
+      {!selectedProduct && (
       <ScrollReveal animation="scale">
       <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1463,6 +1473,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
         </div>
       </section>
       </ScrollReveal>
+      )}
 
       </main>
 
