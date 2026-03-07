@@ -1886,6 +1886,110 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
       </section>
       )}
 
+      {/* Plan Retoma Section - hidden on product detail */}
+      {!selectedProduct && (
+        <section className="py-16 md:py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/5" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <ScrollReveal>
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 mb-6">
+                <Smartphone className="w-4 h-4 text-green-400" />
+                <span className="text-green-400 text-sm font-medium">Trae tu iPhone, subelo de nivel</span>
+              </div>
+              <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                PLAN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">RETOMA</span>
+              </h3>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Del iPhone que tienes... al iPhone que suenas. Te recibimos tu equipo como parte de pago.
+              </p>
+            </div>
+            </ScrollReveal>
+
+            {/* 4 Steps */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+              {[
+                { step: '1', title: 'Trae tu iPhone', icon: Smartphone },
+                { step: '2', title: 'Lo evaluamos', icon: Settings },
+                { step: '3', title: 'Te damos precio de retoma', icon: Star },
+                { step: '4', title: 'Lo cambias por uno nuevo', icon: Zap },
+              ].map((item, i) => (
+                <ScrollReveal key={i} delay={i * 0.1} animation="fade-up">
+                <div className="text-center p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500">
+                  <div className="w-12 h-12 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-3">
+                    <span className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{item.step}</span>
+                  </div>
+                  <item.icon className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+                  <p className="text-white font-semibold text-sm">{item.title}</p>
+                </div>
+                </ScrollReveal>
+              ))}
+            </div>
+
+            {/* Requirements */}
+            <ScrollReveal delay={0.2}>
+            <div className="max-w-3xl mx-auto">
+              <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
+                <h4 className="text-2xl font-bold text-white mb-6 text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                  Requisitos Plan Retoma
+                </h4>
+                <p className="text-blue-400 font-semibold text-center mb-6">En excelente estado estetico</p>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
+                    <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Award className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Caja y factura original</p>
+                      <p className="text-gray-400 text-xs mt-1">Sin eso no podemos validar el equipo</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
+                    <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Shield className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Sin reparaciones</p>
+                      <p className="text-gray-400 text-xs mt-1">Nunca debe haber sido abierto, reparado o con piezas cambiadas</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
+                    <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-5 h-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Bateria en buen estado</p>
+                      <p className="text-gray-400 text-xs mt-1">Minimo 85% de salud de bateria</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6 text-center">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">
+                    Desde iPhone 11 hasta iPhone 16
+                  </span>
+                </div>
+              </div>
+            </div>
+            </ScrollReveal>
+
+            {/* CTA */}
+            <ScrollReveal delay={0.3}>
+            <div className="text-center mt-10">
+              <a
+                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Consultar Plan Retoma por WhatsApp
+              </a>
+            </div>
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
+
       {/* Repair Section - Only for Duitama, hidden on product detail */}
       {!selectedProduct && city === 'duitama' && (
         <section id="reparacion" className="py-16 md:py-24 relative">
