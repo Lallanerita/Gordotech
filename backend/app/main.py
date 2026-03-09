@@ -481,13 +481,24 @@ async def admin_create_product(product: ProductCreate, username: str = Depends(g
         images = product.images or ([product.image] if product.image else [])
         primary_image = images[0] if images else product.image
 
+        # Auto-assign sort_order: new products go first in their category
+        sort_order = product.sort_order
+        if sort_order == 0 and product.category:
+            cursor = await db.execute(
+                "SELECT MIN(sort_order) as min_sort FROM products WHERE category = ?",
+                (product.category,)
+            )
+            row = await cursor.fetchone()
+            min_sort = row["min_sort"] if row and row["min_sort"] is not None else 100
+            sort_order = min_sort - 1
+
         cursor = await db.execute(
             """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, old_price, description, featured_recommended, featured_trending, sort_order, model_3d)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (product.name, product.category, product.condition, primary_image, json.dumps(images), json.dumps(product.colors),
              json.dumps(product.storage_options), product.badge, json.dumps(product.available),
              product.price, product.old_price, product.description, int(product.featured_recommended),
-             int(product.featured_trending), product.sort_order, product.model_3d)
+             int(product.featured_trending), sort_order, product.model_3d)
         )
         await db.commit()
         new_id = cursor.lastrowid
