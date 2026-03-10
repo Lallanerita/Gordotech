@@ -2224,7 +2224,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
               <ul className="space-y-3">
                 <li className="flex items-center gap-2 text-gray-400 text-sm">
                   <Phone className="w-4 h-4 text-blue-400" />
-                  +57 300 123 4567
+                  +57 314 481 0431
                 </li>
                 <li className="flex items-center gap-2 text-gray-400 text-sm">
                   <Mail className="w-4 h-4 text-blue-400" />
@@ -2239,7 +2239,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
           </div>
 
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-xs">&copy; 2024 Gordotech. Todos los derechos reservados. Conectando tus suenos.</p>
+            <p className="text-gray-500 text-xs">&copy; 2026 Gordotech. Todos los derechos reservados. Conectando tus suenos.</p>
             <div className="flex items-center gap-4 text-xs text-gray-500">
               <a href="#" className="hover:text-white transition-colors">Terminos</a>
               <a href="#" className="hover:text-white transition-colors">Privacidad</a>
