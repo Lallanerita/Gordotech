@@ -576,16 +576,16 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
               onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
             />
           )}
-          {/* Native MP4 video - loads fast like Apple */}
+          {/* Native MP4 video - optimized loading */}
           {slide.video_url && isVideoUrl(slide.video_url) && (
             <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
               <video
                 key={`video-${slide.id}-${current}`}
-                src={slide.video_url}
+                src={i === current ? slide.video_url : undefined}
                 autoPlay
                 muted
                 playsInline
-                preload="auto"
+                preload={i === current ? 'auto' : 'none'}
                 onPlaying={i === current ? () => setVideoPlaying(true) : undefined}
                 onEnded={i === current ? () => { if (!isPaused) goNext() } : undefined}
                 onError={i === current ? () => { if (!isPaused) goNext() } : undefined}
