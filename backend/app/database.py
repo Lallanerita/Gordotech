@@ -54,6 +54,7 @@ async def init_db():
             sort_order INTEGER DEFAULT 0,
             model_3d TEXT DEFAULT '',
             old_price TEXT DEFAULT '',
+            color_images TEXT NOT NULL DEFAULT '{}',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -82,6 +83,12 @@ async def init_db():
         await db.execute("SELECT old_price FROM products LIMIT 1")
     except Exception:
         await db.execute("ALTER TABLE products ADD COLUMN old_price TEXT DEFAULT ''")
+
+    # Migration: add color_images column if missing (JSON object mapping color -> image URL)
+    try:
+        await db.execute("SELECT color_images FROM products LIMIT 1")
+    except Exception:
+        await db.execute("ALTER TABLE products ADD COLUMN color_images TEXT NOT NULL DEFAULT '{}'")
 
     
     # Model bubbles table

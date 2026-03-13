@@ -11,6 +11,7 @@ type Product = {
   image: string
   images: string[]
   colors: string[]
+  color_images: Record<string, string>
   storage_options: string[]
   badge: string | null
   available: string[]
@@ -334,6 +335,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
     image: product?.image || '',
     images: product?.images || [],
     colors: product?.colors?.join(', ') || '',
+    color_images: product?.color_images || {} as Record<string, string>,
     storage_options: product?.storage_options?.join(', ') || '',
     badge: product?.badge || '',
     available_duitama: product?.available?.includes('duitama') ?? true,
@@ -361,6 +363,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
         image: form.images.length > 0 ? form.images[0] : form.image,
         images: form.images,
         colors: form.colors.split(',').map(c => c.trim()).filter(Boolean),
+        color_images: form.color_images,
         storage_options: form.storage_options.split(',').map(s => s.trim()).filter(Boolean),
         badge: form.badge || null,
         available,
@@ -442,6 +445,43 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
                 className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="#000000, #FFFFFF, #4169E1" />
             </div>
           </div>
+
+          {/* Color-Image Assignment */}
+          {form.colors.split(',').map(c => c.trim()).filter(Boolean).length > 0 && form.images.length > 0 && (
+            <div>
+              <label className="block text-gray-400 text-sm mb-1">Asignar imagen a cada color</label>
+              <div className="space-y-2">
+                {form.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
+                  <div key={color} className="flex items-center gap-3 bg-gray-800/30 rounded-lg px-3 py-2">
+                    <div className="w-6 h-6 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color.startsWith('#') ? color : color }} title={color} />
+                    <span className="text-white text-sm min-w-[80px]">{color}</span>
+                    <select
+                      value={form.color_images[color] || ''}
+                      onChange={e => {
+                        const updated = { ...form.color_images }
+                        if (e.target.value) {
+                          updated[color] = e.target.value
+                        } else {
+                          delete updated[color]
+                        }
+                        setForm({ ...form, color_images: updated })
+                      }}
+                      className="flex-1 bg-gray-800/50 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
+                    >
+                      <option value="">Sin imagen asignada</option>
+                      {form.images.map((img, idx) => (
+                        <option key={idx} value={img}>Foto {idx + 1}</option>
+                      ))}
+                    </select>
+                    {form.color_images[color] && (
+                      <img src={form.color_images[color]} alt={color} className="w-8 h-8 rounded object-cover border border-white/10" />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Selecciona que foto se muestra al elegir cada color.</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
