@@ -1702,7 +1702,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
                   <p className="text-gray-400 text-sm mb-3">Colores disponibles</p>
                   <div className="flex items-center gap-3">
                     {selectedProduct.colors.map((color, i) => (
-                      <button key={i} onClick={() => setSelectedColor(color)} className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`} style={{ backgroundColor: resolveColor(color) }} title={color} />
+                      <button key={i} onClick={() => { setSelectedColor(color); if (i < galleryImages.length) setGalleryIndex(i) }} className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`} style={{ backgroundColor: resolveColor(color) }} title={color} />
                     ))}
                   </div>
                 </div>
