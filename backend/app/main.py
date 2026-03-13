@@ -59,14 +59,17 @@ class ProductCreate(BaseModel):
     image: str = ""
     images: list[str] = []
     colors: list[str] = []
+    color_images: dict[str, str] = {}
     storage_options: list[str] = []
     badge: Optional[str] = None
     available: list[str] = ["duitama", "tunja"]
     price: str = ""
+    old_price: str = ""
     description: str = ""
     featured_recommended: bool = False
     featured_trending: bool = False
     sort_order: int = 0
+    model_3d: str = ""
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
@@ -75,14 +78,17 @@ class ProductUpdate(BaseModel):
     image: Optional[str] = None
     images: Optional[list[str]] = None
     colors: Optional[list[str]] = None
+    color_images: Optional[dict[str, str]] = None
     storage_options: Optional[list[str]] = None
     badge: Optional[str] = None
     available: Optional[list[str]] = None
     price: Optional[str] = None
+    old_price: Optional[str] = None
     description: Optional[str] = None
     featured_recommended: Optional[bool] = None
     featured_trending: Optional[bool] = None
     sort_order: Optional[int] = None
+    model_3d: Optional[str] = None
 
 class CategoryCreate(BaseModel):
     slug: str
@@ -203,6 +209,15 @@ def row_to_product(row):
     if (not isinstance(images, list) or len(images) == 0) and row["image"]:
         images = [row["image"]]
 
+    # Parse color_images (JSON object mapping color name -> image URL)
+    color_images_raw = row["color_images"] if "color_images" in keys else "{}"
+    try:
+        color_images = json.loads(color_images_raw) if color_images_raw else {}
+    except (json.JSONDecodeError, TypeError):
+        color_images = {}
+    if not isinstance(color_images, dict):
+        color_images = {}
+
     product_name = row["name"]
     return {
         "id": row["id"],
@@ -213,14 +228,17 @@ def row_to_product(row):
         "image": row["image"],
         "images": images,
         "colors": json.loads(row["colors"]),
+        "color_images": color_images,
         "storage_options": json.loads(row["storage_options"]),
         "badge": row["badge"],
         "available": json.loads(row["available"]),
         "price": row["price"] or "",
+        "old_price": row["old_price"] if "old_price" in keys else "",
         "description": row["description"] or "",
         "featured_recommended": bool(row["featured_recommended"]),
         "featured_trending": bool(row["featured_trending"]),
         "sort_order": row["sort_order"],
+        "model_3d": row["model_3d"] if "model_3d" in keys else "",
     }
 
 def row_to_category(row):
@@ -475,13 +493,24 @@ async def admin_create_product(product: ProductCreate, username: str = Depends(g
         images = product.images or ([product.image] if product.image else [])
         primary_image = images[0] if images else product.image
 
+        # Auto-assign sort_order: new products go first in their category
+        sort_order = product.sort_order
+        if sort_order == 0 and product.category:
+            cursor = await db.execute(
+                "SELECT MIN(sort_order) as min_sort FROM products WHERE category = ?",
+                (product.category,)
+            )
+            row = await cursor.fetchone()
+            min_sort = row["min_sort"] if row and row["min_sort"] is not None else 100
+            sort_order = min_sort - 1
+
         cursor = await db.execute(
-            """INSERT INTO products (name, category, condition, image, images, colors, storage_options, badge, available, price, description, featured_recommended, featured_trending, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO products (name, category, condition, image, images, colors, color_images, storage_options, badge, available, price, old_price, description, featured_recommended, featured_trending, sort_order, model_3d)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (product.name, product.category, product.condition, primary_image, json.dumps(images), json.dumps(product.colors),
-             json.dumps(product.storage_options), product.badge, json.dumps(product.available),
-             product.price, product.description, int(product.featured_recommended),
-             int(product.featured_trending), product.sort_order)
+             json.dumps(product.color_images), json.dumps(product.storage_options), product.badge, json.dumps(product.available),
+             product.price, product.old_price, product.description, int(product.featured_recommended),
+             int(product.featured_trending), sort_order, product.model_3d)
         )
         await db.commit()
         new_id = cursor.lastrowid
@@ -515,6 +544,8 @@ async def admin_update_product(product_id: int, product: ProductUpdate, username
             updates["image"] = product.images[0] if len(product.images) > 0 else ""
         if product.colors is not None:
             updates["colors"] = json.dumps(product.colors)
+        if product.color_images is not None:
+            updates["color_images"] = json.dumps(product.color_images)
         if product.storage_options is not None:
             updates["storage_options"] = json.dumps(product.storage_options)
         if product.badge is not None:
@@ -523,6 +554,8 @@ async def admin_update_product(product_id: int, product: ProductUpdate, username
             updates["available"] = json.dumps(product.available)
         if product.price is not None:
             updates["price"] = product.price
+        if product.old_price is not None:
+            updates["old_price"] = product.old_price
         if product.description is not None:
             updates["description"] = product.description
         if product.featured_recommended is not None:
@@ -531,6 +564,8 @@ async def admin_update_product(product_id: int, product: ProductUpdate, username
             updates["featured_trending"] = int(product.featured_trending)
         if product.sort_order is not None:
             updates["sort_order"] = product.sort_order
+        if product.model_3d is not None:
+            updates["model_3d"] = product.model_3d
         
         if updates:
             updates["updated_at"] = datetime.utcnow().isoformat()

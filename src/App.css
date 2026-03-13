@@ -68,6 +68,50 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
+/* Apple-style scroll-triggered entrance animations */
+@keyframes scrollFadeUp {
+  0% { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scrollFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes scrollScaleUp {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Elements waiting to be animated (hidden by default) */
+.scroll-animate {
+  opacity: 0;
+}
+
+/* When element becomes visible via Intersection Observer */
+.scroll-animate.is-visible {
+  animation: scrollFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.scroll-animate-fade.is-visible {
+  animation: scrollFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.scroll-animate-scale.is-visible {
+  animation: scrollScaleUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Staggered delays for grid children */
+.stagger-1 { animation-delay: 0.05s !important; }
+.stagger-2 { animation-delay: 0.1s !important; }
+.stagger-3 { animation-delay: 0.15s !important; }
+.stagger-4 { animation-delay: 0.2s !important; }
+.stagger-5 { animation-delay: 0.25s !important; }
+.stagger-6 { animation-delay: 0.3s !important; }
+.stagger-7 { animation-delay: 0.35s !important; }
+.stagger-8 { animation-delay: 0.4s !important; }
+
 /* Scrollbar hide utility */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

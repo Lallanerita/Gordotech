@@ -11,10 +11,12 @@ type Product = {
   image: string
   images: string[]
   colors: string[]
+  color_images: Record<string, string>
   storage_options: string[]
   badge: string | null
   available: string[]
   price: string
+  old_price: string
   description: string
   featured_recommended: boolean
   featured_trending: boolean
@@ -333,11 +335,13 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
     image: product?.image || '',
     images: product?.images || [],
     colors: product?.colors?.join(', ') || '',
+    color_images: product?.color_images || {} as Record<string, string>,
     storage_options: product?.storage_options?.join(', ') || '',
     badge: product?.badge || '',
     available_duitama: product?.available?.includes('duitama') ?? true,
     available_tunja: product?.available?.includes('tunja') ?? true,
     price: product?.price || '',
+    old_price: product?.old_price || '',
     description: product?.description || '',
     featured_recommended: product?.featured_recommended || false,
     featured_trending: product?.featured_trending || false,
@@ -359,10 +363,12 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
         image: form.images.length > 0 ? form.images[0] : form.image,
         images: form.images,
         colors: form.colors.split(',').map(c => c.trim()).filter(Boolean),
+        color_images: form.color_images,
         storage_options: form.storage_options.split(',').map(s => s.trim()).filter(Boolean),
         badge: form.badge || null,
         available,
         price: form.price,
+        old_price: form.old_price,
         description: form.description,
         featured_recommended: form.featured_recommended,
         featured_trending: form.featured_trending,
@@ -434,18 +440,63 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
                 className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="128GB, 256GB, 512GB" />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Colores hex (separados por coma)</label>
+              <label className="block text-gray-400 text-sm mb-1">Colores (nombre o hex, separados por coma)</label>
               <input value={form.colors} onChange={e => setForm({...form, colors: e.target.value})}
                 className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="#000000, #FFFFFF, #4169E1" />
             </div>
           </div>
 
+          {/* Color-Image Assignment */}
+          {form.colors.split(',').map(c => c.trim()).filter(Boolean).length > 0 && form.images.length > 0 && (
+            <div>
+              <label className="block text-gray-400 text-sm mb-1">Asignar imagen a cada color</label>
+              <div className="space-y-2">
+                {form.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
+                  <div key={color} className="flex items-center gap-3 bg-gray-800/30 rounded-lg px-3 py-2">
+                    <div className="w-6 h-6 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color.startsWith('#') ? color : color }} title={color} />
+                    <span className="text-white text-sm min-w-[80px]">{color}</span>
+                    <select
+                      value={form.color_images[color] || ''}
+                      onChange={e => {
+                        const updated = { ...form.color_images }
+                        if (e.target.value) {
+                          updated[color] = e.target.value
+                        } else {
+                          delete updated[color]
+                        }
+                        setForm({ ...form, color_images: updated })
+                      }}
+                      className="flex-1 bg-gray-800/50 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
+                    >
+                      <option value="">Sin imagen asignada</option>
+                      {form.images.map((img, idx) => (
+                        <option key={idx} value={img}>Foto {idx + 1}</option>
+                      ))}
+                    </select>
+                    {form.color_images[color] && (
+                      <img src={form.color_images[color]} alt={color} className="w-8 h-8 rounded object-cover border border-white/10" />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Selecciona que foto se muestra al elegir cada color.</p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Precio</label>
+              <label className="block text-gray-400 text-sm mb-1">Precio Actual</label>
               <input value={form.price} onChange={e => setForm({...form, price: e.target.value})}
-                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="$2.500.000" />
+                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="2.500.000" />
             </div>
+            <div>
+              <label className="block text-red-400 text-sm mb-1">Precio Anterior (tachado en rojo)</label>
+              <input value={form.old_price} onChange={e => setForm({...form, old_price: e.target.value})}
+                className="w-full bg-gray-800/50 border border-red-500/20 rounded-lg px-3 py-2.5 text-red-400 text-sm focus:outline-none focus:border-red-500/50" placeholder="3.200.000" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-400 text-sm mb-1">Badge / Etiqueta</label>
               <input value={form.badge} onChange={e => setForm({...form, badge: e.target.value})}
@@ -745,6 +796,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [conditionFilter, setConditionFilter] = useState('todos')
   const [categoryFilter, setCategoryFilter] = useState('todos')
+  const [cityFilter, setCityFilter] = useState('todos')
   
   // Form modals
   const [editingProduct, setEditingProduct] = useState<Product | null | 'new'>(null)
@@ -906,7 +958,8 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       (conditionFilter === 'nuevos' && p.condition === 'Nuevo') ||
       (conditionFilter === 'semi-usados' && p.condition === 'Semi-usado')
     const matchesCategory = categoryFilter === 'todos' || p.category === categoryFilter
-    return matchesSearch && matchesCondition && matchesCategory
+    const matchesCity = cityFilter === 'todos' || p.available.includes(cityFilter)
+    return matchesSearch && matchesCondition && matchesCategory && matchesCity
   })
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -1003,6 +1056,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     placeholder="Buscar producto..."
                     className="w-full bg-gray-800/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
                   />
+                </div>
+                <div className="flex gap-2">
+                  {['todos', 'duitama', 'tunja'].map(f => (
+                    <button key={f} onClick={() => setCityFilter(f)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${cityFilter === f ? 'bg-green-500 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-white border border-white/10'}`}>
+                      {f === 'todos' ? 'Todas' : f === 'duitama' ? 'Duitama' : 'Tunja'}
+                    </button>
+                  ))}
                 </div>
                 <div className="flex gap-2">
                   {['todos', 'nuevos', 'semi-usados'].map(f => (
