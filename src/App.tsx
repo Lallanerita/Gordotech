@@ -392,98 +392,6 @@ const repairServices = [
 ]
 
 
-// City Selection Splash Screen
-function CitySelector({ onSelect }: { onSelect: (city: City) => void }) {
-  const [hoveredCity, setHoveredCity] = useState<City>(null)
-  const [animateIn, setAnimateIn] = useState(false)
-
-  useEffect(() => {
-    setTimeout(() => setAnimateIn(true), 100)
-  }, [])
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
-          {/* Grid lines */}
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: 'linear-gradient(rgba(123,163,201,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(123,163,201,0.3) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }} />
-        </div>
-      </div>
-
-      <div className={`relative z-10 text-center transition-all duration-1000 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-        {/* Logo */}
-        <div className="mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <img src="/images/gordotech-logo.png" alt="Gordotech Logo" className="w-48 md:w-64" />
-          </div>
-        </div>
-
-        {/* Greeting */}
-        <div className={`mb-12 transition-all duration-1000 delay-300 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-          <h2 className="text-2xl md:text-4xl text-white font-light mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Hola
-          </h2>
-          <p className="text-gray-400 text-lg md:text-xl">En que ciudad te encuentras?</p>
-        </div>
-
-        {/* City Cards */}
-        <div className={`flex flex-col sm:flex-row gap-6 justify-center transition-all duration-1000 delay-500 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-          {/* Duitama */}
-          <button
-            onClick={() => onSelect('duitama')}
-            onMouseEnter={() => setHoveredCity('duitama')}
-            onMouseLeave={() => setHoveredCity(null)}
-            className={`group relative w-72 p-8 rounded-3xl border transition-all duration-500 cursor-pointer ${
-              hoveredCity === 'duitama'
-                ? 'bg-blue-500/10 border-blue-400/50 scale-105 shadow-2xl shadow-blue-500/20'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
-          >
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'duitama' ? 'text-blue-400' : 'text-gray-400'}`} />
-            <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>DUITAMA</h3>
-            <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-sm">Explorar</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </button>
-
-          {/* Tunja */}
-          <button
-            onClick={() => onSelect('tunja')}
-            onMouseEnter={() => setHoveredCity('tunja')}
-            onMouseLeave={() => setHoveredCity(null)}
-            className={`group relative w-72 p-8 rounded-3xl border transition-all duration-500 cursor-pointer ${
-              hoveredCity === 'tunja'
-                ? 'bg-blue-500/10 border-blue-400/50 scale-105 shadow-2xl shadow-blue-500/20'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
-          >
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <MapPin className={`w-10 h-10 mx-auto mb-4 transition-colors ${hoveredCity === 'tunja' ? 'text-blue-400' : 'text-gray-400'}`} />
-            <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>TUNJA</h3>
-            <div className="flex items-center justify-center gap-2 mt-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-sm">Explorar</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className={`absolute bottom-8 text-gray-600 text-xs transition-all duration-1000 delay-700 ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
-        <p>Gordotech &copy; 2024 &middot; Conectando tus suenos</p>
-      </div>
-    </div>
-  )
-}
-
 // Main Store Component
 // ==================== ANIMATED MARQUEE BANNER ====================
 function AnimatedMarquee({ texts }: { texts: string[] }) {
@@ -1113,8 +1021,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-3 cursor-pointer">
+            <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 md:gap-3 cursor-pointer">
               <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10 md:h-12" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-4 md:h-5" />
             </button>
 
             {/* Nav Links - Desktop */}
@@ -1127,7 +1036,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
             {/* Right side */}
             <div className="flex items-center gap-3">
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-5 md:h-6 hidden md:block" />
               <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
                 <ShoppingCart className="w-5 h-5 text-gray-300" />
                 {cartCount > 0 && (
