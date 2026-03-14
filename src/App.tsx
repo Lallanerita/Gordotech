@@ -1023,7 +1023,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             {/* Logo */}
             <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 md:gap-3 cursor-pointer">
               <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10 md:h-12" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-4 md:h-5" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-7 md:h-8" />
             </button>
 
             {/* Nav Links - Desktop */}
