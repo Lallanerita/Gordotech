@@ -1028,7 +1028,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
             {/* Nav Links - Desktop */}
             <nav className="hidden md:flex items-center gap-8">
-              <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Productos</a>
+              <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80" />Productos</a>
               <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
               <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
               <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
@@ -1055,7 +1055,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           {mobileMenuOpen && (
             <div className="md:hidden pb-4 border-t border-white/5 mt-2 pt-4">
               <nav className="flex flex-col gap-3">
-                <a href="#productos" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Productos</a>
+                <a href="#productos" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2 flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80" />Productos</a>
                 <a href="#reparacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Reparacion</a>
                 <a href="#ubicacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Ubicacion</a>
                 <a href="#contacto" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Contacto</a>
@@ -1261,31 +1261,31 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       <div className="pt-16 md:pt-20">
         <div className="bg-gray-900/80 border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-center gap-1 sm:gap-2 py-2 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1.5 overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => { setActiveCondition('nuevos'); document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' }) }}
-                className="px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
               >
-                Productos Nuevos
+                Nuevos
               </button>
-              <span className="text-gray-600">|</span>
+              <span className="text-gray-600 text-[10px]">|</span>
               <button
                 onClick={() => { setActiveCondition('semi-usados'); document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' }) }}
-                className="px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
               >
                 Seminuevos
               </button>
-              <span className="text-gray-600">|</span>
+              <span className="text-gray-600 text-[10px]">|</span>
               <button
                 onClick={() => document.getElementById('plan-retoma')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
               >
                 Plan Retoma
               </button>
-              <span className="text-gray-600">|</span>
+              <span className="text-gray-600 text-[10px]">|</span>
               <button
                 onClick={() => document.getElementById('reparacion')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
               >
                 Reparacion
               </button>
