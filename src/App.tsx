@@ -702,10 +702,11 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   )
 }
 
-function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initialProduct }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
+function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
   const navigate = useNavigate()
-  const socials = CITY_SOCIALS[city || 'duitama']
-  const pickupAddress = CITY_ADDRESSES[city || 'duitama']
+  const city = 'duitama' as City
+  const socials = CITY_SOCIALS[city]
+  const pickupAddress = CITY_ADDRESSES[city]
   const [activeModel, setActiveModel] = useState<string>('todos')
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -1015,7 +1016,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
     }
   }, [productSlug, productId, apiProducts, selectedProduct, scrollToTop])
 
-  const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
+  const cityName = 'Duitama'
 
   // Update page title and meta tags for SEO
   useEffect(() => {
@@ -1119,22 +1120,13 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             {/* Nav Links - Desktop */}
             <nav className="hidden md:flex items-center gap-8">
               <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Productos</a>
-              {city === 'duitama' && (
-                <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
-              )}
+              <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
               <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
               <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
             </nav>
 
             {/* Right side */}
             <div className="flex items-center gap-3">
-              <button
-                onClick={onChangeCity}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-sm"
-              >
-                <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                <span className="text-gray-300">{cityName}</span>
-              </button>
               <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
                 <ShoppingCart className="w-5 h-5 text-gray-300" />
                 {cartCount > 0 && (
@@ -1155,9 +1147,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             <div className="md:hidden pb-4 border-t border-white/5 mt-2 pt-4">
               <nav className="flex flex-col gap-3">
                 <a href="#productos" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Productos</a>
-                {city === 'duitama' && (
-                  <a href="#reparacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Reparacion</a>
-                )}
+                <a href="#reparacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Reparacion</a>
                 <a href="#ubicacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Ubicacion</a>
                 <a href="#contacto" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Contacto</a>
               </nav>
@@ -1999,8 +1989,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
         </section>
       )}
 
-      {/* Repair Section - Only for Duitama, hidden on product detail */}
-      {!selectedProduct && city === 'duitama' && (
+      {/* Repair Section */}
+      {!selectedProduct && (
         <section id="reparacion" className="py-16 md:py-24 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -2008,7 +1998,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
                 <Wrench className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-400 text-sm font-medium">Solo en Duitama</span>
+                <span className="text-blue-400 text-sm font-medium">Servicio Tecnico</span>
               </div>
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                 CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACION</span>
@@ -2060,7 +2050,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
           <ScrollReveal>
           <div className="text-center mb-16">
             <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-              VISITANOS EN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">{cityName.toUpperCase()}</span>
+              NUESTRAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TIENDAS</span>
             </h3>
             <p className="text-gray-400 text-lg">Ven a conocer nuestros productos en persona</p>
           </div>
@@ -2069,7 +2059,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Duitama */}
             <ScrollReveal delay={0.1}>
-            <div className={`p-8 rounded-3xl border transition-all ${city === 'duitama' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
+            <div className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
                   <MapPin className="w-6 h-6 text-blue-400" />
@@ -2106,7 +2096,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
 
             {/* Tunja */}
             <ScrollReveal delay={0.2}>
-            <div className={`p-8 rounded-3xl border transition-all ${city === 'tunja' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
+            <div className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
                   <MapPin className="w-6 h-6 text-blue-400" />
@@ -2274,29 +2264,21 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
   )
 }
 
-function ProductPageWrapper({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
+function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
   const { id, slug } = useParams<{ id: string; slug: string }>()
   const location = useLocation()
   const initialProduct = (location.state as { product?: Product })?.product
-  return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} />
+  return <Store onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} />
 }
 
 // Legacy slug-only wrapper for backwards compatibility
-function ProductPageWrapperLegacy({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
+function ProductPageWrapperLegacy({ onAdminClick }: { onAdminClick: () => void }) {
   const { slug } = useParams<{ slug: string }>()
-  return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} />
+  return <Store onAdminClick={onAdminClick} productSlug={slug} />
 }
 
 function App() {
-  const [city, setCity] = useState<City>(() => {
-    const saved = localStorage.getItem('gordotech-city')
-    return (saved === 'duitama' || saved === 'tunja') ? saved : null
-  })
   const [showAdmin, setShowAdmin] = useState(false)
-
-  // If visiting a product URL directly without city selected, default to duitama
-  const isProductRoute = window.location.pathname.startsWith('/producto/')
-  const effectiveCity = city || (isProductRoute ? 'duitama' as City : null)
 
   // Keyboard shortcut: Ctrl+Shift+A to toggle admin panel
   useEffect(() => {
@@ -2317,30 +2299,15 @@ function App() {
     }
   }, [])
 
-  const handleCitySelect = (selected: City) => {
-    setCity(selected)
-    if (selected) localStorage.setItem('gordotech-city', selected)
-  }
-
-  const handleChangeCity = () => {
-    setCity(null)
-    localStorage.removeItem('gordotech-city')
-    window.scrollTo(0, 0)
-  }
-
   if (showAdmin) {
     return <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
   }
 
-  if (!effectiveCity) {
-    return <CitySelector onSelect={handleCitySelect} />
-  }
-
   return (
     <Routes>
-      <Route path="/producto/:id/:slug" element={<ProductPageWrapper city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
-      <Route path="/producto/:slug" element={<ProductPageWrapperLegacy city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
-      <Route path="*" element={<Store city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
+      <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
     </Routes>
   )
 }

@@ -1,0 +1,96 @@
+From d8d2a1c08d1f4ce61602efd369992effeeea3b6a Mon Sep 17 00:00:00 2001
+From: Devin AI <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+Date: Fri, 13 Mar 2026 23:52:17 +0000
+Subject: [PATCH] fix: resolve image URLs by prefixing API_URL for /uploads/
+ paths
+
+Co-Authored-By: Brett Patterson <lallaneritaco@gmail.com>
+---
+ src/App.tsx | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/src/App.tsx b/src/App.tsx
+index 88057e8..71affb1 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -25,6 +25,13 @@ function getModel3DUrl(product: { name: string; model_3d?: string }): string | n
+ 
+ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+ 
++// Resolve image URLs - prefix API_URL for relative /uploads/ paths
++function resolveImageUrl(url: string): string {
++  if (!url) return url
++  if (url.startsWith('/uploads/')) return `${API_URL}${url}`
++  return url
++}
++
+ // Apple-style scroll-triggered animation hook
+ function useScrollAnimation(threshold = 0.15) {
+   const ref = useRef<HTMLDivElement>(null)
+@@ -868,8 +875,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+             name: p.name as string,
+             category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string,
+-            images: (p.images as string[]) || [],
++            image: resolveImageUrl(p.image as string),
++            images: ((p.images as string[]) || []).map(resolveImageUrl),
+             colors: p.colors as string[],
+             storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null,
+@@ -883,7 +890,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           setRecommendedProducts(recommendedRes.products.map((p: Record<string, unknown>) => ({
+             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
++            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null, available: p.available as string[],
+             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+           })))
+@@ -892,14 +899,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           setTrendingProducts(trendingRes.products.map((p: Record<string, unknown>) => ({
+             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
++            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null, available: p.available as string[],
+             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+           })))
+         }
+         if (bubblesRes?.bubbles) {
+           const apiBubbles = bubblesRes.bubbles.map((b: Record<string, unknown>) => ({
+-            id: b.model_id as string, label: b.label as string, image: b.image as string,
++            id: b.model_id as string, label: b.label as string, image: resolveImageUrl(b.image as string),
+           }))
+           setModelBubbles(apiBubbles)
+         }
+@@ -913,7 +920,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           })))
+         }
+         if (slidesRes?.slides) {
+-          setHeroSlides(slidesRes.slides)
++          setHeroSlides(slidesRes.slides.map((s: HeroSlide) => ({ ...s, image: resolveImageUrl(s.image) })))
+         }
+         if (marqueeRes?.texts) {
+           setMarqueeTexts(marqueeRes.texts.map((t: { text: string }) => t.text))
+@@ -990,7 +997,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+             const data = await res.json()
+             const product: Product = {
+               id: data.id, name: data.name, slug: data.slug, category: data.category || '',
+-              condition: data.condition, image: data.image, images: data.images || [],
++              condition: data.condition, image: resolveImageUrl(data.image), images: (data.images || []).map(resolveImageUrl),
+               colors: data.colors, storageOptions: data.storage_options,
+               badge: data.badge || null, available: data.available,
+               price: data.price || '', oldPrice: data.old_price || '', description: data.description || '',
+@@ -1042,7 +1049,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           setRelatedProducts(data.products.map((p: Record<string, unknown>) => ({
+             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
++            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null, available: p.available as string[],
+             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+           })))
+-- 
+2.34.1
+

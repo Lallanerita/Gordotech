@@ -1,0 +1,296 @@
+From d8d2a1c08d1f4ce61602efd369992effeeea3b6a Mon Sep 17 00:00:00 2001
+From: Devin AI <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+Date: Fri, 13 Mar 2026 23:52:17 +0000
+Subject: [PATCH 1/2] fix: resolve image URLs by prefixing API_URL for
+ /uploads/ paths
+
+Co-Authored-By: Brett Patterson <lallaneritaco@gmail.com>
+---
+ src/App.tsx | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/src/App.tsx b/src/App.tsx
+index 88057e8..71affb1 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -25,6 +25,13 @@ function getModel3DUrl(product: { name: string; model_3d?: string }): string | n
+ 
+ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+ 
++// Resolve image URLs - prefix API_URL for relative /uploads/ paths
++function resolveImageUrl(url: string): string {
++  if (!url) return url
++  if (url.startsWith('/uploads/')) return `${API_URL}${url}`
++  return url
++}
++
+ // Apple-style scroll-triggered animation hook
+ function useScrollAnimation(threshold = 0.15) {
+   const ref = useRef<HTMLDivElement>(null)
+@@ -868,8 +875,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+             name: p.name as string,
+             category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string,
+-            images: (p.images as string[]) || [],
++            image: resolveImageUrl(p.image as string),
++            images: ((p.images as string[]) || []).map(resolveImageUrl),
+             colors: p.colors as string[],
+             storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null,
+@@ -883,7 +890,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           setRecommendedProducts(recommendedRes.products.map((p: Record<string, unknown>) => ({
+             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
++            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null, available: p.available as string[],
+             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+           })))
+@@ -892,14 +899,14 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           setTrendingProducts(trendingRes.products.map((p: Record<string, unknown>) => ({
+             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
++            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null, available: p.available as string[],
+             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+           })))
+         }
+         if (bubblesRes?.bubbles) {
+           const apiBubbles = bubblesRes.bubbles.map((b: Record<string, unknown>) => ({
+-            id: b.model_id as string, label: b.label as string, image: b.image as string,
++            id: b.model_id as string, label: b.label as string, image: resolveImageUrl(b.image as string),
+           }))
+           setModelBubbles(apiBubbles)
+         }
+@@ -913,7 +920,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           })))
+         }
+         if (slidesRes?.slides) {
+-          setHeroSlides(slidesRes.slides)
++          setHeroSlides(slidesRes.slides.map((s: HeroSlide) => ({ ...s, image: resolveImageUrl(s.image) })))
+         }
+         if (marqueeRes?.texts) {
+           setMarqueeTexts(marqueeRes.texts.map((t: { text: string }) => t.text))
+@@ -990,7 +997,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+             const data = await res.json()
+             const product: Product = {
+               id: data.id, name: data.name, slug: data.slug, category: data.category || '',
+-              condition: data.condition, image: data.image, images: data.images || [],
++              condition: data.condition, image: resolveImageUrl(data.image), images: (data.images || []).map(resolveImageUrl),
+               colors: data.colors, storageOptions: data.storage_options,
+               badge: data.badge || null, available: data.available,
+               price: data.price || '', oldPrice: data.old_price || '', description: data.description || '',
+@@ -1042,7 +1049,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           setRelatedProducts(data.products.map((p: Record<string, unknown>) => ({
+             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+             condition: p.condition as string,
+-            image: p.image as string, images: (p.images as string[]) || [], colors: p.colors as string[], storageOptions: p.storage_options as string[],
++            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+             badge: (p.badge as string) || null, available: p.available as string[],
+             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+           })))
+-- 
+2.34.1
+
+
+From 588a26990ac6a383e9f867e27263e2cbecaca4e0 Mon Sep 17 00:00:00 2001
+From: Devin AI <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+Date: Sat, 14 Mar 2026 00:43:41 +0000
+Subject: [PATCH 2/2] feat: remove city selector splash page and Duitama button
+ from header
+
+- Remove city selection landing page (CitySelector component no longer used)
+- Remove Duitama/Tunja city toggle button from header
+- Show repair section for all users (not just Duitama)
+- Default to Duitama socials/addresses internally
+- Both store locations (Duitama & Tunja) always visible in Ubicacion section
+
+Co-Authored-By: Brett Patterson <lallaneritaco@gmail.com>
+---
+ src/App.tsx | 73 +++++++++++++++--------------------------------------
+ 1 file changed, 20 insertions(+), 53 deletions(-)
+
+diff --git a/src/App.tsx b/src/App.tsx
+index 71affb1..f3b5810 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -702,10 +702,11 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
+   )
+ }
+ 
+-function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initialProduct }: { city: City; onChangeCity: () => void; onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
++function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
+   const navigate = useNavigate()
+-  const socials = CITY_SOCIALS[city || 'duitama']
+-  const pickupAddress = CITY_ADDRESSES[city || 'duitama']
++  const city = 'duitama' as City
++  const socials = CITY_SOCIALS[city]
++  const pickupAddress = CITY_ADDRESSES[city]
+   const [activeModel, setActiveModel] = useState<string>('todos')
+   const [activeCondition, setActiveCondition] = useState<string>('todos')
+   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+@@ -1015,7 +1016,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+     }
+   }, [productSlug, productId, apiProducts, selectedProduct, scrollToTop])
+ 
+-  const cityName = city === 'duitama' ? 'Duitama' : 'Tunja'
++  const cityName = 'Duitama'
+ 
+   // Update page title and meta tags for SEO
+   useEffect(() => {
+@@ -1119,22 +1120,13 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+             {/* Nav Links - Desktop */}
+             <nav className="hidden md:flex items-center gap-8">
+               <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Productos</a>
+-              {city === 'duitama' && (
+-                <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
+-              )}
++              <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
+               <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
+               <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
+             </nav>
+ 
+             {/* Right side */}
+             <div className="flex items-center gap-3">
+-              <button
+-                onClick={onChangeCity}
+-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-sm"
+-              >
+-                <MapPin className="w-3.5 h-3.5 text-blue-400" />
+-                <span className="text-gray-300">{cityName}</span>
+-              </button>
+               <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                 <ShoppingCart className="w-5 h-5 text-gray-300" />
+                 {cartCount > 0 && (
+@@ -1155,9 +1147,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+             <div className="md:hidden pb-4 border-t border-white/5 mt-2 pt-4">
+               <nav className="flex flex-col gap-3">
+                 <a href="#productos" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Productos</a>
+-                {city === 'duitama' && (
+-                  <a href="#reparacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Reparacion</a>
+-                )}
++                <a href="#reparacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Reparacion</a>
+                 <a href="#ubicacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Ubicacion</a>
+                 <a href="#contacto" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Contacto</a>
+               </nav>
+@@ -1999,8 +1989,8 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+         </section>
+       )}
+ 
+-      {/* Repair Section - Only for Duitama, hidden on product detail */}
+-      {!selectedProduct && city === 'duitama' && (
++      {/* Repair Section */}
++      {!selectedProduct && (
+         <section id="reparacion" className="py-16 md:py-24 relative">
+           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
+           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+@@ -2008,7 +1998,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+             <div className="text-center mb-16">
+               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+                 <Wrench className="w-4 h-4 text-blue-400" />
+-                <span className="text-blue-400 text-sm font-medium">Solo en Duitama</span>
++                <span className="text-blue-400 text-sm font-medium">Servicio Tecnico</span>
+               </div>
+               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                 CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACION</span>
+@@ -2060,7 +2050,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           <ScrollReveal>
+           <div className="text-center mb-16">
+             <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+-              VISITANOS EN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">{cityName.toUpperCase()}</span>
++              NUESTRAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TIENDAS</span>
+             </h3>
+             <p className="text-gray-400 text-lg">Ven a conocer nuestros productos en persona</p>
+           </div>
+@@ -2069,7 +2059,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             {/* Duitama */}
+             <ScrollReveal delay={0.1}>
+-            <div className={`p-8 rounded-3xl border transition-all ${city === 'duitama' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
++            <div className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20">
+               <div className="flex items-center gap-3 mb-6">
+                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
+                   <MapPin className="w-6 h-6 text-blue-400" />
+@@ -2106,7 +2096,7 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+ 
+             {/* Tunja */}
+             <ScrollReveal delay={0.2}>
+-            <div className={`p-8 rounded-3xl border transition-all ${city === 'tunja' ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
++            <div className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20">
+               <div className="flex items-center gap-3 mb-6">
+                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
+                   <MapPin className="w-6 h-6 text-blue-400" />
+@@ -2274,30 +2264,22 @@ function Store({ city, onChangeCity, onAdminClick, productSlug, productId, initi
+   )
+ }
+ 
+-function ProductPageWrapper({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
++function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
+   const { id, slug } = useParams<{ id: string; slug: string }>()
+   const location = useLocation()
+   const initialProduct = (location.state as { product?: Product })?.product
+-  return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} />
++  return <Store onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} />
+ }
+ 
+ // Legacy slug-only wrapper for backwards compatibility
+-function ProductPageWrapperLegacy({ city, onChangeCity, onAdminClick }: { city: City; onChangeCity: () => void; onAdminClick: () => void }) {
++function ProductPageWrapperLegacy({ onAdminClick }: { onAdminClick: () => void }) {
+   const { slug } = useParams<{ slug: string }>()
+-  return <Store city={city} onChangeCity={onChangeCity} onAdminClick={onAdminClick} productSlug={slug} />
++  return <Store onAdminClick={onAdminClick} productSlug={slug} />
+ }
+ 
+ function App() {
+-  const [city, setCity] = useState<City>(() => {
+-    const saved = localStorage.getItem('gordotech-city')
+-    return (saved === 'duitama' || saved === 'tunja') ? saved : null
+-  })
+   const [showAdmin, setShowAdmin] = useState(false)
+ 
+-  // If visiting a product URL directly without city selected, default to duitama
+-  const isProductRoute = window.location.pathname.startsWith('/producto/')
+-  const effectiveCity = city || (isProductRoute ? 'duitama' as City : null)
+-
+   // Keyboard shortcut: Ctrl+Shift+A to toggle admin panel
+   useEffect(() => {
+     const handleKeyDown = (e: KeyboardEvent) => {
+@@ -2317,30 +2299,15 @@ function App() {
+     }
+   }, [])
+ 
+-  const handleCitySelect = (selected: City) => {
+-    setCity(selected)
+-    if (selected) localStorage.setItem('gordotech-city', selected)
+-  }
+-
+-  const handleChangeCity = () => {
+-    setCity(null)
+-    localStorage.removeItem('gordotech-city')
+-    window.scrollTo(0, 0)
+-  }
+-
+   if (showAdmin) {
+     return <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
+   }
+ 
+-  if (!effectiveCity) {
+-    return <CitySelector onSelect={handleCitySelect} />
+-  }
+-
+   return (
+     <Routes>
+-      <Route path="/producto/:id/:slug" element={<ProductPageWrapper city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+-      <Route path="/producto/:slug" element={<ProductPageWrapperLegacy city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
+-      <Route path="*" element={<Store city={effectiveCity} onChangeCity={handleChangeCity} onAdminClick={() => setShowAdmin(true)} />} />
++      <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
++      <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
++      <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
+     </Routes>
+   )
+ }
+-- 
+2.34.1
+
