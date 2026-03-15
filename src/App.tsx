@@ -1020,50 +1020,37 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {/* Header / Navbar */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo - centered on mobile */}
-            <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 md:gap-3 cursor-pointer md:flex-none flex-1 justify-center md:justify-start">
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10 md:h-12" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-7 md:h-8" />
+          {/* Mobile header - logo centered */}
+          <div className="flex md:hidden items-center justify-center h-16">
+            <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-7" />
+            </button>
+          </div>
+
+          {/* Desktop header */}
+          <div className="hidden md:flex items-center justify-between h-20">
+            <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-3 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-12" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-8" />
             </button>
 
-            {/* Nav Links - Desktop */}
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="flex items-center gap-8">
               <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80" />Productos</a>
               <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
               <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
               <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
             </nav>
 
-            {/* Right side */}
             <div className="flex items-center gap-3">
-              {/* Cart - desktop only */}
-              <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="hidden md:block relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+              <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
                 <ShoppingCart className="w-5 h-5 text-gray-300" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full text-[10px] font-bold flex items-center justify-center text-white animate-pulse">{cartCount}</span>
                 )}
               </button>
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl bg-white/5 border border-white/10"
-              >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
             </div>
           </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden pb-4 border-t border-white/5 mt-2 pt-4">
-              <nav className="flex flex-col gap-3">
-                <a href="#productos" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2 flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80" />Productos</a>
-                <a href="#reparacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Reparacion</a>
-                <a href="#ubicacion" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Ubicacion</a>
-                <a href="#contacto" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2">Contacto</a>
-              </nav>
-            </div>
-          )}
         </div>
       </header>
 
