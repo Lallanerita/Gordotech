@@ -651,6 +651,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [cartItems, setCartItems] = useState<CartItem[]>(loadCart)
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [whatsappMenuOpen, setWhatsappMenuOpen] = useState(false)
   const [cartAddedFeedback, setCartAddedFeedback] = useState(false)
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<string>('')
@@ -2195,15 +2196,49 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       </footer>
       </ScrollReveal>
 
-      {/* WhatsApp Floating Button */}
-      <a
-        href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20necesito%20información`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-all"
-      >
-        <MessageCircle className="w-7 h-7 text-white" />
-      </a>
+      {/* WhatsApp Floating Button with City Options */}
+      <div className="fixed bottom-6 right-6 z-50">
+        {whatsappMenuOpen && (
+          <div className="absolute bottom-16 right-0 mb-2 bg-gray-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden w-56 animate-in">
+            <div className="px-4 py-3 border-b border-white/10 bg-green-600/10">
+              <p className="text-white text-sm font-semibold">Escríbenos por WhatsApp</p>
+            </div>
+            <a
+              href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20necesito%20información"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+            >
+              <span className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center"><MessageCircle className="w-4 h-4 text-green-400" /></span>
+              <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">+57 321 986 3883</p></div>
+            </a>
+            <a
+              href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20necesito%20información"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+            >
+              <span className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center"><MessageCircle className="w-4 h-4 text-green-400" /></span>
+              <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">+57 314 481 0431</p></div>
+            </a>
+            <a
+              href="https://wa.me/573213815465?text=Hola%20Gordotech%20Clínica%2C%20necesito%20información"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+            >
+              <span className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center"><MessageCircle className="w-4 h-4 text-green-400" /></span>
+              <div><p className="text-white text-sm font-medium">Clínica</p><p className="text-gray-400 text-[10px]">+57 321 381 5465</p></div>
+            </a>
+          </div>
+        )}
+        <button
+          onClick={() => setWhatsappMenuOpen(!whatsappMenuOpen)}
+          className={`w-14 h-14 ${whatsappMenuOpen ? 'bg-gray-700' : 'bg-green-500 hover:bg-green-600'} rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-all`}
+        >
+          {whatsappMenuOpen ? <X className="w-7 h-7 text-white" /> : <MessageCircle className="w-7 h-7 text-white" />}
+        </button>
+      </div>
     </div>
   )
 }
