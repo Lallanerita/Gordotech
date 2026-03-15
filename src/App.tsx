@@ -2209,7 +2209,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
             >
-              <span className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center"><MessageCircle className="w-4 h-4 text-green-400" /></span>
+              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
               <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">+57 321 986 3883</p></div>
             </a>
             <a
@@ -2218,7 +2218,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
             >
-              <span className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center"><MessageCircle className="w-4 h-4 text-green-400" /></span>
+              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
               <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">+57 314 481 0431</p></div>
             </a>
             <a
@@ -2227,7 +2227,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
             >
-              <span className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center"><MessageCircle className="w-4 h-4 text-green-400" /></span>
+              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
               <div><p className="text-white text-sm font-medium">Clínica</p><p className="text-gray-400 text-[10px]">+57 321 381 5465</p></div>
             </a>
           </div>
