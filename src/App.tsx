@@ -2236,7 +2236,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           onClick={() => setWhatsappMenuOpen(!whatsappMenuOpen)}
           className={`w-14 h-14 ${whatsappMenuOpen ? 'bg-gray-700' : 'bg-green-500 hover:bg-green-600'} rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-all`}
         >
-          {whatsappMenuOpen ? <X className="w-7 h-7 text-white" /> : <MessageCircle className="w-7 h-7 text-white" />}
+          {whatsappMenuOpen ? <X className="w-7 h-7 text-white" /> : <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />}
         </button>
       </div>
     </div>
