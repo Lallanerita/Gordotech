@@ -1020,8 +1020,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo */}
-            <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 md:gap-3 cursor-pointer">
+            {/* Logo - centered on mobile */}
+            <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 md:gap-3 cursor-pointer md:flex-none flex-1 justify-center md:justify-start">
               <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10 md:h-12" />
               <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-7 md:h-8" />
             </button>
@@ -1036,7 +1036,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
             {/* Right side */}
             <div className="flex items-center gap-3">
-              <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+              {/* Cart - desktop only */}
+              <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="hidden md:block relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
                 <ShoppingCart className="w-5 h-5 text-gray-300" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full text-[10px] font-bold flex items-center justify-center text-white animate-pulse">{cartCount}</span>
@@ -1261,32 +1262,32 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       <div className="pt-16 md:pt-20">
         <div className="bg-gray-900/80 border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1.5 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center justify-between py-2 overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => { setActiveCondition('nuevos'); document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' }) }}
-                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap flex items-center gap-1"
+                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap flex items-center justify-center gap-1"
               >
-                <img src="/images/apple-logo-white.png" alt="Apple" className="h-3 w-3 sm:h-3.5 sm:w-3.5 object-contain opacity-80" />
+                <img src="/images/apple-logo-white.png" alt="Apple" className="h-3.5 w-3.5 sm:h-4 sm:w-4 object-contain opacity-80" />
                 Nuevos
               </button>
-              <span className="text-gray-600 text-[10px]">|</span>
+              <span className="text-gray-600 text-xs">|</span>
               <button
                 onClick={() => { setActiveCondition('semi-usados'); document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' }) }}
-                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
               >
                 Seminuevos
               </button>
-              <span className="text-gray-600 text-[10px]">|</span>
+              <span className="text-gray-600 text-xs">|</span>
               <button
                 onClick={() => document.getElementById('plan-retoma')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
               >
                 Plan Retoma
               </button>
-              <span className="text-gray-600 text-[10px]">|</span>
+              <span className="text-gray-600 text-xs">|</span>
               <button
                 onClick={() => document.getElementById('reparacion')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
               >
                 Reparacion
               </button>
