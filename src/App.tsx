@@ -2173,10 +2173,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <a href="#" className="hover:text-white transition-colors">Terminos</a>
               <a href="#" className="hover:text-white transition-colors">Privacidad</a>
               <a href="#" className="hover:text-white transition-colors">Garantia</a>
-              <button onClick={onAdminClick} className="flex items-center gap-1.5 hover:text-white transition-colors" title="Panel de Administración">
+              <a href="https://admin.gordotech.co" className="flex items-center gap-1.5 hover:text-white transition-colors" title="Panel de Administración">
                 <Settings className="w-3.5 h-3.5" />
                 Admin
-              </button>
+              </a>
             </div>
           </div>
         </div>
