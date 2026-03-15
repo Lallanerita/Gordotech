@@ -2268,9 +2268,9 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Check URL hash for admin access
+  // Check URL hash or admin subdomain for admin access
   useEffect(() => {
-    if (window.location.hash === '#admin') {
+    if (window.location.hash === '#admin' || window.location.hostname === 'admin.gordotech.co') {
       setShowAdmin(true)
     }
   }, [])
