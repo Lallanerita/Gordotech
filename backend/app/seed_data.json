@@ -1,0 +1,746 @@
+{
+  "products": [
+    {
+      "id": 31,
+      "name": "iPhone 17 Pro Max",
+      "slug": "iphone-17-pro-max",
+      "category": "iphones",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/4088bf36afbe43a7be5a2510bde41d42.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/4088bf36afbe43a7be5a2510bde41d42.png",
+        "https://app-dskimxia.fly.dev/uploads/97dbff814b124a3b8cf0bcd1cb034ff6.png",
+        "https://app-dskimxia.fly.dev/uploads/c1ee2d13b0cb40bc9153368772836683.png",
+        "https://app-dskimxia.fly.dev/uploads/a87e021dfd764218b5313ae97cd170f1.png"
+      ],
+      "colors": [
+        "Azul",
+        "Naranja",
+        "Silver"
+      ],
+      "storage_options": [
+        "256GB",
+        "512GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "5.750.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": true,
+      "featured_trending": false,
+      "sort_order": 100,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 30,
+      "name": "iPhone 17 Pro",
+      "slug": "iphone-17-pro",
+      "category": "iphones",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/e4b2ea9b0b3b40938d74323b2aca01eb.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/e4b2ea9b0b3b40938d74323b2aca01eb.png",
+        "https://app-dskimxia.fly.dev/uploads/c0e7012f8dec473c85a5377d109db1d2.png",
+        "https://app-dskimxia.fly.dev/uploads/2a57f399f244441ea902fad69e2159f4.png",
+        "https://app-dskimxia.fly.dev/uploads/84b9f5d3d3b34a44b4dd74c2d85b5e62.png"
+      ],
+      "colors": [
+        "Silver",
+        "Naranja"
+      ],
+      "storage_options": [
+        "256GB",
+        "512GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "5.400.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": true,
+      "featured_trending": true,
+      "sort_order": 101,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 28,
+      "name": "iPhone 17 SIM FISICA/ E -SIM",
+      "slug": "iphone-17-sim-fisica-e-sim",
+      "category": "iphones",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/0ef8c2350523443eaa14a1015d59fdb1.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/0ef8c2350523443eaa14a1015d59fdb1.png",
+        "https://app-dskimxia.fly.dev/uploads/dfa6da3c817749a08b25d0bb59d4d7f2.png",
+        "https://app-dskimxia.fly.dev/uploads/b8551c0691c643cdaef5eed4dff8ea0e.png",
+        "https://app-dskimxia.fly.dev/uploads/5e93c8ce5dd142609bfdf69f681b4c0b.png"
+      ],
+      "colors": [
+        "Blanco",
+        "Azul",
+        "Sage"
+      ],
+      "storage_options": [
+        "256GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "4.100.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": true,
+      "sort_order": 102,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 27,
+      "name": "iPhone 16",
+      "slug": "iphone-16",
+      "category": "iphones",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/8740dfc052c64f7bba38f174ad60ec99.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/8740dfc052c64f7bba38f174ad60ec99.png",
+        "https://app-dskimxia.fly.dev/uploads/b16efc7d90c74ec98dafd26e7cdce3c6.png",
+        "https://app-dskimxia.fly.dev/uploads/43ea4f2e986d4f0bb71c7a7e9be55ffd.png",
+        "https://app-dskimxia.fly.dev/uploads/987705c0bb17498f88c47ceeb8f44914.png",
+        "https://app-dskimxia.fly.dev/uploads/7bdd2dbfcfbe4a77a764de79ee7a7616.png"
+      ],
+      "colors": [
+        "Azul marino",
+        "Negro",
+        "Rosado"
+      ],
+      "storage_options": [
+        "128GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "3.300.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 103,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 26,
+      "name": "iPhone 15",
+      "slug": "iphone-15",
+      "category": "iphones",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/b7f9ee2598be432f8b836ed2027b46a8.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/b7f9ee2598be432f8b836ed2027b46a8.png",
+        "https://app-dskimxia.fly.dev/uploads/ea3a667b3f4c424baed2c958207a2e7f.png",
+        "https://app-dskimxia.fly.dev/uploads/c4022ba965ba42fbb5e775821232244a.png"
+      ],
+      "colors": [
+        "Azul",
+        "Negro"
+      ],
+      "storage_options": [
+        "128GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "2.750.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": true,
+      "sort_order": 104,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 25,
+      "name": "iPhone 14",
+      "slug": "iphone-14",
+      "category": "iphones",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/5d8ff05660aa4526a6581f528281c0c3.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/5d8ff05660aa4526a6581f528281c0c3.png",
+        "https://app-dskimxia.fly.dev/uploads/7151b49a10ba4521b5af616e68468c45.png",
+        "https://app-dskimxia.fly.dev/uploads/753197e4dcbc4aec8225209de581b2f5.png"
+      ],
+      "colors": [
+        "Starlight"
+      ],
+      "storage_options": [
+        "256GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "2.600.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 105,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 11,
+      "name": "iPhone 14 Pro",
+      "slug": "iphone-14-pro",
+      "category": "iphones",
+      "condition": "Semi-usado",
+      "image": "https://app-dskimxia.fly.dev/uploads/7f000008c2cc47ce9598e2ae40f15574.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/7f000008c2cc47ce9598e2ae40f15574.png",
+        "https://app-dskimxia.fly.dev/uploads/aea8d646877640eea0bf52eda578e14a.png",
+        "https://app-dskimxia.fly.dev/uploads/3118b6b4eaa54056a65e7be9e4eabe32.png"
+      ],
+      "colors": [
+        "BLACK"
+      ],
+      "storage_options": [
+        "128GB",
+        "256GB"
+      ],
+      "badge": null,
+      "available": [
+        "duitama"
+      ],
+      "price": "3.000.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 106,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 32,
+      "name": "iPad A16",
+      "slug": "ipad-a16",
+      "category": "ipads",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/7f9a61f1f8b847d599b0827db5d52ab5.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/7f9a61f1f8b847d599b0827db5d52ab5.png",
+        "https://app-dskimxia.fly.dev/uploads/da7f8abc73fb45f1a04e8c9aa10d148b.png",
+        "https://app-dskimxia.fly.dev/uploads/a63e5a1bc73a441bb59136983a5e16c1.png"
+      ],
+      "colors": [
+        "Silver",
+        "Azul",
+        "Amarillo"
+      ],
+      "storage_options": [
+        "128GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "1.650.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 300,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 33,
+      "name": "iPad A16",
+      "slug": "ipad-a16",
+      "category": "ipads",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/1e19f1c80fd04985986c03fdf18833fc.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/1e19f1c80fd04985986c03fdf18833fc.png"
+      ],
+      "colors": [
+        "Rosado"
+      ],
+      "storage_options": [
+        "128GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "1.800.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 301,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 35,
+      "name": "iPad Air 13\" M3",
+      "slug": "ipad-air-13-m3",
+      "category": "ipads",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/caf32ed4a4d349289e9827162d2f255b.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/caf32ed4a4d349289e9827162d2f255b.png",
+        "https://app-dskimxia.fly.dev/uploads/91a3bf9fbc8646eba7e0c31f726a26af.png"
+      ],
+      "colors": [
+        "Blue",
+        "Starligth"
+      ],
+      "storage_options": [
+        "128GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "3.650.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 302,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 37,
+      "name": "iPad Pro 13\" M5",
+      "slug": "ipad-pro-13-m5",
+      "category": "ipads",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/9d984a4c99524d7287a9cc0426a70fc1.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/9d984a4c99524d7287a9cc0426a70fc1.png",
+        "https://app-dskimxia.fly.dev/uploads/2daf9d2c421f4500b21c7000fde726d7.png",
+        "https://app-dskimxia.fly.dev/uploads/861500cbcb25458bab3725769ead6812.png"
+      ],
+      "colors": [
+        "Negro"
+      ],
+      "storage_options": [
+        "256GB",
+        "512GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "5.850.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 303,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 38,
+      "name": "MacBook Air 13\" M4",
+      "slug": "macbook-air-13-m4",
+      "category": "macbook",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/309bfece182144219682e532648f811b.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/309bfece182144219682e532648f811b.png"
+      ],
+      "colors": [
+        "Silver",
+        "Midnigth",
+        "Starligth"
+      ],
+      "storage_options": [
+        "256GB"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "4.250.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 400,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 40,
+      "name": "AirPods 4 ANC",
+      "slug": "airpods-4-anc",
+      "category": "airpods",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/75c87e7d833044b7a8cc017823917058.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/75c87e7d833044b7a8cc017823917058.png",
+        "https://app-dskimxia.fly.dev/uploads/1cf219e66cd842e1b904d1c59026c39e.png"
+      ],
+      "colors": [
+        "Blanco"
+      ],
+      "storage_options": [],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "780.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 500,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 39,
+      "name": "AirPods 4",
+      "slug": "airpods-4",
+      "category": "airpods",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/b921b4aa795c481890d9a0cf4695516a.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/b921b4aa795c481890d9a0cf4695516a.png",
+        "https://app-dskimxia.fly.dev/uploads/989df0665756410b9b30b3267859082a.png"
+      ],
+      "colors": [
+        "Blanco"
+      ],
+      "storage_options": [],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "530.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": true,
+      "featured_trending": false,
+      "sort_order": 501,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 47,
+      "name": "Apple Watch Ultra 2",
+      "slug": "apple-watch-ultra-2",
+      "category": "apple-watch",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/f93d9fe6a642402fbce7cabc60fdc537.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/f93d9fe6a642402fbce7cabc60fdc537.png",
+        "https://app-dskimxia.fly.dev/uploads/3706df54c3a949d092ecc38872b809d1.png",
+        "https://app-dskimxia.fly.dev/uploads/402b48dd9d1045d98ed80371ec9a80be.png"
+      ],
+      "colors": [
+        "Negro",
+        "gris"
+      ],
+      "storage_options": [
+        "49mm"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "3.400.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": true,
+      "featured_trending": false,
+      "sort_order": 600,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 45,
+      "name": "Apple Watch Series 11",
+      "slug": "apple-watch-series-11",
+      "category": "apple-watch",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/18d19ca416b847839870ecdf5ee0fa97.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/18d19ca416b847839870ecdf5ee0fa97.png",
+        "https://app-dskimxia.fly.dev/uploads/a430d4a0b6de4fc18a5126cd209f4bee.png",
+        "https://app-dskimxia.fly.dev/uploads/b634213771984ce2ac2af42d67e46fa3.png"
+      ],
+      "colors": [
+        "Black",
+        "Silver"
+      ],
+      "storage_options": [
+        "42mm"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "1.900.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 601,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 46,
+      "name": "Apple Watch Series 11",
+      "slug": "apple-watch-series-11",
+      "category": "apple-watch",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/46415f5e83214b499e762b6d9d2d197e.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/46415f5e83214b499e762b6d9d2d197e.png",
+        "https://app-dskimxia.fly.dev/uploads/acbc128f9fe349808ffa00d7fc660480.png",
+        "https://app-dskimxia.fly.dev/uploads/7e50b022951d45e4966b21eb74b1993a.png"
+      ],
+      "colors": [
+        "Black"
+      ],
+      "storage_options": [
+        "46mm"
+      ],
+      "badge": "Nuevo",
+      "available": [
+        "duitama"
+      ],
+      "price": "2.100.000",
+      "old_price": "",
+      "description": "El Apple Watch Series 11 te ofrece informaci\u00f3n valiosa sobre tu salud, como notificaciones de hipertensi\u00f3n y puntuaci\u00f3n del sue\u00f1o. Mejora tu estado f\u00edsico con m\u00e9tricas avanzadas y Workout Buddy, con tecnolog\u00eda de Apple Intelligence, desde tu iPhone. Disfruta de hasta 24 horas de bater\u00eda. Y ahora, con la r\u00e1pida conexi\u00f3n 5G, disfruta de un rendimiento excepcional dondequiera que est\u00e9s.",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 602,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 50,
+      "name": "Apple Pencil Pro",
+      "slug": "apple-pencil-pro",
+      "category": "accesorios",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/6257dab0cbd74c0eba6c85cc0cee6e1a.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/6257dab0cbd74c0eba6c85cc0cee6e1a.png"
+      ],
+      "colors": [],
+      "storage_options": [],
+      "badge": null,
+      "available": [
+        "duitama"
+      ],
+      "price": "650.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 700,
+      "model_3d": "",
+      "color_images": {}
+    },
+    {
+      "id": 49,
+      "name": "Airtag x4",
+      "slug": "airtag-x4",
+      "category": "accesorios",
+      "condition": "Nuevo",
+      "image": "https://app-dskimxia.fly.dev/uploads/f3c5f12606d44e91b4fdc3ba8c4296b1.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/f3c5f12606d44e91b4fdc3ba8c4296b1.png",
+        "https://app-dskimxia.fly.dev/uploads/c6b2543af5b348ef8ccf4fcb5f3943c4.png",
+        "https://app-dskimxia.fly.dev/uploads/3ee3ce1a6f42433c9d1f13c2c72080b1.png"
+      ],
+      "colors": [],
+      "storage_options": [],
+      "badge": null,
+      "available": [
+        "duitama"
+      ],
+      "price": "550.000",
+      "old_price": "",
+      "description": "Compatible con iPad A16",
+      "featured_recommended": false,
+      "featured_trending": true,
+      "sort_order": 701,
+      "model_3d": "",
+      "color_images": {}
+    }
+  ],
+  "hero_slides": [
+    {
+      "id": 1,
+      "title": "iPhone 17 Pro Max",
+      "subtitle": "El mas poderoso. Disponible ahora.",
+      "image": "https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=1920&q=90&fit=crop",
+      "video_url": "https://app-dskimxia.fly.dev/videos/iphone17pro-intro-13s.mp4",
+      "link": "/producto/31/iphone-17-pro-max",
+      "active": true,
+      "sort_order": 0
+    },
+    {
+      "id": 2,
+      "title": "MacBook Air M4",
+      "subtitle": "Potencia portatil. Desde $4.999.990.",
+      "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&h=600&fit=crop",
+      "video_url": "https://app-dskimxia.fly.dev/videos/macbook-air-m4.mp4",
+      "link": "/producto/38/macbook-air-13-m4",
+      "active": true,
+      "sort_order": 1
+    },
+    {
+      "id": 3,
+      "title": "Apple Watch Ultra 2",
+      "subtitle": "Aventura sin limites.",
+      "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1200&h=600&fit=crop",
+      "video_url": "https://app-dskimxia.fly.dev/videos/apple-watch-ultra3.mp4",
+      "link": "/producto/47/apple-watch-ultra-2",
+      "active": true,
+      "sort_order": 2
+    },
+    {
+      "id": 4,
+      "title": "AirPods Pro 3",
+      "subtitle": "Sonido inmersivo. Cancelacion total.",
+      "image": "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=1200&h=600&fit=crop",
+      "video_url": "",
+      "link": "/producto/40/airpods-4-anc",
+      "active": true,
+      "sort_order": 3
+    }
+  ],
+  "bubbles": [
+    {
+      "id": 2,
+      "model_id": "iphones",
+      "label": "iPhones",
+      "image": "https://app-dskimxia.fly.dev/uploads/a12d1b9b8af1428c9a0b8debc2611f56.png",
+      "sort_order": 1
+    },
+    {
+      "id": 3,
+      "model_id": "ipads",
+      "label": "iPads",
+      "image": "https://app-dskimxia.fly.dev/uploads/458d6e1f374c43058646a5f8d455cbf4.png",
+      "sort_order": 2
+    },
+    {
+      "id": 4,
+      "model_id": "macbook",
+      "label": "MacBook",
+      "image": "https://app-dskimxia.fly.dev/uploads/abe7b2ae197649dc87cec843a4f93201.png",
+      "sort_order": 3
+    },
+    {
+      "id": 5,
+      "model_id": "airpods",
+      "label": "AirPods",
+      "image": "https://app-dskimxia.fly.dev/uploads/9a27fa66c9ff40f68af4fe9f61e76948.png",
+      "sort_order": 4
+    },
+    {
+      "id": 6,
+      "model_id": "apple watch",
+      "label": "Apple Watch",
+      "image": "https://app-dskimxia.fly.dev/uploads/75931f981126480189aa4312404d7b37.png",
+      "sort_order": 5
+    },
+    {
+      "id": 7,
+      "model_id": "accesorios",
+      "label": "Accesorios",
+      "image": "https://app-dskimxia.fly.dev/uploads/8e1f335786b444db8ae7462d2011e8b8.png",
+      "sort_order": 6
+    }
+  ],
+  "marquee_texts": [
+    {
+      "id": 1,
+      "text": "Gordotech - Tu destino Apple en Boyaca",
+      "active": true,
+      "sort_order": 0
+    },
+    {
+      "id": 2,
+      "text": "Garantia en todos nuestros productos",
+      "active": true,
+      "sort_order": 1
+    },
+    {
+      "id": 3,
+      "text": "Envios a toda Colombia",
+      "active": true,
+      "sort_order": 2
+    },
+    {
+      "id": 4,
+      "text": "iPhone nuevos y semi-usados al mejor precio",
+      "active": true,
+      "sort_order": 3
+    }
+  ],
+  "repair_services": [
+    {
+      "id": 1,
+      "title": "Cambio de Pantalla",
+      "description": "Pantallas originales y compatibles para todos los modelos de iPhone",
+      "price": "Desde $150.000",
+      "icon": "Smartphone",
+      "sort_order": 0,
+      "image": ""
+    },
+    {
+      "id": 2,
+      "title": "Cambio de Bateria",
+      "description": "Baterias de alta calidad con garantia de 6 meses",
+      "price": "Desde $120.000",
+      "icon": "Zap",
+      "sort_order": 1,
+      "image": ""
+    },
+    {
+      "id": 3,
+      "title": "Reparacion de Placa",
+      "description": "Microelectronica avanzada para solucionar problemas de placa",
+      "price": "Consultar",
+      "icon": "Shield",
+      "sort_order": 2,
+      "image": ""
+    },
+    {
+      "id": 4,
+      "title": "Diagnostico Gratis",
+      "description": "Te decimos exactamente que tiene tu equipo sin costo alguno",
+      "price": "Gratis",
+      "icon": "Award",
+      "sort_order": 3,
+      "image": ""
+    }
+  ]
+}
