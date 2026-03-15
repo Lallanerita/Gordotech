@@ -599,7 +599,7 @@
       "title": "iPhone 17 Pro Max",
       "subtitle": "El mas poderoso. Disponible ahora.",
       "image": "https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=1920&q=90&fit=crop",
-      "video_url": "https://app-dskimxia.fly.dev/videos/iphone17pro-intro-13s.mp4",
+      "video_url": "/videos/iphone17pro-intro-13s.mp4",
       "link": "/producto/31/iphone-17-pro-max",
       "active": true,
       "sort_order": 0
@@ -609,7 +609,7 @@
       "title": "MacBook Air M4",
       "subtitle": "Potencia portatil. Desde $4.999.990.",
       "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&h=600&fit=crop",
-      "video_url": "https://app-dskimxia.fly.dev/videos/macbook-air-m4.mp4",
+      "video_url": "/videos/macbook-air-m4.mp4",
       "link": "/producto/38/macbook-air-13-m4",
       "active": true,
       "sort_order": 1
@@ -619,7 +619,7 @@
       "title": "Apple Watch Ultra 2",
       "subtitle": "Aventura sin limites.",
       "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1200&h=600&fit=crop",
-      "video_url": "https://app-dskimxia.fly.dev/videos/apple-watch-ultra3.mp4",
+      "video_url": "/videos/apple-watch-ultra3.mp4",
       "link": "/producto/47/apple-watch-ultra-2",
       "active": true,
       "sort_order": 2
