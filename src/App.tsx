@@ -1264,8 +1264,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             <div className="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1.5 overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => { setActiveCondition('nuevos'); document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' }) }}
-                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap flex items-center gap-1"
               >
+                <img src="/images/apple-logo-white.png" alt="Apple" className="h-3 w-3 sm:h-3.5 sm:w-3.5 object-contain opacity-80" />
                 Nuevos
               </button>
               <span className="text-gray-600 text-[10px]">|</span>
