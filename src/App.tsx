@@ -2200,9 +2200,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       <div className="fixed bottom-6 right-6 z-50">
         {whatsappMenuOpen && (
           <div className="absolute bottom-16 right-0 mb-2 bg-gray-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden w-56 animate-in">
-            <div className="px-4 py-3 border-b border-white/10 bg-green-600/10">
-              <p className="text-white text-sm font-semibold">Escríbenos por WhatsApp</p>
-            </div>
             <a
               href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20necesito%20información"
               target="_blank"
@@ -2210,7 +2207,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
             >
               <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-              <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">+57 321 986 3883</p></div>
+              <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro</p></div>
             </a>
             <a
               href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20necesito%20información"
@@ -2219,7 +2216,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
             >
               <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-              <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">+57 314 481 0431</p></div>
+              <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano</p></div>
             </a>
             <a
               href="https://wa.me/573213815465?text=Hola%20Gordotech%20Clínica%2C%20necesito%20información"
@@ -2228,7 +2225,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
             >
               <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-              <div><p className="text-white text-sm font-medium">Clínica</p><p className="text-gray-400 text-[10px]">+57 321 381 5465</p></div>
+              <div><p className="text-white text-sm font-medium">Clínica</p><p className="text-gray-400 text-[10px]">San Andresito de la 18</p></div>
             </a>
           </div>
         )}
