@@ -1434,7 +1434,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               {recommendedProducts.map((product, idx) => (
                 <ScrollReveal key={product.id} delay={idx * 0.08} animation="scale">
                                 <button onClick={() => selectProduct(product)} className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
-                                  <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center" style={{ backgroundImage: 'url(/images/gordotech-texture.png)', backgroundSize: '200px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+                                  <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
                                     {product.badge && (
                                       <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
                                     )}
@@ -1495,7 +1495,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             <div ref={trendingTrackRef} className="flex gap-4 md:gap-6 px-4 sm:px-6 w-max will-change-transform">
               {[...trendingProducts, ...trendingProducts].map((product, idx) => (
                 <button key={`t-${idx}`} onClick={() => { if (!trendingClickBlocked.current) selectProduct(product) }} className="w-44 md:w-56 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
-                  <div className="relative aspect-square bg-gray-900/50 p-3 flex items-center justify-center" style={{ backgroundImage: 'url(/images/gordotech-texture.png)', backgroundSize: '200px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+                  <div className="relative aspect-square bg-gray-900/50 p-3 flex items-center justify-center">
                     <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" /> Trending</div>
                     <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
@@ -1756,7 +1756,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {relatedProducts.map(product => (
                   <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
-                          <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center" style={{ backgroundImage: 'url(/images/gordotech-texture.png)', backgroundSize: '200px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+                          <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
                             {product.badge && (
                               <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
                             )}
@@ -1837,7 +1837,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
               >
                 {/* Badge */}
-                <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center" style={{ backgroundImage: 'url(/images/gordotech-texture.png)', backgroundSize: '200px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+                <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
                   {product.badge && (
                     <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
                   )}
@@ -2516,7 +2516,7 @@ function SemiNuevosPage() {
                     onClick={() => navigate(`/producto/${product.id}/${getProductSlug(product)}`)}
                     className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1"
                   >
-                    <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center" style={{ backgroundImage: 'url(/images/gordotech-texture.png)', backgroundSize: '200px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+                    <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
                       <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>
                       <img
                         src={product.image}
