@@ -660,6 +660,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [whatsappMenuOpen, setWhatsappMenuOpen] = useState(false)
+  const [whatsappCityModal, setWhatsappCityModal] = useState(false)
   const [cartAddedFeedback, setCartAddedFeedback] = useState(false)
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<string>('')
@@ -1737,15 +1738,49 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     <ShoppingCart className="w-5 h-5" />
                     Agregar al Carrito
                   </button>
-                  <a
-                    href={`https://wa.me/${socials.whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech! Me interesa el ${selectedProduct.name} (${selectedProduct.condition})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setWhatsappCityModal(true)}
                     className="w-full py-4 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-semibold rounded-2xl transition-all flex items-center justify-center gap-3 text-base"
                   >
                     <MessageCircle className="w-5 h-5" />
                     {selectedProduct.price && selectedProduct.price !== '-' ? 'Comprar por WhatsApp' : 'Consultar Precio por WhatsApp'}
-                  </a>
+                  </button>
+
+                  {/* WhatsApp City Selector Modal */}
+                  {whatsappCityModal && selectedProduct && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setWhatsappCityModal(false)}>
+                      <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="p-5 border-b border-white/10">
+                          <h3 className="text-lg font-bold text-white text-center">¿A cuál sede deseas escribir?</h3>
+                          <p className="text-gray-400 text-sm text-center mt-1">Escoge tu tienda Gordotech más cercana</p>
+                        </div>
+                        <div className="p-4 space-y-3">
+                          {([{ key: 'tunja' as const, label: 'Tunja', sublabel: 'Unicentro Isla Comercial' }, { key: 'duitama' as const, label: 'Duitama', sublabel: 'Pasaje Solano Local 102' }]).map(city => (
+                            <a
+                              key={city.key}
+                              href={`https://wa.me/${CITY_SOCIALS[city.key].whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech ${city.label}! Me interesa el ${selectedProduct.name} (${selectedProduct.condition})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setWhatsappCityModal(false)}
+                              className="flex items-center gap-4 p-4 rounded-xl bg-green-600/10 border border-green-600/20 hover:bg-green-600 hover:border-green-600 text-green-400 hover:text-white transition-all group"
+                            >
+                              <div className="w-12 h-12 rounded-full bg-green-500/20 group-hover:bg-white/20 flex items-center justify-center flex-shrink-0">
+                                <MapPin className="w-6 h-6" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-bold text-base text-white">{city.label}</p>
+                                <p className="text-xs text-gray-400 group-hover:text-green-100">{city.sublabel}</p>
+                              </div>
+                              <MessageCircle className="w-5 h-5 flex-shrink-0" />
+                            </a>
+                          ))}
+                        </div>
+                        <div className="p-4 pt-0">
+                          <button onClick={() => setWhatsappCityModal(false)} className="w-full py-2.5 text-gray-400 hover:text-white text-sm transition-colors">Cancelar</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
