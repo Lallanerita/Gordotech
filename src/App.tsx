@@ -660,6 +660,15 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [checkoutNotes, setCheckoutNotes] = useState('')
   const cartExpiryTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // Trending carousel refs
+  const trendingRef = useRef<HTMLDivElement>(null)
+  const trendingAnim = useRef<number>(0)
+  const trendingSpeed = useRef(0.8)
+  const trendingDragging = useRef(false)
+  const trendingStartX = useRef(0)
+  const trendingScrollStart = useRef(0)
+  const trendingPaused = useRef(false)
+
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     saveCart(cartItems)
@@ -844,6 +853,46 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     }
     loadData()
   }, [city])
+
+  // Trending carousel auto-scroll
+  useEffect(() => {
+    const el = trendingRef.current
+    if (!el || trendingProducts.length === 0) return
+    let running = true
+    const animate = () => {
+      if (!running) return
+      if (!trendingDragging.current && !trendingPaused.current && el.scrollWidth > el.clientWidth) {
+        el.scrollLeft += trendingSpeed.current
+        // Infinite loop: when we've scrolled past the first set, jump back
+        const half = el.scrollWidth / 2
+        if (el.scrollLeft >= half) {
+          el.scrollLeft -= half
+        } else if (el.scrollLeft <= 0) {
+          el.scrollLeft += half
+        }
+      }
+      trendingAnim.current = requestAnimationFrame(animate)
+    }
+    trendingAnim.current = requestAnimationFrame(animate)
+    return () => { running = false; cancelAnimationFrame(trendingAnim.current) }
+  }, [trendingProducts])
+
+  const onTrendingPointerDown = useCallback((e: React.PointerEvent) => {
+    trendingDragging.current = true
+    trendingStartX.current = e.clientX
+    trendingScrollStart.current = trendingRef.current?.scrollLeft || 0
+    ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId)
+  }, [])
+
+  const onTrendingPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!trendingDragging.current || !trendingRef.current) return
+    const dx = e.clientX - trendingStartX.current
+    trendingRef.current.scrollLeft = trendingScrollStart.current - dx
+  }, [])
+
+  const onTrendingPointerUp = useCallback(() => {
+    trendingDragging.current = false
+  }, [])
 
   const scrollToTop = useCallback(() => {
     // iOS Safari sometimes ignores smooth scrolling after route/state changes
@@ -1403,7 +1452,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               </section>
             )}
 
-            {/* Tendencia Ahora */}
+            {/* Tendencia Ahora - Infinite Carousel */}
       {!selectedProduct && trendingProducts.length > 0 && (
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1413,48 +1462,52 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TENDENCIA AHORA</h3>
             </div>
             </ScrollReveal>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {trendingProducts.map((product, idx) => (
-                <ScrollReveal key={product.id} delay={idx * 0.08} animation="scale">
-                <button onClick={() => selectProduct(product)} className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
-                  <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
-                    <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Trending</div>
-                    <div className="absolute top-12 right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Heart className="w-4 h-4 text-gray-300" />
-                    </div>
-                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+          </div>
+          <div
+            ref={trendingRef}
+            className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
+            onPointerDown={onTrendingPointerDown}
+            onPointerMove={onTrendingPointerMove}
+            onPointerUp={onTrendingPointerUp}
+            onPointerLeave={onTrendingPointerUp}
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <div className="flex gap-4 md:gap-6 px-4 sm:px-6 w-max">
+              {[...trendingProducts, ...trendingProducts].map((product, idx) => (
+                <button key={`t-${idx}`} onClick={() => { if (!trendingDragging.current) selectProduct(product) }} className="w-44 md:w-56 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
+                  <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-3 flex items-center justify-center">
+                    <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" /> Trending</div>
+                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
-                  <div className="p-3 md:p-4">
-                    <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
-                    <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                    <div className="flex flex-wrap items-center gap-1 mb-2">
-                      {product.storageOptions.map((s, i) => (
-                              <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
-                            ))}
-                      {product.colors.length > 0 && <span className="mx-0.5" />}
-                      {product.colors.map((color, i) => (
-                        <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                  <div className="p-3">
+                    <p className={`text-[10px] font-medium mb-0.5 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                    <h4 className="text-xs md:text-sm font-bold text-white mb-1 line-clamp-2">{product.name}</h4>
+                    <div className="flex flex-wrap items-center gap-1 mb-1.5">
+                      {product.storageOptions.slice(0, 2).map((s, i) => (
+                        <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[8px] text-gray-400">{s}</span>
                       ))}
-                          </div>
-                          {product.price && product.price !== '-' ? (
-                            <div className="mb-1">
-                              {product.oldPrice && product.oldPrice !== '-' && (
-                                <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
-                              )}
-                              <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
-                            </div>
-                          ) : (
-                            <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                          )}
-                          <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
-                        </div>
-                      </button>
-                      </ScrollReveal>
-                    ))}
+                      {product.colors.slice(0, 3).map((color, i) => (
+                        <div key={`c${i}`} className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                      ))}
+                    </div>
+                    {product.price && product.price !== '-' ? (
+                      <div className="mb-0.5">
+                        {product.oldPrice && product.oldPrice !== '-' && (
+                          <p className="text-[9px] text-red-400 line-through">$ {product.oldPrice}</p>
+                        )}
+                        <p className="text-sm md:text-base font-bold text-white">$ {product.price}</p>
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-blue-400 font-medium flex items-center gap-1 mb-0.5"><MessageCircle className="w-2.5 h-2.5" /> Consultar</p>
+                    )}
+                    <p className="text-[9px] text-green-400 font-medium flex items-center gap-0.5"><MapPin className="w-2 h-2" /> {pickupAddress.short}</p>
                   </div>
-                </div>
-              </section>
-            )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
             {/* Product Detail View */}
       {selectedProduct && (() => {
