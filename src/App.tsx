@@ -476,7 +476,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   return (
     <section 
       className="relative w-full overflow-hidden bg-black"
-      style={{ height: 'clamp(400px, 60vw, 650px)' }}
+      style={{ height: 'clamp(220px, 56vw, 650px)' }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -519,7 +519,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                   left: '50%',
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   transform: 'translate(-50%, -50%)',
                 }}
               />
