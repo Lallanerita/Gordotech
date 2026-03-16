@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
-import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
+import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2 } from 'lucide-react'
 import AdminPanel from './AdminPanel'
@@ -1103,7 +1103,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
             <nav className="flex items-center gap-8">
               <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80" />Productos</a>
-              <a href="#reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</a>
+              <Link to="/reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</Link>
               <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
               <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
             </nav>
@@ -1333,14 +1333,14 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               </button>
               <span className="text-gray-600 text-xs">|</span>
               <button
-                onClick={() => document.getElementById('plan-retoma')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => navigate('/plan-retoma')}
                 className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
               >
                 Plan Retoma
               </button>
               <span className="text-gray-600 text-xs">|</span>
               <button
-                onClick={() => document.getElementById('reparacion')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => navigate('/reparacion')}
                 className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
               >
                 Reparacion
@@ -1883,163 +1883,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       </section>
       )}
 
-      {/* Plan Retoma Section - hidden on product detail */}
-      {!selectedProduct && (
-        <section id="plan-retoma" className="py-16 md:py-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/5" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            <ScrollReveal>
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 mb-6">
-                <Smartphone className="w-4 h-4 text-green-400" />
-                <span className="text-green-400 text-sm font-medium">Trae tu iPhone, subelo de nivel</span>
-              </div>
-              <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                PLAN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">RETOMA</span>
-              </h3>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Del iPhone que tienes... al iPhone que suenas. Te recibimos tu equipo como parte de pago.
-              </p>
-            </div>
-            </ScrollReveal>
-
-            {/* 4 Steps */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
-              {[
-                { step: '1', title: 'Trae tu iPhone', icon: Smartphone },
-                { step: '2', title: 'Lo evaluamos', icon: Settings },
-                { step: '3', title: 'Te damos precio de retoma', icon: Star },
-                { step: '4', title: 'Lo cambias por uno nuevo', icon: Zap },
-              ].map((item, i) => (
-                <ScrollReveal key={i} delay={i * 0.1} animation="fade-up">
-                <div className="text-center p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500">
-                  <div className="w-12 h-12 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-3">
-                    <span className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{item.step}</span>
-                  </div>
-                  <item.icon className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                  <p className="text-white font-semibold text-sm">{item.title}</p>
-                </div>
-                </ScrollReveal>
-              ))}
-            </div>
-
-            {/* Requirements */}
-            <ScrollReveal delay={0.2}>
-            <div className="max-w-3xl mx-auto">
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
-                <h4 className="text-2xl font-bold text-white mb-6 text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                  Requisitos Plan Retoma
-                </h4>
-                <p className="text-blue-400 font-semibold text-center mb-6">En excelente estado estetico</p>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
-                    <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Award className="w-5 h-5 text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Caja y factura original</p>
-                      <p className="text-gray-400 text-xs mt-1">Sin eso no podemos validar el equipo</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
-                    <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-5 h-5 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Sin reparaciones</p>
-                      <p className="text-gray-400 text-xs mt-1">Nunca debe haber sido abierto, reparado o con piezas cambiadas</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
-                    <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-5 h-5 text-yellow-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Bateria en buen estado</p>
-                      <p className="text-gray-400 text-xs mt-1">Minimo 85% de salud de bateria</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-6 text-center">
-                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">
-                    Desde iPhone 11 hasta iPhone 16
-                  </span>
-                </div>
-              </div>
-            </div>
-            </ScrollReveal>
-
-            {/* CTA */}
-            <ScrollReveal delay={0.3}>
-            <div className="text-center mt-10">
-              <a
-                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Consultar Plan Retoma por WhatsApp
-              </a>
-            </div>
-            </ScrollReveal>
-          </div>
-        </section>
-      )}
-
-      {/* Repair Section */}
-      {!selectedProduct && (
-        <section id="reparacion" className="py-16 md:py-24 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            <ScrollReveal>
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-                <Wrench className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-400 text-sm font-medium">Servicio Tecnico</span>
-              </div>
-              <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACION</span>
-              </h3>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Nuestros tecnicos certificados reparan tu iPhone con repuestos de la mas alta calidad
-              </p>
-            </div>
-            </ScrollReveal>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {apiRepairServices.map((service, i) => (
-                <ScrollReveal key={i} delay={i * 0.1} animation="fade-up">
-                <div
-                  className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
-                >
-                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
-                    <service.icon className="w-7 h-7 text-blue-400" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2">{service.title}</h4>
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">{service.description}</p>
-                  <p className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{service.price}</p>
-                </div>
-                </ScrollReveal>
-              ))}
-            </div>
-
-            <ScrollReveal delay={0.3}>
-            <div className="text-center mt-12">
-              <a
-                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Agendar Reparacion por WhatsApp
-              </a>
-            </div>
-            </ScrollReveal>
-          </div>
-        </section>
-      )}
 
       {/* Location Section - hidden on product detail */}
       {!selectedProduct && (
@@ -2206,10 +2049,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             <div>
               <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Servicios</h5>
               <ul className="space-y-3">
-                <li><a href="#reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Reparacion iPhone</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de pantalla</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de bateria</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Diagnostico gratis</a></li>
+                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Reparacion iPhone</Link></li>
+                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de pantalla</Link></li>
+                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de bateria</Link></li>
+                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Diagnostico gratis</Link></li>
               </ul>
             </div>
 
@@ -2293,6 +2136,229 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   )
 }
 
+// Plan Retoma - separate page
+function PlanRetomaPage() {
+  const navigate = useNavigate()
+  const city = 'duitama' as City
+  const socials = CITY_SOCIALS[city]
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+              <ArrowLeft className="w-4 h-4" />
+              Volver
+            </button>
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+            </button>
+            <div className="w-16" />
+          </div>
+        </div>
+      </header>
+
+      <div className="pt-20">
+        <section className="py-16 md:py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/5" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 mb-6">
+                <Smartphone className="w-4 h-4 text-green-400" />
+                <span className="text-green-400 text-sm font-medium">Trae tu iPhone, subelo de nivel</span>
+              </div>
+              <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                PLAN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">RETOMA</span>
+              </h3>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Del iPhone que tienes... al iPhone que suenas. Te recibimos tu equipo como parte de pago.
+              </p>
+            </div>
+
+            {/* 4 Steps */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+              {[
+                { step: '1', title: 'Trae tu iPhone', icon: Smartphone },
+                { step: '2', title: 'Lo evaluamos', icon: Settings },
+                { step: '3', title: 'Te damos precio de retoma', icon: Star },
+                { step: '4', title: 'Lo cambias por uno nuevo', icon: Zap },
+              ].map((item, i) => (
+                <div key={i} className="text-center p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500">
+                  <div className="w-12 h-12 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-3">
+                    <span className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{item.step}</span>
+                  </div>
+                  <item.icon className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+                  <p className="text-white font-semibold text-sm">{item.title}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Requirements */}
+            <div className="max-w-3xl mx-auto">
+              <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
+                <h4 className="text-2xl font-bold text-white mb-6 text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                  Requisitos Plan Retoma
+                </h4>
+                <p className="text-blue-400 font-semibold text-center mb-6">En excelente estado estetico</p>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
+                    <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Award className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Caja y factura original</p>
+                      <p className="text-gray-400 text-xs mt-1">Sin eso no podemos validar el equipo</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
+                    <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Shield className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Sin reparaciones</p>
+                      <p className="text-gray-400 text-xs mt-1">Nunca debe haber sido abierto, reparado o con piezas cambiadas</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
+                    <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-5 h-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Bateria en buen estado</p>
+                      <p className="text-gray-400 text-xs mt-1">Minimo 85% de salud de bateria</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6 text-center">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">
+                    Desde iPhone 11 hasta iPhone 16
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="text-center mt-10">
+              <a
+                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Consultar Plan Retoma por WhatsApp
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
+// Reparacion - separate page
+function ReparacionPage() {
+  const navigate = useNavigate()
+  const city = 'duitama' as City
+  const socials = CITY_SOCIALS[city]
+  const [services, setServices] = useState(repairServices)
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/repair-services`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.services) {
+            const iconMap: Record<string, typeof Smartphone> = { Smartphone, Zap, Shield, Award, Wrench }
+            setServices(data.services.map((s: Record<string, unknown>) => ({
+              icon: iconMap[s.icon as string] || Smartphone,
+              title: s.title as string,
+              description: s.description as string,
+              price: s.price as string,
+            })))
+          }
+        }
+      } catch { /* use static fallback */ }
+    }
+    loadServices()
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+              <ArrowLeft className="w-4 h-4" />
+              Volver
+            </button>
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+            </button>
+            <div className="w-16" />
+          </div>
+        </div>
+      </header>
+
+      <div className="pt-20">
+        <section className="py-16 md:py-24 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+                <Wrench className="w-4 h-4 text-blue-400" />
+                <span className="text-blue-400 text-sm font-medium">Servicio Tecnico</span>
+              </div>
+              <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACION</span>
+              </h3>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Nuestros tecnicos certificados reparan tu iPhone con repuestos de la mas alta calidad
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {services.map((service, i) => (
+                <div
+                  key={i}
+                  className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
+                    <service.icon className="w-7 h-7 text-blue-400" />
+                  </div>
+                  <h4 className="text-lg font-bold text-white mb-2">{service.title}</h4>
+                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">{service.description}</p>
+                  <p className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{service.price}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <a
+                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Agendar Reparacion por WhatsApp
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
 function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
   const { id, slug } = useParams<{ id: string; slug: string }>()
   const location = useLocation()
@@ -2334,6 +2400,8 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/plan-retoma" element={<PlanRetomaPage />} />
+      <Route path="/reparacion" element={<ReparacionPage />} />
       <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
