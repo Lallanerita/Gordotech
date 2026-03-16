@@ -2015,64 +2015,91 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       <ScrollReveal>
       <footer id="contacto" className="border-t border-white/5 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <img src="/images/gordotech-logo.png" alt="Gordotech" className="h-12" />
-              </div>
-              <p className="text-gray-400 text-sm leading-relaxed">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y semi-usados en Boyaca.</p>
-              <div className="flex gap-3 mt-4">
-                <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
-                  <Instagram className="w-5 h-5 text-gray-400" />
-                </a>
-                <a href={socials.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
-                  <TikTokIcon className="w-5 h-5 text-gray-400" />
-                </a>
-                <a href={socials.whatsapp} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
-                  <MessageCircle className="w-5 h-5 text-gray-400" />
-                </a>
-              </div>
+          {/* Brand top section */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <img src="/images/gordotech-logo.png" alt="Gordotech" className="h-14" />
             </div>
+            <p className="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y seminuevos en Boyaca.</p>
+            <div className="flex gap-3 mt-5 justify-center">
+              <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <Instagram className="w-5 h-5 text-gray-400" />
+              </a>
+              <a href={socials.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <TikTokIcon className="w-5 h-5 text-gray-400" />
+              </a>
+              <a href={socials.whatsapp} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <MessageCircle className="w-5 h-5 text-gray-400" />
+              </a>
+            </div>
+          </div>
 
-            {/* Quick Links */}
-            <div>
+          {/* 3-column links */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+            {/* Productos */}
+            <div className="text-center">
               <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Productos</h5>
               <ul className="space-y-3">
                 <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Nuevos</a></li>
                 <li><Link to="/semi-nuevos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Seminuevos</Link></li>
+                <li><Link to="/plan-retoma" className="text-gray-400 hover:text-white transition-colors text-sm">Plan Retoma</Link></li>
                 <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">Accesorios</a></li>
               </ul>
             </div>
 
-            {/* Services */}
-            <div>
-              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Servicios</h5>
+            {/* Clinica de Celulares */}
+            <div className="text-center">
+              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Clinica de Celulares</h5>
               <ul className="space-y-3">
                 <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Reparacion iPhone</Link></li>
                 <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de pantalla</Link></li>
                 <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de bateria</Link></li>
-                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Diagnostico gratis</Link></li>
+                <li><Link to="/reparacion" className="text-amber-400 hover:text-amber-300 transition-colors text-sm font-semibold">Diagnostico Gratis</Link></li>
               </ul>
+              <div className="flex items-center justify-center gap-1.5 text-gray-500 text-xs mt-4">
+                <MapPin className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                San Andresito de la 18, Local 11
+              </div>
             </div>
 
-            {/* Contact */}
-            <div>
+            {/* Contacto */}
+            <div className="text-center">
               <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contacto</h5>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Phone className="w-4 h-4 text-blue-400" />
-                  +57 314 481 0431
-                </li>
-                <li className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Mail className="w-4 h-4 text-blue-400" />
-                  info@gordotech.co
-                </li>
-                <li className="flex items-start gap-2 text-gray-400 text-sm">
-                  <MapPin className="w-4 h-4 text-blue-400 mt-0.5" />
-                  Duitama & Tunja, Boyaca
-                </li>
-              </ul>
+              <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-4">
+                <Mail className="w-4 h-4 text-blue-400" />
+                info@gordotech.co
+              </div>
+            </div>
+          </div>
+
+          {/* Sedes - Duitama & Tunja side by side */}
+          <div className="border-t border-white/5 pt-8 mb-8">
+            <h5 className="text-white font-semibold mb-6 text-sm uppercase tracking-wider text-center">Nuestras Sedes</h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              {/* Duitama */}
+              <div className="text-center p-5 rounded-2xl bg-white/[0.03] border border-white/5">
+                <p className="text-white text-sm font-bold mb-3">Duitama</p>
+                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs mb-2">
+                  <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                  <span>Pasaje Comercial Solano, Local 102</span>
+                </div>
+                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs">
+                  <Phone className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                  <span>+57 314 481 0431</span>
+                </div>
+              </div>
+              {/* Tunja */}
+              <div className="text-center p-5 rounded-2xl bg-white/[0.03] border border-white/5">
+                <p className="text-white text-sm font-bold mb-3">Tunja</p>
+                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs mb-2">
+                  <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                  <span>CC. Unicentro, Entrada 1, Isla Comercial</span>
+                </div>
+                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs">
+                  <Phone className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                  <span>+57 321 986 3883</span>
+                </div>
+              </div>
             </div>
           </div>
 
