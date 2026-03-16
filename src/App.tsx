@@ -392,7 +392,7 @@ const repairServices = [
 ]
 
 const DEFAULT_HERO_SLIDES: HeroSlide[] = [
-  { id: 10, title: 'El Increible iPhone 17e', subtitle: 'Trae de todo. Toda una oportunidad.', image: '', video_url: '/videos/iphone-17e-intro.mp4', link: '', active: true, sort_order: 0 },
+  { id: 10, title: '', subtitle: '', image: '', video_url: '/videos/iphone-17e-intro.mp4', link: '', active: true, sort_order: 0 },
   { id: 1, title: 'iPhone 17 Pro Max', subtitle: 'El mas poderoso. Disponible ahora.', image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=1920&q=90&fit=crop', video_url: '/videos/iphone17pro-intro-13s.mp4', link: '/producto/31/iphone-17-pro-max', active: true, sort_order: 1 },
   { id: 2, title: 'MacBook Air M4', subtitle: 'Potencia portatil. Desde $4.999.990.', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&h=600&fit=crop', video_url: '/videos/macbook-air-m4.mp4', link: '/producto/38/macbook-air-13-m4', active: true, sort_order: 2 },
   { id: 3, title: 'Apple Watch Ultra 2', subtitle: 'Aventura sin limites.', image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1200&h=600&fit=crop', video_url: '/videos/apple-watch-ultra3.mp4', link: '/producto/47/apple-watch-ultra-2', active: true, sort_order: 3 },
@@ -2137,25 +2137,25 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
             >
               <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-              <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro</p></div>
-            </a>
-            <a
-              href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20necesito%20información"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
-            >
-              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-              <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano</p></div>
-            </a>
-            <a
-              href="https://wa.me/573213815465?text=Hola%20Gordotech%20Clínica%2C%20necesito%20información"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
-            >
-              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-              <div><p className="text-white text-sm font-medium">Clínica</p><p className="text-gray-400 text-[10px]">San Andresito de la 18</p></div>
+                          <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
+                        </a>
+                        <a
+                          href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20necesito%20información"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+                        >
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                          <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
+                        </a>
+                        <a
+                          href="https://wa.me/573213815465?text=Hola%20Gordotech%20Clínica%2C%20necesito%20información"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+                        >
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                          <div><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
             </a>
           </div>
         )}
@@ -2573,16 +2573,16 @@ function SemiNuevosPage() {
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                     >
                       <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-                      <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro</p></div>
-                    </a>
-                    <a
-                      href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
-                    >
-                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-                      <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano</p></div>
+                                          <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
+                                        </a>
+                                        <a
+                                          href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+                                        >
+                                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                                          <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
                     </a>
                   </div>
                 )}
