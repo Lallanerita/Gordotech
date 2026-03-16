@@ -1275,16 +1275,12 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
               {heroSlides.map(slide => (
                 <div key={slide.id} className={`bg-gray-900/50 border rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center gap-4 transition-all ${slide.active ? 'border-white/10 hover:border-blue-500/30' : 'border-white/5 opacity-60'}`}>
                   <div className="relative w-full md:w-40 h-24 rounded-xl bg-gray-800 flex-shrink-0 overflow-hidden">
-                    {slide.video_url ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900/50 to-gray-900">
-                        <Film className="w-8 h-8 text-blue-400 mb-1" />
-                        <span className="text-blue-300 text-[10px] font-medium px-2 text-center truncate max-w-full">{slide.video_url.split('/').pop()}</span>
-                      </div>
-                    ) : (
+                    {slide.video_url && (slide.video_url.endsWith('.mp4') || slide.video_url.endsWith('.webm') || slide.video_url.endsWith('.mov')) ? (
+                      <video src={slide.video_url} className="w-full h-full object-cover" muted playsInline preload="metadata" onLoadedData={e => { (e.target as HTMLVideoElement).currentTime = 1 }} />
+                    ) : slide.image ? (
                       <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x200/1a1a2e/7BA3C9/png?text=Sin+imagen' }} />
-                    )}
-                    {slide.video_url && slide.image && (
-                      <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center"><Film className="w-8 h-8 text-gray-600" /></div>
                     )}
                     {slide.video_url && (
                       <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-blue-500/80 rounded text-[9px] text-white font-bold flex items-center gap-0.5"><Play className="w-2.5 h-2.5" fill="white" /> VIDEO</div>
