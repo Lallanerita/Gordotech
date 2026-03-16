@@ -3,6 +3,40 @@ import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circl
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+const COLOR_MAP: Record<string, string> = {
+  negro: '#000000', blanco: '#FFFFFF', azul: '#0047AB', rojo: '#FF0000',
+  verde: '#008000', amarillo: '#FFD700', naranja: '#FF8C00', rosa: '#FF69B4',
+  morado: '#800080', gris: '#808080', plata: '#C0C0C0', oro: '#FFD700',
+  dorado: '#DAA520', celeste: '#87CEEB', turquesa: '#40E0D0', beige: '#F5F5DC',
+  crema: '#FFFDD0', coral: '#FF7F50', lavanda: '#E6E6FA', marron: '#8B4513',
+  bronce: '#CD7F32', titanio: '#878681', grafito: '#383838', medianoche: '#191970',
+  'azul ultramar': '#120A8F', 'verde menta': '#98FF98', 'rosa pastel': '#FFD1DC',
+  natural: '#D2B48C', desierto: '#EDC9AF',
+  // Apple compound color names
+  'naranja cosmico': '#FF6723', 'naranja cósmico': '#FF6723',
+  'azul oscuro': '#003366', 'azul pacifico': '#1A73E8', 'azul pacífico': '#1A73E8',
+  'azul sierra': '#69ABCE', 'azul alpino': '#394F6A',
+  'verde alpino': '#3B5323', 'verde oliva': '#556B2F',
+  'rosa chicle': '#FF6EB4', 'rosa fuerte': '#FF1493',
+  'titanio natural': '#B5A898', 'titanio negro': '#3C3C3C',
+  'titanio blanco': '#F5F5F0', 'titanio azul': '#394F6A',
+  'titanio desierto': '#C8AD8B', 'titanio arena': '#C2B280',
+  'negro espacial': '#1D1D1D', 'gris espacial': '#4A4A4A',
+  'oro rosa': '#B76E79', 'blanco estelar': '#F8F0E5', 'luz estelar': '#F8F0E5',
+  'negro medianoche': '#191970', 'rojo producto': '#FF0000',
+  teal: '#008080', ultramarina: '#120A8F', ultramarino: '#120A8F',
+}
+
+function resolveColor(color: string): string {
+  const trimmed = color.trim().toLowerCase()
+  if (COLOR_MAP[trimmed]) return COLOR_MAP[trimmed]
+  const normalized = trimmed.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (COLOR_MAP[normalized]) return COLOR_MAP[normalized]
+  const firstWord = trimmed.split(/\s+/)[0]
+  if (COLOR_MAP[firstWord]) return COLOR_MAP[firstWord]
+  return color
+}
+
 type Product = {
   id: number
   name: string
@@ -77,6 +111,34 @@ type Stats = {
 }
 
 type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'slideshow' | 'marquee' | 'settings'
+
+const TAB_PATHS: Record<string, Tab> = {
+  '/': 'dashboard',
+  '/dashboard': 'dashboard',
+  '/productos': 'products',
+  '/categorias': 'categories',
+  '/burbujas': 'bubbles',
+  '/servicios': 'services',
+  '/slideshow': 'slideshow',
+  '/marquee': 'marquee',
+  '/config': 'settings',
+}
+
+const TAB_TO_PATH: Record<Tab, string> = {
+  dashboard: '/dashboard',
+  products: '/productos',
+  categories: '/categorias',
+  bubbles: '/burbujas',
+  services: '/servicios',
+  slideshow: '/slideshow',
+  marquee: '/marquee',
+  settings: '/config',
+}
+
+function getTabFromPath(): Tab {
+  const path = window.location.pathname.replace(/\/$/, '') || '/'
+  return TAB_PATHS[path] || 'dashboard'
+}
 
 // ==================== API HELPERS ====================
 
@@ -480,7 +542,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
             <div>
               <label className="block text-gray-400 text-sm mb-1">Colores (nombre o hex, separados por coma)</label>
               <input value={form.colors} onChange={e => setForm({...form, colors: e.target.value})}
-                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="#000000, #FFFFFF, #4169E1" />
+                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="Naranja cósmico, Negro, Titanio natural" />
             </div>
           </div>
 
@@ -494,7 +556,7 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
                   return (
                     <div key={color} className="bg-gray-800/30 rounded-lg p-3 space-y-2">
                       <div className="flex items-center gap-2 mb-1">
-                        <div className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color.startsWith('#') ? color : color }} />
+                        <div className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: resolveColor(color) }} />
                         <span className="text-white text-sm font-medium">{color}</span>
                         <span className="text-gray-500 text-xs">({colorImgs.length} foto{colorImgs.length !== 1 ? 's' : ''})</span>
                       </div>
@@ -864,7 +926,15 @@ function CategoryForm({ category, token, onSave, onCancel }: {
 
 export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('gordotech-admin-token'))
-  const [activeTab, setActiveTab] = useState<Tab>('dashboard')
+  const [activeTab, setActiveTabRaw] = useState<Tab>(() => getTabFromPath())
+
+  const setActiveTab = useCallback((tab: Tab) => {
+    setActiveTabRaw(tab)
+    const newPath = TAB_TO_PATH[tab] || '/dashboard'
+    if (window.location.pathname !== newPath) {
+      window.history.pushState(null, '', newPath)
+    }
+  }, [])
   const [stats, setStats] = useState<Stats | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -980,6 +1050,13 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  // Sync tab with browser back/forward
+  useEffect(() => {
+    const onPopState = () => setActiveTabRaw(getTabFromPath())
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
   useEffect(() => {
     if (token) {
       loadStats()
@@ -1075,7 +1152,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
           {tabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => setActiveTab(tab.id as Tab)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-400'
