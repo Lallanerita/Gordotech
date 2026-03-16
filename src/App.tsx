@@ -2484,12 +2484,6 @@ function SemiNuevosPage() {
               </div>
             </div>
 
-            <div className="text-center">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-300 text-sm">
-                <Truck className="w-4 h-4 text-blue-400" />
-                Disponibles desde iPhone 12 hasta iPhone 16 Pro Max
-              </span>
-            </div>
           </div>
         </section>
 
