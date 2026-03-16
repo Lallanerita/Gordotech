@@ -1771,7 +1771,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                 <p className="font-bold text-base text-white">{city.label}</p>
                                 <p className="text-xs text-gray-400 group-hover:text-green-100">{city.sublabel}</p>
                               </div>
-                              <MessageCircle className="w-5 h-5 flex-shrink-0" />
+                              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-6 h-6 flex-shrink-0" />
                             </a>
                           ))}
                         </div>
