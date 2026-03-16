@@ -548,11 +548,11 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
               />
             </div>
           )}
-          {/* Gradient overlays - lighter for video, dramatic for images */}
+          {/* Gradient overlays - minimal for video, dramatic for images */}
           {slide.video_url && (isVideoUrl(slide.video_url) || getYouTubeEmbedUrl(slide.video_url)) ? (
             <>
-              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
             </>
           ) : (
             <>
