@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown } from 'lucide-react'
+import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -1274,13 +1274,29 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
             <div className="space-y-3">
               {heroSlides.map(slide => (
                 <div key={slide.id} className={`bg-gray-900/50 border rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center gap-4 transition-all ${slide.active ? 'border-white/10 hover:border-blue-500/30' : 'border-white/5 opacity-60'}`}>
-                  <img src={slide.image} alt={slide.title} className="w-full md:w-40 h-24 rounded-xl object-cover bg-gray-800 flex-shrink-0" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x200/1a1a2e/7BA3C9/png?text=Sin+imagen' }} />
+                  <div className="relative w-full md:w-40 h-24 rounded-xl bg-gray-800 flex-shrink-0 overflow-hidden">
+                    {slide.video_url ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900/50 to-gray-900">
+                        <Film className="w-8 h-8 text-blue-400 mb-1" />
+                        <span className="text-blue-300 text-[10px] font-medium px-2 text-center truncate max-w-full">{slide.video_url.split('/').pop()}</span>
+                      </div>
+                    ) : (
+                      <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x200/1a1a2e/7BA3C9/png?text=Sin+imagen' }} />
+                    )}
+                    {slide.video_url && slide.image && (
+                      <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    )}
+                    {slide.video_url && (
+                      <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-blue-500/80 rounded text-[9px] text-white font-bold flex items-center gap-0.5"><Play className="w-2.5 h-2.5" fill="white" /> VIDEO</div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-medium truncate">{slide.title || '(Sin titulo)'}</p>
                     <p className="text-gray-400 text-sm truncate">{slide.subtitle || '(Sin subtitulo)'}</p>
-                    <div className="flex items-center gap-3 mt-1">
+                    <div className="flex flex-wrap items-center gap-3 mt-1">
                       <span className="text-gray-500 text-xs">Orden: {slide.sort_order}</span>
                       <span className="text-gray-500 text-xs">Link: {slide.link || '-'}</span>
+                      {slide.video_url && <span className="text-blue-400 text-xs flex items-center gap-1"><Film className="w-3 h-3" />{slide.video_url.split('/').pop()}</span>}
                       <span className={`text-xs px-2 py-0.5 rounded-full ${slide.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                         {slide.active ? 'Activo' : 'Inactivo'}
                       </span>
@@ -1318,10 +1334,10 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                       <ImageUploader token={token} currentImage={slideForm.image} onUpload={url => setSlideForm({...slideForm, image: url})} />
                     </div>
                     <div>
-                      <label className="block text-gray-400 text-sm mb-1">Video URL (YouTube) - opcional</label>
+                      <label className="block text-gray-400 text-sm mb-1">Video URL (MP4 local o YouTube) - opcional</label>
                       <input value={slideForm.video_url} onChange={e => setSlideForm({...slideForm, video_url: e.target.value})}
-                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: https://www.youtube.com/watch?v=_-AS5DtDeqs" />
-                      <p className="text-gray-500 text-xs mt-1">Si pones un video, se mostrara en lugar de la imagen. Soporta YouTube.</p>
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: /videos/mi-video.mp4 o URL de YouTube" />
+                      <p className="text-gray-500 text-xs mt-1">Soporta archivos MP4 locales (ej: /videos/nombre.mp4) y YouTube. El video se muestra en lugar de la imagen.</p>
                     </div>
                     <div>
                       <label className="block text-gray-400 text-sm mb-1">Titulo</label>
