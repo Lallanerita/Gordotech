@@ -1326,7 +1326,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               </button>
               <span className="text-gray-600 text-xs">|</span>
               <button
-                onClick={() => { setActiveCondition('semi-usados'); document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' }) }}
+                onClick={() => navigate('/semi-nuevos')}
                 className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
               >
                 Seminuevos
@@ -2040,7 +2040,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Productos</h5>
               <ul className="space-y-3">
                 <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Nuevos</a></li>
-                <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Semi-usados</a></li>
+                <li><Link to="/semi-nuevos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Seminuevos</Link></li>
                 <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">Accesorios</a></li>
               </ul>
             </div>
@@ -2359,6 +2359,214 @@ function ReparacionPage() {
   )
 }
 
+// Semi Nuevos - separate page
+function SemiNuevosPage() {
+  const navigate = useNavigate()
+  const [semiProducts, setSemiProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [whatsappOpen, setWhatsappOpen] = useState(false)
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/products?city=duitama`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.products) {
+            setSemiProducts(data.products.filter((p: Record<string, unknown>) => p.condition === 'Semi-usado').map((p: Record<string, unknown>) => ({
+              id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+              condition: p.condition as string,
+              image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl),
+              colors: p.colors as string[], storageOptions: p.storage_options as string[],
+              badge: (p.badge as string) || null, available: p.available as string[],
+              price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+            })))
+          }
+        }
+      } catch { /* fallback to static */ 
+        setSemiProducts(products.filter(p => p.condition === 'Semi-usado'))
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProducts()
+  }, [])
+
+  const displayProducts = semiProducts.length > 0 ? semiProducts : products.filter(p => p.condition === 'Semi-usado')
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+              <ArrowLeft className="w-4 h-4" />
+              Volver
+            </button>
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+            </button>
+            <div className="w-16" />
+          </div>
+        </div>
+      </header>
+
+      <div className="pt-20">
+        {/* Info Section */}
+        <section className="py-12 md:py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-600/10 via-transparent to-blue-600/5" />
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
+                <Smartphone className="w-4 h-4 text-amber-400" />
+                <span className="text-amber-400 text-sm font-medium">Calidad garantizada</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-bold mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                iPHONES <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">SEMINUEVOS</span>
+              </h2>
+              <p className="text-gray-300 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
+                Equipos de exhibicion, 100% originales, con uso minimo y en excelentes condiciones. La mejor relacion precio-calidad con el respaldo de Gordotech.
+              </p>
+            </div>
+
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                <div className="w-12 h-12 mx-auto bg-amber-500/10 rounded-full flex items-center justify-center mb-3">
+                  <Shield className="w-6 h-6 text-amber-400" />
+                </div>
+                <h4 className="text-white font-bold text-sm mb-1">100% Originales</h4>
+                <p className="text-gray-400 text-xs leading-relaxed">Equipos de exhibicion de operadores y tiendas oficiales Apple. Sin piezas cambiadas ni reparaciones.</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                <div className="w-12 h-12 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-3">
+                  <Award className="w-6 h-6 text-green-400" />
+                </div>
+                <h4 className="text-white font-bold text-sm mb-1">Garantia Gordotech</h4>
+                <p className="text-gray-400 text-xs leading-relaxed">Todos nuestros seminuevos incluyen garantia. Si algo falla, nosotros respondemos.</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                <div className="w-12 h-12 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-3">
+                  <Star className="w-6 h-6 text-blue-400" />
+                </div>
+                <h4 className="text-white font-bold text-sm mb-1">Uso Minimo</h4>
+                <p className="text-gray-400 text-xs leading-relaxed">Han sido usados unicamente como muestra. Bateria en excelente estado y estetica impecable.</p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-300 text-sm">
+                <Truck className="w-4 h-4 text-blue-400" />
+                Disponibles desde iPhone 12 hasta iPhone 16 Pro Max
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Products Gallery */}
+        <section className="py-12 md:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="mb-8">
+              <h3 className="text-3xl md:text-5xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                CATALOGO SEMINUEVOS
+              </h3>
+              <p className="text-gray-400 mt-2">{displayProducts.length} equipos disponibles</p>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <img src="/images/gordotech-icon-white.png" alt="Cargando" className="h-12 animate-pulse" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {displayProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => navigate(`/producto/${product.id}/${getProductSlug(product)}`)}
+                    className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1"
+                  >
+                    <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-4 flex items-center justify-center">
+                      <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
+                      />
+                    </div>
+                    <div className="p-3 md:p-4">
+                      <p className="text-xs font-medium mb-1 text-amber-400">Seminuevo</p>
+                      <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                      <div className="flex flex-wrap items-center gap-1 mb-2">
+                        {product.storageOptions.map((storage, i) => (
+                          <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{storage}</span>
+                        ))}
+                        {product.colors.length > 0 && <span className="mx-0.5" />}
+                        {product.colors.map((color, i) => (
+                          <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                        ))}
+                      </div>
+                      {product.price && product.price !== '-' ? (
+                        <div className="mb-1">
+                          {product.oldPrice && product.oldPrice !== '-' && (
+                            <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                          )}
+                          <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-amber-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* WhatsApp CTA */}
+            <div className="text-center mt-12">
+              <p className="text-gray-400 text-sm mb-4">La disponibilidad cambia constantemente. Confirma antes de visitarnos.</p>
+              <div className="relative inline-block">
+                <button
+                  onClick={() => setWhatsappOpen(!whatsappOpen)}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Consulta Disponibilidad en Tiempo Real
+                </button>
+                {whatsappOpen && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-gray-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden w-56">
+                    <a
+                      href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+                    >
+                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                      <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro</p></div>
+                    </a>
+                    <a
+                      href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+                    >
+                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                      <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano</p></div>
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
 function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
   const { id, slug } = useParams<{ id: string; slug: string }>()
   const location = useLocation()
@@ -2402,6 +2610,7 @@ function App() {
     <Routes>
       <Route path="/plan-retoma" element={<PlanRetomaPage />} />
       <Route path="/reparacion" element={<ReparacionPage />} />
+      <Route path="/semi-nuevos" element={<SemiNuevosPage />} />
       <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
