@@ -11,7 +11,7 @@ type Product = {
   image: string
   images: string[]
   colors: string[]
-  color_images: Record<string, string>
+  color_images: Record<string, string[]>
   storage_options: string[]
   badge: string | null
   available: string[]
@@ -319,6 +319,35 @@ function MultiImageUploader({ token, images, onChange }: { token: string; images
   )
 }
 
+// ==================== COLOR IMAGE UPLOADER ====================
+
+function ColorImageUploader({ token, color, onUpload }: { token: string; color: string; onUpload: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false)
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const data = await apiUpload(file, token)
+      onUpload(`${API_URL}${data.url}`)
+    } catch {
+      alert('Error subiendo imagen')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  return (
+    <label className={`inline-flex items-center gap-1 px-2 py-1 bg-blue-600/30 border border-blue-500/30 rounded-lg cursor-pointer hover:bg-blue-600/50 transition-colors text-xs text-blue-300 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+      <Plus className="w-3 h-3" />
+      {uploading ? 'Subiendo...' : 'Subir foto'}
+      <input type="file" accept="image/*" onChange={handleFile} className="hidden" disabled={uploading} />
+    </label>
+  )
+}
+
 // ==================== PRODUCT FORM ====================
 
 function ProductForm({ product, token, categories, onSave, onCancel }: {
@@ -335,7 +364,16 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
     image: product?.image || '',
     images: product?.images || [],
     colors: product?.colors?.join(', ') || '',
-    color_images: product?.color_images || {} as Record<string, string>,
+    color_images: (() => {
+      // Normalize legacy string values to arrays
+      const raw = product?.color_images || {};
+      const normalized: Record<string, string[]> = {};
+      for (const [k, v] of Object.entries(raw)) {
+        if (Array.isArray(v)) normalized[k] = v;
+        else if (typeof v === 'string' && v) normalized[k] = [v];
+      }
+      return normalized;
+    })(),
     storage_options: product?.storage_options?.join(', ') || '',
     badge: product?.badge || '',
     available_duitama: product?.available?.includes('duitama') ?? true,
@@ -446,40 +484,79 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
             </div>
           </div>
 
-          {/* Color-Image Assignment */}
-          {form.colors.split(',').map(c => c.trim()).filter(Boolean).length > 0 && form.images.length > 0 && (
+          {/* Color-Image Assignment (multiple photos per color) */}
+          {form.colors.split(',').map(c => c.trim()).filter(Boolean).length > 0 && (
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Asignar imagen a cada color</label>
-              <div className="space-y-2">
-                {form.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
-                  <div key={color} className="flex items-center gap-3 bg-gray-800/30 rounded-lg px-3 py-2">
-                    <div className="w-6 h-6 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color.startsWith('#') ? color : color }} title={color} />
-                    <span className="text-white text-sm min-w-[80px]">{color}</span>
-                    <select
-                      value={form.color_images[color] || ''}
-                      onChange={e => {
-                        const updated = { ...form.color_images }
-                        if (e.target.value) {
-                          updated[color] = e.target.value
-                        } else {
-                          delete updated[color]
-                        }
-                        setForm({ ...form, color_images: updated })
-                      }}
-                      className="flex-1 bg-gray-800/50 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
-                    >
-                      <option value="">Sin imagen asignada</option>
-                      {form.images.map((img, idx) => (
-                        <option key={idx} value={img}>Foto {idx + 1}</option>
-                      ))}
-                    </select>
-                    {form.color_images[color] && (
-                      <img src={form.color_images[color]} alt={color} className="w-8 h-8 rounded object-cover border border-white/10" />
-                    )}
-                  </div>
-                ))}
+              <label className="block text-gray-400 text-sm mb-2">Fotos por color</label>
+              <div className="space-y-4">
+                {form.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => {
+                  const colorImgs = form.color_images[color] || []
+                  return (
+                    <div key={color} className="bg-gray-800/30 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color.startsWith('#') ? color : color }} />
+                        <span className="text-white text-sm font-medium">{color}</span>
+                        <span className="text-gray-500 text-xs">({colorImgs.length} foto{colorImgs.length !== 1 ? 's' : ''})</span>
+                      </div>
+                      {/* Thumbnails of assigned images */}
+                      <div className="flex flex-wrap gap-2">
+                        {colorImgs.map((img, idx) => (
+                          <div key={idx} className="relative group w-14 h-14">
+                            <img src={img} alt={`${color} ${idx + 1}`} className="w-full h-full rounded object-cover bg-gray-800 border border-white/10" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100/1a1a2e/7BA3C9/png?text=Error' }} />
+                            <div className="absolute inset-0 bg-black/60 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-0.5">
+                              {idx > 0 && (
+                                <button type="button" onClick={() => {
+                                  const arr = [...colorImgs]; const [m] = arr.splice(idx, 1); arr.splice(idx - 1, 0, m);
+                                  setForm({ ...form, color_images: { ...form.color_images, [color]: arr } })
+                                }} className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-white text-[10px] hover:bg-white/40">&larr;</button>
+                              )}
+                              <button type="button" onClick={() => {
+                                const arr = colorImgs.filter((_, i) => i !== idx);
+                                const updated = { ...form.color_images };
+                                if (arr.length === 0) delete updated[color]; else updated[color] = arr;
+                                setForm({ ...form, color_images: updated })
+                              }} className="w-5 h-5 bg-red-500/80 rounded-full flex items-center justify-center text-white hover:bg-red-600">
+                                <X className="w-3 h-3" />
+                              </button>
+                              {idx < colorImgs.length - 1 && (
+                                <button type="button" onClick={() => {
+                                  const arr = [...colorImgs]; const [m] = arr.splice(idx, 1); arr.splice(idx + 1, 0, m);
+                                  setForm({ ...form, color_images: { ...form.color_images, [color]: arr } })
+                                }} className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-white text-[10px] hover:bg-white/40">&rarr;</button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Add images to this color */}
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        {form.images.filter(img => !colorImgs.includes(img)).length > 0 && (
+                          <select
+                            value=""
+                            onChange={e => {
+                              if (!e.target.value) return;
+                              const updated = { ...form.color_images, [color]: [...colorImgs, e.target.value] };
+                              setForm({ ...form, color_images: updated })
+                              e.target.value = '';
+                            }}
+                            className="bg-gray-800/50 border border-white/10 rounded-lg px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500/50"
+                          >
+                            <option value="">+ Agregar foto...</option>
+                            {form.images.filter(img => !colorImgs.includes(img)).map((img, idx) => (
+                              <option key={idx} value={img}>Foto {form.images.indexOf(img) + 1}</option>
+                            ))}
+                          </select>
+                        )}
+                        <ColorImageUploader token={token} color={color} onUpload={(url) => {
+                          const updated = { ...form.color_images, [color]: [...colorImgs, url] };
+                          setForm({ ...form, color_images: updated })
+                        }} />
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Selecciona que foto se muestra al elegir cada color.</p>
+              <p className="text-xs text-gray-500 mt-2">Sube o selecciona varias fotos para cada color. Al tocar un color en la tienda, se mostraran estas fotos.</p>
             </div>
           )}
 

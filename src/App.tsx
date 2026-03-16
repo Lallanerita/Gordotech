@@ -303,6 +303,7 @@ type Product = {
   image: string
   images: string[]
   colors: string[]
+  color_images?: Record<string, string[] | string>
   storageOptions: string[]
   badge: string | null
   available: string[]
@@ -1624,7 +1625,15 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         // Build gallery: always start with main image, then add any additional gallery images (no duplicates)
         const mainImg = selectedProduct.image
         const extraImgs = (selectedProduct.images || []).filter(img => img && img !== mainImg)
-        const galleryImages = [mainImg, ...extraImgs].filter(Boolean)
+        const baseGalleryImages = [mainImg, ...extraImgs].filter(Boolean)
+
+        // If a color has an explicit image group, show those first when that color is selected.
+        const rawColorImages = selectedColor ? selectedProduct.color_images?.[selectedColor] : undefined
+        const selectedColorImages = Array.isArray(rawColorImages) ? rawColorImages : rawColorImages ? [rawColorImages] : []
+
+        const galleryImages = selectedColorImages.length > 0
+          ? [...selectedColorImages, ...baseGalleryImages.filter(img => !selectedColorImages.includes(img))]
+          : baseGalleryImages
         const model3DUrl = getModel3DUrl(selectedProduct)
         return (
         <section className="py-10 md:py-16">
@@ -1794,7 +1803,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   <p className="text-gray-400 text-sm mb-3">Colores disponibles</p>
                   <div className="flex items-center gap-3">
                     {selectedProduct.colors.map((color, i) => (
-                      <button key={i} onClick={() => { setSelectedColor(color); const colorImg = selectedProduct.color_images?.[color]; if (colorImg) { const idx = galleryImages.indexOf(colorImg); if (idx >= 0) setGalleryIndex(idx) } else if (i < galleryImages.length) { setGalleryIndex(i) } }} className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`} style={{ backgroundColor: resolveColor(color) }} title={color} />
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setSelectedColor(color)
+                          setGalleryIndex(0)
+                        }}
+                        className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
+                        style={{ backgroundColor: resolveColor(color) }}
+                        title={color}
+                      />
                     ))}
                   </div>
                 </div>

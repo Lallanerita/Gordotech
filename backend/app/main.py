@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Union, Any
 import aiosqlite
 import json
 import os
@@ -59,7 +59,8 @@ class ProductCreate(BaseModel):
     image: str = ""
     images: list[str] = []
     colors: list[str] = []
-    color_images: dict[str, str] = {}
+    # color -> list of image URLs (group of photos for that color)
+    color_images: dict[str, Union[str, list[str]]] = {}
     storage_options: list[str] = []
     badge: Optional[str] = None
     available: list[str] = ["duitama", "tunja"]
@@ -78,7 +79,7 @@ class ProductUpdate(BaseModel):
     image: Optional[str] = None
     images: Optional[list[str]] = None
     colors: Optional[list[str]] = None
-    color_images: Optional[dict[str, str]] = None
+    color_images: Optional[dict[str, Union[str, list[str]]]] = None
     storage_options: Optional[list[str]] = None
     badge: Optional[str] = None
     available: Optional[list[str]] = None
@@ -209,14 +210,24 @@ def row_to_product(row):
     if (not isinstance(images, list) or len(images) == 0) and row["image"]:
         images = [row["image"]]
 
-    # Parse color_images (JSON object mapping color name -> image URL)
+    # Parse color_images (JSON object mapping color name -> [image URLs])
     color_images_raw = row["color_images"] if "color_images" in keys else "{}"
     try:
-        color_images = json.loads(color_images_raw) if color_images_raw else {}
+        color_images_parsed = json.loads(color_images_raw) if color_images_raw else {}
     except (json.JSONDecodeError, TypeError):
-        color_images = {}
-    if not isinstance(color_images, dict):
-        color_images = {}
+        color_images_parsed = {}
+
+    color_images: dict[str, list[str]] = {}
+    if isinstance(color_images_parsed, dict):
+        for k, v in color_images_parsed.items():
+            if not isinstance(k, str) or not k:
+                continue
+            if isinstance(v, str) and v:
+                color_images[k] = [v]
+            elif isinstance(v, list):
+                imgs = [img for img in v if isinstance(img, str) and img]
+                if imgs:
+                    color_images[k] = imgs
 
     product_name = row["name"]
     return {
@@ -240,6 +251,25 @@ def row_to_product(row):
         "sort_order": row["sort_order"],
         "model_3d": row["model_3d"] if "model_3d" in keys else "",
     }
+
+def normalize_color_images_payload(color_images: Any) -> dict[str, list[str]]:
+    """Normalize payload to: color -> list[str]. Accepts legacy color->str."""
+    if not isinstance(color_images, dict):
+        return {}
+
+    normalized: dict[str, list[str]] = {}
+    for k, v in color_images.items():
+        if not isinstance(k, str) or not k:
+            continue
+        if isinstance(v, str) and v:
+            normalized[k] = [v]
+        elif isinstance(v, list):
+            imgs = [img for img in v if isinstance(img, str) and img]
+            if imgs:
+                normalized[k] = imgs
+
+    return normalized
+
 
 def row_to_category(row):
     return {
@@ -508,7 +538,7 @@ async def admin_create_product(product: ProductCreate, username: str = Depends(g
             """INSERT INTO products (name, category, condition, image, images, colors, color_images, storage_options, badge, available, price, old_price, description, featured_recommended, featured_trending, sort_order, model_3d)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (product.name, product.category, product.condition, primary_image, json.dumps(images), json.dumps(product.colors),
-             json.dumps(product.color_images), json.dumps(product.storage_options), product.badge, json.dumps(product.available),
+             json.dumps(normalize_color_images_payload(product.color_images)), json.dumps(product.storage_options), product.badge, json.dumps(product.available),
              product.price, product.old_price, product.description, int(product.featured_recommended),
              int(product.featured_trending), sort_order, product.model_3d)
         )
@@ -545,7 +575,7 @@ async def admin_update_product(product_id: int, product: ProductUpdate, username
         if product.colors is not None:
             updates["colors"] = json.dumps(product.colors)
         if product.color_images is not None:
-            updates["color_images"] = json.dumps(product.color_images)
+            updates["color_images"] = json.dumps(normalize_color_images_payload(product.color_images))
         if product.storage_options is not None:
             updates["storage_options"] = json.dumps(product.storage_options)
         if product.badge is not None:
