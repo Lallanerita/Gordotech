@@ -86,7 +86,7 @@ const CITY_SOCIALS: Record<'duitama' | 'tunja', { instagram: string; tiktok: str
 // City store addresses for "Retira Hoy"
 const CITY_ADDRESSES: Record<'duitama' | 'tunja', { short: string; full: string }> = {
   duitama: { short: 'C.C Pasaje Solano, Duitama', full: 'C.C Pasaje Solano, Local 1-02, Calle 20a # 12-32' },
-  tunja: { short: 'Gordotech Tunja', full: 'Gordotech Tunja' },
+  tunja: { short: 'CC. Unicentro, Tunja', full: 'CC. Unicentro, Entrada 1, Isla Comercial, Tunja' },
 }
 
 // Spanish color name to CSS color mapping
@@ -1541,7 +1541,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                           ) : (
                             <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                           )}
-                          <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
+                          <div className="flex flex-wrap gap-x-2">
+                            {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
+                              <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
+                            ))}
+                          </div>
                         </div>
                       </button>
                       </ScrollReveal>
@@ -1596,7 +1600,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     ) : (
                       <p className="text-[10px] text-blue-400 font-medium flex items-center gap-1 mb-0.5"><MessageCircle className="w-2.5 h-2.5" /> Consultar</p>
                     )}
-                    <p className="text-[9px] text-green-400 font-medium flex items-center gap-0.5"><MapPin className="w-2 h-2" /> {pickupAddress.short}</p>
+                    <div className="flex flex-wrap gap-x-1.5">
+                      {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
+                        <p key={c} className="text-[9px] text-green-400 font-medium flex items-center gap-0.5"><MapPin className="w-2 h-2" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
+                      ))}
+                    </div>
                   </div>
                 </button>
               ))}
@@ -1795,13 +1803,17 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   </div>
                 )}
 
-                {/* Retira Hoy badge */}
-                <div className="mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20">
-                  <MapPin className="w-5 h-5 text-green-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-green-400 font-semibold text-sm">Retira Hoy</p>
-                    <p className="text-gray-400 text-xs">{pickupAddress.full}</p>
-                  </div>
+                {/* Retira Hoy badges - show all cities where product is available */}
+                <div className="mb-6 space-y-2">
+                  {(['duitama', 'tunja'] as const).filter(c => selectedProduct.available.includes(c)).map(c => (
+                    <div key={c} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                      <MapPin className="w-5 h-5 text-green-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-green-400 font-semibold text-sm">Retira Hoy — {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
+                        <p className="text-gray-400 text-xs">{CITY_ADDRESSES[c].full}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Add to Cart + WhatsApp buttons */}
@@ -1897,7 +1909,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                             ) : (
                               <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                             )}
-                            <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
+                            <div className="flex flex-wrap gap-x-2">
+                              {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
+                                <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
+                              ))}
+                            </div>
                           </div>
                         </button>
                       ))}
@@ -1990,7 +2006,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   ) : (
                     <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
                   )}
-                  <p className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> Retira Hoy en {pickupAddress.short}</p>
+                  <div className="flex flex-wrap gap-x-2">
+                    {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
+                      <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
+                    ))}
+                  </div>
                 </div>
               </button>
               </ScrollReveal>
