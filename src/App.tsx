@@ -203,7 +203,13 @@ function touchCart() {
   } catch { /* ignore */ }
 }
 
-// Product data - Semi-usados
+// Display-friendly condition label (API uses 'Semi-usado', we show 'Semi-nuevo')
+function displayCondition(condition: string): string {
+  if (condition === 'Semi-usado') return 'Semi-nuevo'
+  return condition
+}
+
+// Product data - Semi-nuevos
 const semiUsados = [
   // iPhone 12 Series
   { id: 101, name: 'iPhone 12', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=400&h=500&fit=crop', colors: ['#000000', '#FFFFFF', '#4169E1'] },
@@ -774,7 +780,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
   const sendCartWhatsApp = useCallback(() => {
     const lines = cartItems.map((item, i) => {
-      let line = `${i + 1}. ${item.name} (${item.condition})`
+      let line = `${i + 1}. ${item.name} (${displayCondition(item.condition)})`
       if (item.selectedStorage) line += ` - ${item.selectedStorage}`
       if (item.selectedColor) line += ` - ${item.selectedColor}`
       line += ` x${item.quantity}`
@@ -1040,7 +1046,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       const priceText = selectedProduct.price && selectedProduct.price !== '-' ? ` - $${selectedProduct.price}` : ''
       const storageText = selectedProduct.storageOptions?.length ? ` ${selectedProduct.storageOptions[0]}` : ''
       const titleText = `${selectedProduct.name}${storageText}${priceText} - Gordotech`
-      const descText = `${selectedProduct.name} (${selectedProduct.condition})${storageText}${priceText}. Disponible en Gordotech ${cityName}. Envios a toda Colombia.`
+      const descText = `${selectedProduct.name} (${displayCondition(selectedProduct.condition)})${storageText}${priceText}. Disponible en Gordotech ${cityName}. Envios a toda Colombia.`
       // Ensure absolute URL for image
       const imageUrl = selectedProduct.image.startsWith('http') ? selectedProduct.image : `https://gordotech.co${selectedProduct.image}`
 
@@ -1069,7 +1075,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       canonical.setAttribute('href', productUrl)
     } else {
       const defaultTitle = 'Gordotech - iPhones, iPads, MacBooks y mas | Tu destino Apple en Boyaca'
-      const defaultDesc = 'Gordotech - Tu destino Apple en Boyaca. iPhones nuevos y semi-usados, iPads, MacBooks, AirPods y Apple Watch al mejor precio. Envios a toda Colombia.'
+      const defaultDesc = 'Gordotech - Tu destino Apple en Boyaca. iPhones nuevos y semi-nuevos, iPads, MacBooks, AirPods y Apple Watch al mejor precio. Envios a toda Colombia.'
       const defaultUrl = 'https://gordotech.co'
       const defaultImage = 'https://gordotech.co/images/og-preview.png'
 
@@ -1239,7 +1245,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     <img src={item.image} alt={item.name} className="w-20 h-20 object-contain rounded-xl bg-gray-800/50 flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/80x80/1a1a2e/7BA3C9/png?text=P` }} />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-bold text-white truncate">{item.name}</h4>
-                      <p className={`text-xs ${item.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{item.condition}</p>
+                      <p className={`text-xs ${item.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(item.condition)}</p>
                       <div className="flex items-center gap-2 mt-1">
                         {item.selectedStorage && <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">{item.selectedStorage}</span>}
                         {item.selectedColor && <div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(item.selectedColor) }} />}
@@ -1520,7 +1526,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                     <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                                   </div>
                                   <div className="p-3 md:p-4">
-                                    <p className="text-xs text-blue-400 font-medium mb-1">{product.condition}</p>
+                                    <p className="text-xs text-blue-400 font-medium mb-1">{displayCondition(product.condition)}</p>
                     <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                     <div className="flex flex-wrap items-center gap-1 mb-2">
                       {product.storageOptions.map((s, i) => (
@@ -1580,7 +1586,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
                   <div className="p-3">
-                    <p className={`text-[10px] font-medium mb-0.5 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                    <p className={`text-[10px] font-medium mb-0.5 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
                     <h4 className="text-xs md:text-sm font-bold text-white mb-1 line-clamp-2">{product.name}</h4>
                     <div className="flex flex-wrap items-center gap-1 mb-1.5">
                       {product.storageOptions.slice(0, 2).map((s, i) => (
@@ -1771,7 +1777,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               {/* Product Info */}
               <div className="flex flex-col justify-center">
                 <div className={`inline-block px-3 py-1 rounded-lg text-sm font-medium mb-4 w-fit ${selectedProduct.condition === 'Nuevo' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  {selectedProduct.condition}
+                  {displayCondition(selectedProduct.condition)}
                 </div>
                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>{selectedProduct.name}</h2>
                 
@@ -1845,7 +1851,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                           {([{ key: 'tunja' as const, label: 'Tunja', sublabel: 'Unicentro Isla Comercial' }, { key: 'duitama' as const, label: 'Duitama', sublabel: 'Pasaje Solano Local 102' }]).map(city => (
                             <a
                               key={city.key}
-                              href={`https://wa.me/${CITY_SOCIALS[city.key].whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech ${city.label}! Me interesa el ${selectedProduct.name} (${selectedProduct.condition})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
+                              href={`https://wa.me/${CITY_SOCIALS[city.key].whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech ${city.label}! Me interesa el ${selectedProduct.name} (${displayCondition(selectedProduct.condition)})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={() => setWhatsappCityModal(false)}
@@ -1888,7 +1894,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                             <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                           </div>
                           <div className="p-3 md:p-4">
-                            <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                            <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
                             <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                             <div className="flex flex-wrap items-center gap-1 mb-2">
                               {product.storageOptions.map((s, i) => (
@@ -1938,7 +1944,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             </div>
             {/* Condition Filter Tabs */}
             <div className="flex items-center gap-2">
-              {[{ id: 'todos', label: 'Todos' }, { id: 'nuevos', label: 'Nuevos' }, { id: 'semi-usados', label: 'Semi-usados' }].map(tab => (
+              {[{ id: 'todos', label: 'Todos' }, { id: 'nuevos', label: 'Nuevos' }, { id: 'semi-usados', label: 'Semi-nuevos' }].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveCondition(tab.id)}
@@ -1980,7 +1986,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
                 {/* Info */}
                 <div className="p-3 md:p-4">
-                  <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{product.condition}</p>
+                  <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
                   <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
                   
                   {/* Storage Options + Colors */}
