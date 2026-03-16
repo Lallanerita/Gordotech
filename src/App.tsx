@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2 } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2, Sun, Moon } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -627,6 +627,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('gordotech_theme')
+    return saved ? saved === 'dark' : true
+  })
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
@@ -1001,24 +1005,95 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
   const cityName = 'Duitama'
 
-  // Update page title and meta tags for SEO
+  // Apply theme class to root element
   useEffect(() => {
-    if (selectedProduct) {
-      document.title = `${selectedProduct.name} - Gordotech | Tu destino Apple en Boyaca`
-      const metaDesc = document.querySelector('meta[name="description"]')
-      if (metaDesc) metaDesc.setAttribute('content', `${selectedProduct.name} (${selectedProduct.condition}) disponible en Gordotech ${cityName}. Envios a toda Colombia.`)
-      const ogTitle = document.querySelector('meta[property="og:title"]')
-      if (ogTitle) ogTitle.setAttribute('content', `${selectedProduct.name} - Gordotech`)
-      const ogDesc = document.querySelector('meta[property="og:description"]')
-      if (ogDesc) ogDesc.setAttribute('content', `${selectedProduct.name} (${selectedProduct.condition}) disponible en Gordotech.`)
-      const ogImage = document.querySelector('meta[property="og:image"]')
-      if (ogImage) ogImage.setAttribute('content', selectedProduct.image)
-      const ogUrl = document.querySelector('meta[property="og:url"]')
-      if (ogUrl) ogUrl.setAttribute('content', `https://gordotech.com/producto/${getProductSlug(selectedProduct)}`)
+    const root = document.documentElement
+    if (isDarkMode) {
+      root.classList.remove('light-mode')
     } else {
-      document.title = 'Gordotech - iPhones, iPads, MacBooks y mas | Tu destino Apple en Boyaca'
-      const metaDesc = document.querySelector('meta[name="description"]')
-      if (metaDesc) metaDesc.setAttribute('content', 'Gordotech - Tu destino Apple en Boyaca. iPhones nuevos y semi-usados, iPads, MacBooks, AirPods y Apple Watch al mejor precio. Envios a toda Colombia.')
+      root.classList.add('light-mode')
+    }
+    localStorage.setItem('gordotech_theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
+
+  // Update page title and meta tags for SEO + Open Graph
+  useEffect(() => {
+    const setMeta = (selector: string, attr: string, value: string) => {
+      let el = document.querySelector(selector)
+      if (!el) {
+        el = document.createElement('meta')
+        const isProperty = attr === 'content' && selector.includes('property=')
+        if (isProperty) {
+          const propMatch = selector.match(/property="([^"]+)"/)
+          if (propMatch) el.setAttribute('property', propMatch[1])
+        } else if (selector.includes('name=')) {
+          const nameMatch = selector.match(/name="([^"]+)"/)
+          if (nameMatch) el.setAttribute('name', nameMatch[1])
+        }
+        document.head.appendChild(el)
+      }
+      el.setAttribute(attr, value)
+    }
+
+    if (selectedProduct) {
+      const productUrl = `https://gordotech.co/producto/${selectedProduct.id}/${getProductSlug(selectedProduct)}`
+      const priceText = selectedProduct.price && selectedProduct.price !== '-' ? ` - $${selectedProduct.price}` : ''
+      const storageText = selectedProduct.storageOptions?.length ? ` ${selectedProduct.storageOptions[0]}` : ''
+      const titleText = `${selectedProduct.name}${storageText}${priceText} - Gordotech`
+      const descText = `${selectedProduct.name} (${selectedProduct.condition})${storageText}${priceText}. Disponible en Gordotech ${cityName}. Envios a toda Colombia.`
+      // Ensure absolute URL for image
+      const imageUrl = selectedProduct.image.startsWith('http') ? selectedProduct.image : `https://gordotech.co${selectedProduct.image}`
+
+      document.title = titleText
+      setMeta('meta[name="description"]', 'content', descText)
+      // Open Graph
+      setMeta('meta[property="og:title"]', 'content', titleText)
+      setMeta('meta[property="og:description"]', 'content', descText)
+      setMeta('meta[property="og:image"]', 'content', imageUrl)
+      setMeta('meta[property="og:url"]', 'content', productUrl)
+      setMeta('meta[property="og:type"]', 'content', 'product')
+      setMeta('meta[property="og:site_name"]', 'content', 'Gordotech')
+      setMeta('meta[property="og:locale"]', 'content', 'es_CO')
+      // Twitter Card
+      setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image')
+      setMeta('meta[name="twitter:title"]', 'content', titleText)
+      setMeta('meta[name="twitter:description"]', 'content', descText)
+      setMeta('meta[name="twitter:image"]', 'content', imageUrl)
+      // Canonical
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+      if (!canonical) {
+        canonical = document.createElement('link')
+        canonical.setAttribute('rel', 'canonical')
+        document.head.appendChild(canonical)
+      }
+      canonical.setAttribute('href', productUrl)
+    } else {
+      const defaultTitle = 'Gordotech - iPhones, iPads, MacBooks y mas | Tu destino Apple en Boyaca'
+      const defaultDesc = 'Gordotech - Tu destino Apple en Boyaca. iPhones nuevos y semi-usados, iPads, MacBooks, AirPods y Apple Watch al mejor precio. Envios a toda Colombia.'
+      const defaultUrl = 'https://gordotech.co'
+      const defaultImage = 'https://gordotech.co/images/og-preview.png'
+
+      document.title = defaultTitle
+      setMeta('meta[name="description"]', 'content', defaultDesc)
+      setMeta('meta[property="og:title"]', 'content', defaultTitle)
+      setMeta('meta[property="og:description"]', 'content', defaultDesc)
+      setMeta('meta[property="og:image"]', 'content', defaultImage)
+      setMeta('meta[property="og:url"]', 'content', defaultUrl)
+      setMeta('meta[property="og:type"]', 'content', 'website')
+      setMeta('meta[property="og:site_name"]', 'content', 'Gordotech')
+      setMeta('meta[property="og:locale"]', 'content', 'es_CO')
+      setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image')
+      setMeta('meta[name="twitter:title"]', 'content', defaultTitle)
+      setMeta('meta[name="twitter:description"]', 'content', defaultDesc)
+      setMeta('meta[name="twitter:image"]', 'content', defaultImage)
+      // Reset canonical
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+      if (!canonical) {
+        canonical = document.createElement('link')
+        canonical.setAttribute('rel', 'canonical')
+        document.head.appendChild(canonical)
+      }
+      canonical.setAttribute('href', defaultUrl)
     }
   }, [selectedProduct, cityName])
 
@@ -1090,7 +1165,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header / Navbar */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -2143,6 +2218,22 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Theme Toggle */}
+          <div className="border-t border-white/5 pt-8 mb-6 flex items-center justify-center gap-3">
+            <Sun className="w-4 h-4 text-gray-400" />
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`theme-toggle ${!isDarkMode ? 'light' : ''}`}
+              aria-label={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            >
+              <span className="theme-toggle-knob">
+                {isDarkMode ? <Moon className="w-3.5 h-3.5 text-gray-700" /> : <Sun className="w-3.5 h-3.5 text-amber-500" />}
+              </span>
+            </button>
+            <Moon className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-500 text-xs ml-1">{isDarkMode ? 'Modo Oscuro' : 'Modo Claro'}</span>
           </div>
 
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">

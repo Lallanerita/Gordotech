@@ -120,3 +120,281 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ============================================================
+   LIGHT MODE - Comprehensive theme overrides
+   Applied when .light-mode class is on a parent element
+   ============================================================ */
+
+/* Smooth transition for theme changes */
+.light-mode,
+.light-mode * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* --- Main backgrounds --- */
+.light-mode .bg-gray-950,
+.light-mode .bg-\[\#0a0a1a\],
+.light-mode .bg-\[\#0d0d1a\] {
+  background-color: #ffffff !important;
+}
+
+.light-mode .bg-gray-950\/95 {
+  background-color: rgba(255, 255, 255, 0.97) !important;
+}
+
+.light-mode .bg-gray-900 {
+  background-color: #f8f9fa !important;
+}
+
+.light-mode .bg-gray-900\/50 {
+  background-color: rgba(248, 249, 250, 0.5) !important;
+}
+
+.light-mode .bg-gray-800\/50 {
+  background-color: rgba(241, 243, 245, 0.5) !important;
+}
+
+/* --- Text colors --- */
+.light-mode .text-white {
+  color: #1a1a2e !important;
+}
+
+.light-mode .text-gray-300 {
+  color: #4a5568 !important;
+}
+
+.light-mode .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+.light-mode .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+.light-mode .text-gray-600 {
+  color: #6b7280 !important;
+}
+
+/* --- Semi-transparent white backgrounds (cards, inputs) --- */
+.light-mode .bg-white\/5,
+.light-mode .bg-white\/\[0\.03\] {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.light-mode .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light-mode .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-mode .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- Borders --- */
+.light-mode .border-white\/5,
+.light-mode .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-mode .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.light-mode .border-gray-600 {
+  border-color: #d1d5db !important;
+}
+
+/* --- Shadows --- */
+.light-mode .shadow-black\/20,
+.light-mode .shadow-black\/40 {
+  --tw-shadow-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light-mode .shadow-lg {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- Navbar in light mode --- */
+.light-mode header .bg-transparent {
+  background-color: transparent !important;
+}
+
+/* Invert the white logo in navbar for light mode */
+.light-mode .gordotech-logo-invert {
+  filter: invert(1) brightness(0.2) !important;
+}
+
+/* Apple logo invert */
+.light-mode .apple-logo-invert {
+  filter: invert(1) brightness(0.3) !important;
+}
+
+/* --- Category bar --- */
+.light-mode .text-gray-300.hover\:text-white:hover {
+  color: #1a1a2e !important;
+}
+
+/* --- Product cards --- */
+.light-mode .bg-white\/5.rounded-2xl,
+.light-mode button.bg-white\/5 {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- Bubbles --- */
+.light-mode .bg-gray-900.border-2 {
+  background-color: #f3f4f6 !important;
+}
+
+/* --- Marquee bar --- */
+.light-mode .bg-blue-600 {
+  background-color: #2563eb !important;
+}
+
+/* --- Cart drawer --- */
+.light-mode .bg-\[\#0d0d1a\] {
+  background-color: #ffffff !important;
+}
+
+/* --- Modals --- */
+.light-mode .bg-gray-900.border {
+  background-color: #ffffff !important;
+}
+
+/* --- Gradient overlays on hero --- */
+.light-mode .from-black\/20 {
+  --tw-gradient-from: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-mode .from-black\/25 {
+  --tw-gradient-from: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* --- WhatsApp floating menu --- */
+.light-mode .bg-gray-900.border.border-white\/10.rounded-2xl {
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.light-mode .bg-gray-700 {
+  background-color: #e5e7eb !important;
+}
+
+.light-mode .bg-gray-700 .text-white {
+  color: #374151 !important;
+}
+
+/* --- Footer --- */
+.light-mode footer {
+  background-color: #f8f9fa !important;
+}
+
+.light-mode footer .text-white {
+  color: #1a1a2e !important;
+}
+
+.light-mode footer .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+.light-mode footer .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+/* --- CTA Section --- */
+.light-mode .bg-gradient-to-r.from-blue-600.to-blue-700 {
+  background: linear-gradient(to right, #2563eb, #1d4ed8) !important;
+}
+
+.light-mode .bg-gradient-to-r.from-blue-600.to-blue-700 .text-white,
+.light-mode .bg-gradient-to-r.from-blue-600.to-blue-700 .text-blue-100\/80 {
+  color: #ffffff !important;
+}
+
+/* --- Hover effects --- */
+.light-mode .hover\:text-white:hover {
+  color: #1a1a2e !important;
+}
+
+.light-mode .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* --- Pre-checkout & form inputs --- */
+.light-mode input.bg-white\/5,
+.light-mode textarea.bg-white\/5 {
+  background-color: #f9fafb !important;
+  color: #1a1a2e !important;
+}
+
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* --- Badge colors stay the same (blue, green, amber) --- */
+/* These are intentionally NOT overridden so they remain vibrant */
+
+/* --- Loading screen --- */
+.light-mode .min-h-screen.bg-gray-950.flex {
+  background-color: #ffffff !important;
+}
+
+/* --- Subpages (PlanRetoma, Reparacion, SemiNuevos) --- */
+.light-mode .min-h-screen.bg-gray-950.text-white {
+  background-color: #ffffff !important;
+  color: #1a1a2e !important;
+}
+
+/* --- Gradient overlays on subpages --- */
+.light-mode .bg-gradient-to-br.from-blue-600\/10 {
+  background: linear-gradient(to bottom right, rgba(37, 99, 235, 0.05), transparent, rgba(147, 51, 234, 0.02)) !important;
+}
+
+.light-mode .bg-gradient-to-b.from-blue-500\/5 {
+  background: linear-gradient(to bottom, rgba(37, 99, 235, 0.03), transparent, transparent) !important;
+}
+
+/* --- Theme toggle switch --- */
+.theme-toggle {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  border-radius: 14px;
+  background-color: #374151;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+  padding: 0;
+}
+
+.theme-toggle.light {
+  background-color: #3b82f6;
+}
+
+.theme-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transition: transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle.light .theme-toggle-knob {
+  transform: translateX(28px);
+}
+
+.theme-toggle-knob svg {
+  width: 14px;
+  height: 14px;
+}
