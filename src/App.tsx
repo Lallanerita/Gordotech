@@ -1419,8 +1419,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <ScrollReveal>
-            <div className="flex items-center gap-3 mb-8">
-              <Sparkles className="w-6 h-6 text-blue-400" />
+            <div className="text-center mb-8">
               <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>RECOMENDADO PARA TI</h3>
             </div>
             </ScrollReveal>
@@ -1474,8 +1473,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         <section className="py-10 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <ScrollReveal>
-            <div className="flex items-center gap-3 mb-8">
-              <TrendingUp className="w-6 h-6 text-amber-400" />
+            <div className="text-center mb-8">
               <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TENDENCIA AHORA</h3>
             </div>
             </ScrollReveal>
