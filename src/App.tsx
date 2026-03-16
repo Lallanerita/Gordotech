@@ -661,13 +661,14 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const cartExpiryTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Trending carousel refs
-  const trendingRef = useRef<HTMLDivElement>(null)
-  const trendingAnim = useRef<number>(0)
-  const trendingSpeed = useRef(0.8)
+  const trendingTrackRef = useRef<HTMLDivElement>(null)
+  const trendingAnimId = useRef<number>(0)
+  const trendingOffset = useRef(0)
   const trendingDragging = useRef(false)
-  const trendingStartX = useRef(0)
-  const trendingScrollStart = useRef(0)
-  const trendingPaused = useRef(false)
+  const trendingDragStartX = useRef(0)
+  const trendingDragOffsetStart = useRef(0)
+  const trendingHalfWidth = useRef(0)
+  const trendingClickBlocked = useRef(false)
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
@@ -854,40 +855,56 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     loadData()
   }, [city])
 
-  // Trending carousel auto-scroll
+  // Trending carousel auto-scroll with translateX
   useEffect(() => {
-    const el = trendingRef.current
-    if (!el || trendingProducts.length === 0) return
+    const track = trendingTrackRef.current
+    if (!track || trendingProducts.length === 0) return
     let running = true
+    // Measure half width after render
+    const measure = () => {
+      if (track.scrollWidth > 0) {
+        trendingHalfWidth.current = track.scrollWidth / 2
+      }
+    }
+    measure()
+    // Re-measure after images load
+    const timer = setTimeout(measure, 1000)
     const animate = () => {
       if (!running) return
-      if (!trendingDragging.current && !trendingPaused.current && el.scrollWidth > el.clientWidth) {
-        el.scrollLeft += trendingSpeed.current
-        // Infinite loop: when we've scrolled past the first set, jump back
-        const half = el.scrollWidth / 2
-        if (el.scrollLeft >= half) {
-          el.scrollLeft -= half
-        } else if (el.scrollLeft <= 0) {
-          el.scrollLeft += half
+      if (!trendingDragging.current && trendingHalfWidth.current > 0) {
+        trendingOffset.current += 0.5
+        if (trendingOffset.current >= trendingHalfWidth.current) {
+          trendingOffset.current -= trendingHalfWidth.current
         }
+        track.style.transform = `translateX(-${trendingOffset.current}px)`
       }
-      trendingAnim.current = requestAnimationFrame(animate)
+      trendingAnimId.current = requestAnimationFrame(animate)
     }
-    trendingAnim.current = requestAnimationFrame(animate)
-    return () => { running = false; cancelAnimationFrame(trendingAnim.current) }
+    trendingAnimId.current = requestAnimationFrame(animate)
+    return () => { running = false; cancelAnimationFrame(trendingAnimId.current); clearTimeout(timer) }
   }, [trendingProducts])
 
   const onTrendingPointerDown = useCallback((e: React.PointerEvent) => {
     trendingDragging.current = true
-    trendingStartX.current = e.clientX
-    trendingScrollStart.current = trendingRef.current?.scrollLeft || 0
-    ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId)
+    trendingClickBlocked.current = false
+    trendingDragStartX.current = e.clientX
+    trendingDragOffsetStart.current = trendingOffset.current
   }, [])
 
   const onTrendingPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!trendingDragging.current || !trendingRef.current) return
-    const dx = e.clientX - trendingStartX.current
-    trendingRef.current.scrollLeft = trendingScrollStart.current - dx
+    if (!trendingDragging.current) return
+    const dx = e.clientX - trendingDragStartX.current
+    if (Math.abs(dx) > 5) trendingClickBlocked.current = true
+    let newOffset = trendingDragOffsetStart.current - dx
+    const half = trendingHalfWidth.current
+    if (half > 0) {
+      while (newOffset < 0) newOffset += half
+      while (newOffset >= half) newOffset -= half
+    }
+    trendingOffset.current = newOffset
+    if (trendingTrackRef.current) {
+      trendingTrackRef.current.style.transform = `translateX(-${newOffset}px)`
+    }
   }, [])
 
   const onTrendingPointerUp = useCallback(() => {
@@ -1464,17 +1481,15 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             </ScrollReveal>
           </div>
           <div
-            ref={trendingRef}
-            className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
+            className="overflow-hidden cursor-grab active:cursor-grabbing select-none touch-pan-y"
             onPointerDown={onTrendingPointerDown}
             onPointerMove={onTrendingPointerMove}
             onPointerUp={onTrendingPointerUp}
             onPointerLeave={onTrendingPointerUp}
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            <div className="flex gap-4 md:gap-6 px-4 sm:px-6 w-max">
+            <div ref={trendingTrackRef} className="flex gap-4 md:gap-6 px-4 sm:px-6 w-max will-change-transform">
               {[...trendingProducts, ...trendingProducts].map((product, idx) => (
-                <button key={`t-${idx}`} onClick={() => { if (!trendingDragging.current) selectProduct(product) }} className="w-44 md:w-56 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
+                <button key={`t-${idx}`} onClick={() => { if (!trendingClickBlocked.current) selectProduct(product) }} className="w-44 md:w-56 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
                   <div className="relative aspect-square bg-gradient-to-b from-gray-800/30 to-gray-900/30 p-3 flex items-center justify-center">
                     <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" /> Trending</div>
                     <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
