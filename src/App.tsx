@@ -1467,7 +1467,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>{selectedProduct.name}</h2>
                 
                 <div className="mb-6">
-                  <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex flex-wrap items-start gap-4">
                     <div>
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
