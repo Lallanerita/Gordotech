@@ -2487,7 +2487,7 @@ interface Sucursal {
 const DEFAULT_SUCURSALES: Sucursal[] = [
   { id: 1, name: 'Gordotech Duitama', slug: 'duitama', address: 'Pasaje Comercial Solano, Local 102', city: 'Duitama', image: '', whatsapp: '573144810431', instagram: 'https://www.instagram.com/gordotechduitama', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 314 481 0431', description: 'Tu destino Apple en Duitama', sort_order: 0, active: true },
   { id: 2, name: 'Gordotech Tunja', slug: 'tunja', address: 'CC. Unicentro, Entrada 1, Isla Comercial', city: 'Tunja', image: '', whatsapp: '573219863883', instagram: 'https://www.instagram.com/gordotechtunja', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 321 986 3883', description: 'Tu destino Apple en Tunja', sort_order: 1, active: true },
-  { id: 3, name: 'Clinica de Celulares', slug: 'clinica', address: 'San Andresito de la 18, Local 11', city: 'Duitama', image: '', whatsapp: '573213815465', instagram: '', tiktok: '', phone: '+57 321 381 5465', description: 'Reparacion profesional - Diagnostico Gratis', sort_order: 2, active: true },
+  { id: 3, name: 'Clinica de Celulares', slug: 'clinica', address: 'San Andresito de la 18, Local 11', city: 'Duitama', image: '', whatsapp: '573213815465', instagram: 'https://www.instagram.com/clinicadecelulares_gordotech', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 321 381 5465', description: 'Reparacion profesional - Diagnostico Gratis', sort_order: 2, active: true },
 ]
 
 function SucursalesPage() {
