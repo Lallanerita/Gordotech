@@ -127,6 +127,20 @@
   100% { transform: translateX(-50%); }
 }
 
+/* Reviews marquee inside sucursal photos */
+@keyframes reviewsScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-reviews-scroll {
+  animation: reviewsScroll 25s linear infinite;
+}
+
+.animate-reviews-scroll:hover {
+  animation-play-state: paused;
+}
+
 /* ============================================================
    LIGHT MODE - Comprehensive theme overrides
    Applied when .light-mode class is on a parent element

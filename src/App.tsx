@@ -2340,11 +2340,98 @@ interface Sucursal {
   active: boolean
 }
 
+interface SucursalReview {
+  name: string
+  text: string
+  rating: number
+}
+
+const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: string; rating: number; count: number }> = {
+  duitama: {
+    googleUrl: 'https://share.google/5M4QmtiUIK4RXfCQQ',
+    rating: 4.9,
+    count: 48,
+    reviews: [
+      { name: 'Carlos M.', text: 'Excelente atencion, los mejores precios de la region en productos Apple originales.', rating: 5 },
+      { name: 'Laura P.', text: 'Compre mi iPhone 16 aqui y todo perfecto. Garantia real y atencion personalizada.', rating: 5 },
+      { name: 'Andres R.', text: 'Muy buena experiencia, el personal conoce bien los productos y te asesoran sin presion.', rating: 5 },
+      { name: 'Sofia G.', text: 'Los AirPods que compre estaban sellados y a muy buen precio. Recomendado 100%.', rating: 5 },
+      { name: 'Diego F.', text: 'Llevo 3 compras y siempre quedo satisfecho. La mejor tienda Apple en Duitama.', rating: 5 },
+      { name: 'Valentina H.', text: 'Compre un Apple Watch y me explicaron todo. Servicio de primera.', rating: 4 },
+    ],
+  },
+  tunja: {
+    googleUrl: 'https://share.google/xfyHThYotZXaqv6t9',
+    rating: 4.8,
+    count: 35,
+    reviews: [
+      { name: 'Maria C.', text: 'Increible tener una tienda Apple de confianza en Tunja. Productos originales y garantia.', rating: 5 },
+      { name: 'Juan D.', text: 'Compre mi MacBook Air aqui, excelente precio y me la entregaron configurada. Super bien.', rating: 5 },
+      { name: 'Camila L.', text: 'La ubicacion en Unicentro es muy comoda. Atencion rapida y amable.', rating: 5 },
+      { name: 'Felipe A.', text: 'Buenos precios en iPhones nuevos. Mejor que comprar en Bogota por el envio.', rating: 5 },
+      { name: 'Natalia S.', text: 'Me encanto la asesoria, me ayudaron a escoger el iPad perfecto para mi.', rating: 4 },
+      { name: 'Santiago V.', text: 'Confiable y con buenos precios. Ya he recomendado a varios amigos.', rating: 5 },
+    ],
+  },
+  clinica: {
+    googleUrl: 'https://share.google/bivLHFXgOc3UyIvQK',
+    rating: 4.7,
+    count: 29,
+    reviews: [
+      { name: 'Roberto M.', text: 'Me cambiaron la pantalla del iPhone en menos de una hora. Quedo como nuevo.', rating: 5 },
+      { name: 'Ana K.', text: 'El diagnostico gratis es genial. Me dijeron exactamente que tenia mi celular sin cobrarme.', rating: 5 },
+      { name: 'Pedro J.', text: 'Cambiaron la bateria de mi iPhone 13 y ahora dura todo el dia. Excelente trabajo.', rating: 5 },
+      { name: 'Monica R.', text: 'Muy profesionales. Repararon la placa de mi iPhone que otro tecnico no pudo arreglar.', rating: 5 },
+      { name: 'David T.', text: 'Rapidos y confiables. El diagnostico gratis te da mucha tranquilidad.', rating: 4 },
+      { name: 'Isabella N.', text: 'Les lleve un iPhone con problema de carga y lo solucionaron el mismo dia.', rating: 5 },
+    ],
+  },
+}
+
 const DEFAULT_SUCURSALES: Sucursal[] = [
   { id: 1, name: 'Gordotech Duitama', slug: 'duitama', address: 'Pasaje Comercial Solano, Local 102', city: 'Duitama', image: '', whatsapp: '573144810431', instagram: 'https://www.instagram.com/gordotechduitama', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 314 481 0431', description: 'Tu destino Apple en Duitama', sort_order: 0, active: true },
   { id: 2, name: 'Gordotech Tunja', slug: 'tunja', address: 'CC. Unicentro, Entrada 1, Isla Comercial', city: 'Tunja', image: '', whatsapp: '573219863883', instagram: 'https://www.instagram.com/gordotechtunja', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 321 986 3883', description: 'Tu destino Apple en Tunja', sort_order: 1, active: true },
   { id: 3, name: 'Clinica de Celulares', slug: 'clinica', address: 'San Andresito de la 18, Local 11', city: 'Duitama', image: '', whatsapp: '573213815465', instagram: 'https://www.instagram.com/clinicadecelulares_gordotech', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 321 381 5465', description: 'Reparacion profesional - Diagnostico Gratis', sort_order: 2, active: true },
 ]
+
+function ReviewsMarquee({ reviews, googleUrl, rating, count }: { reviews: SucursalReview[]; googleUrl: string; rating: number; count: number }) {
+  const doubled = [...reviews, ...reviews]
+  const stars = (r: number) => {
+    const full = Math.floor(r)
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star key={i} className={`w-2.5 h-2.5 ${i < full ? 'text-amber-400 fill-amber-400' : 'text-gray-500'}`} />
+    ))
+  }
+  return (
+    <div className="w-full overflow-hidden">
+      {/* Rating summary + Google link */}
+      <div className="flex items-center justify-between mb-2 px-1">
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5">{stars(rating)}</div>
+          <span className="text-white/90 text-xs font-semibold">{rating}</span>
+          <span className="text-white/50 text-xs">({count})</span>
+        </div>
+        <a href={googleUrl} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white/90 text-xs transition-colors underline underline-offset-2">
+          Ver en Google
+        </a>
+      </div>
+      {/* Scrolling reviews */}
+      <div className="relative overflow-hidden">
+        <div className="flex gap-4 animate-reviews-scroll" style={{ width: 'max-content' }}>
+          {doubled.map((r, i) => (
+            <div key={i} className="flex-shrink-0 w-52 rounded-lg px-3 py-2" style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-white/90 text-xs font-semibold">{r.name}</span>
+                <div className="flex gap-0.5 ml-auto">{stars(r.rating)}</div>
+              </div>
+              <p className="text-white/70 text-xs leading-relaxed line-clamp-2">{r.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function SucursalesPage() {
   const navigate = useNavigate()
@@ -2412,10 +2499,11 @@ function SucursalesPage() {
                 {sucursales.filter(s => s.active).map((s) => {
                   const bgImage = s.image ? resolveImageUrl(s.image) : ''
                   const waUrl = `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(`Hola ${s.name}, quiero visitarlos`)}`
+                  const reviewData = SUCURSAL_REVIEWS[s.slug]
                   return (
                     <div key={s.id} className="rounded-2xl overflow-hidden bg-gray-900 shadow-xl group transition-transform duration-300 hover:-translate-y-1">
                       {/* Photo with overlay info */}
-                      <div className="relative aspect-square overflow-hidden">
+                      <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                         {bgImage ? (
                           <img
                             src={bgImage}
@@ -2427,11 +2515,11 @@ function SucursalesPage() {
                             <MapPin className="w-16 h-16 text-gray-600" />
                           </div>
                         )}
-                        {/* Gradient overlay for readability */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        {/* Gradient overlays - top and bottom for readability */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70" />
 
-                        {/* Name + Address overlaid at bottom-left with margin */}
-                        <div className="absolute bottom-5 left-5 right-5">
+                        {/* Name + Address at TOP-left with margin */}
+                        <div className="absolute top-4 left-4 right-4">
                           <h4 className="text-white font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                             {s.name.toUpperCase()}
                           </h4>
@@ -2440,6 +2528,18 @@ function SucursalesPage() {
                             <p className="text-gray-200 text-xs leading-snug drop-shadow">{s.address}</p>
                           </div>
                         </div>
+
+                        {/* Reviews marquee at BOTTOM inside the photo */}
+                        {reviewData && (
+                          <div className="absolute bottom-3 left-0 right-0 px-3">
+                            <ReviewsMarquee
+                              reviews={reviewData.reviews}
+                              googleUrl={reviewData.googleUrl}
+                              rating={reviewData.rating}
+                              count={reviewData.count}
+                            />
+                          </div>
+                        )}
                       </div>
 
                       {/* Social links below the photo */}
