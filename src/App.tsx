@@ -2577,7 +2577,7 @@ function SucursalesPage() {
                           href={waUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-green-600/20 hover:bg-green-600/40 border border-green-500/30 text-green-300 rounded-xl transition-colors text-xs font-semibold"
+                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
                         >
                           <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-4 h-4 object-contain" />
                           WhatsApp
@@ -2589,7 +2589,7 @@ function SucursalesPage() {
                             href={s.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-pink-600/20 hover:bg-pink-600/40 border border-pink-500/30 text-pink-300 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
                           >
                             <Instagram className="w-4 h-4" />
                             Instagram
@@ -2602,7 +2602,7 @@ function SucursalesPage() {
                             href={s.tiktok}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
                           >
                             <TikTokIcon className="w-4 h-4" />
                             TikTok
