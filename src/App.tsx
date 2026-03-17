@@ -2468,9 +2468,52 @@ function SemiNuevosPage() {
 }
 
 // Sucursales - separate page
+interface Sucursal {
+  id: number
+  name: string
+  slug: string
+  address: string
+  city: string
+  image: string
+  whatsapp: string
+  instagram: string
+  tiktok: string
+  phone: string
+  description: string
+  sort_order: number
+  active: boolean
+}
+
+const DEFAULT_SUCURSALES: Sucursal[] = [
+  { id: 1, name: 'Gordotech Duitama', slug: 'duitama', address: 'Pasaje Comercial Solano, Local 102', city: 'Duitama', image: '', whatsapp: '573144810431', instagram: 'https://www.instagram.com/gordotechduitama', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 314 481 0431', description: 'Tu destino Apple en Duitama', sort_order: 0, active: true },
+  { id: 2, name: 'Gordotech Tunja', slug: 'tunja', address: 'CC. Unicentro, Entrada 1, Isla Comercial', city: 'Tunja', image: '', whatsapp: '573219863883', instagram: 'https://www.instagram.com/gordotechtunja', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 321 986 3883', description: 'Tu destino Apple en Tunja', sort_order: 1, active: true },
+  { id: 3, name: 'Clinica de Celulares', slug: 'clinica', address: 'San Andresito de la 18, Local 11', city: 'Duitama', image: '', whatsapp: '573213815465', instagram: '', tiktok: '', phone: '+57 321 381 5465', description: 'Reparacion profesional - Diagnostico Gratis', sort_order: 2, active: true },
+]
+
 function SucursalesPage() {
   const navigate = useNavigate()
-  useEffect(() => { window.scrollTo(0, 0) }, [])
+  const [sucursales, setSucursales] = useState<Sucursal[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/sucursales`)
+        const data = await res.json()
+        if (data.sucursales && data.sucursales.length > 0) {
+          setSucursales(data.sucursales)
+        } else {
+          setSucursales(DEFAULT_SUCURSALES)
+        }
+      } catch {
+        setSucursales(DEFAULT_SUCURSALES)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -2492,89 +2535,104 @@ function SucursalesPage() {
       </header>
 
       <div className="pt-20">
-        <section className="py-16 md:py-24 relative overflow-hidden">
+        <section className="py-12 md:py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/5" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            <div className="text-center mb-12">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="text-center mb-10">
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                 NUESTRAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">SEDES</span>
               </h3>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Visitanos en nuestras tiendas fisicas en Boyaca. Atencion personalizada y los mejores productos Apple.
+              <p className="text-gray-400 text-base max-w-xl mx-auto">
+                Visitanos en nuestras tiendas fisicas en Boyaca.
               </p>
             </div>
 
-            {/* Sede Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
-              {/* Duitama */}
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-blue-500/30 transition-all duration-500 text-center">
-                <div className="w-16 h-16 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-blue-400" />
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>DUITAMA</h4>
-                <p className="text-gray-400 text-sm mb-4">Pasaje Comercial Solano, Local 102</p>
-                <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-6">
-                  <Phone className="w-4 h-4 text-blue-400" />
-                  <span>+57 314 481 0431</span>
-                </div>
-                <a
-                  href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20visitarlos"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-colors text-sm font-semibold"
-                >
-                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
-                  Contactar Duitama
-                </a>
+            {loading ? (
+              <div className="flex justify-center py-20">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
               </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
+                {sucursales.filter(s => s.active).map((s) => {
+                  const bgImage = s.image ? resolveImageUrl(s.image) : ''
+                  const waUrl = `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(`Hola ${s.name}, quiero visitarlos`)}`
+                  return (
+                    <div key={s.id} className="rounded-2xl overflow-hidden bg-gray-900 shadow-xl group transition-transform duration-300 hover:-translate-y-1">
+                      {/* Photo with overlay info */}
+                      <div className="relative aspect-square overflow-hidden">
+                        {bgImage ? (
+                          <img
+                            src={bgImage}
+                            alt={s.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                            <MapPin className="w-16 h-16 text-gray-600" />
+                          </div>
+                        )}
+                        {/* Gradient overlay for readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-              {/* Tunja */}
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-blue-500/30 transition-all duration-500 text-center">
-                <div className="w-16 h-16 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-blue-400" />
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TUNJA</h4>
-                <p className="text-gray-400 text-sm mb-4">CC. Unicentro, Entrada 1, Isla Comercial</p>
-                <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-6">
-                  <Phone className="w-4 h-4 text-blue-400" />
-                  <span>+57 321 986 3883</span>
-                </div>
-                <a
-                  href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20visitarlos"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-colors text-sm font-semibold"
-                >
-                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
-                  Contactar Tunja
-                </a>
-              </div>
-            </div>
+                        {/* Name + Address overlaid at bottom-left with margin */}
+                        <div className="absolute bottom-5 left-5 right-5">
+                          <h4 className="text-white font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                            {s.name.toUpperCase()}
+                          </h4>
+                          <div className="flex items-start gap-1.5">
+                            <MapPin className="w-3.5 h-3.5 text-blue-300 mt-0.5 flex-shrink-0" />
+                            <p className="text-gray-200 text-xs leading-snug drop-shadow">{s.address}</p>
+                          </div>
+                        </div>
+                      </div>
 
-            {/* Clinica */}
-            <div className="max-w-lg mx-auto mb-12">
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-amber-500/30 transition-all duration-500 text-center">
-                <div className="w-16 h-16 mx-auto bg-amber-500/10 rounded-full flex items-center justify-center mb-4">
-                  <Settings className="w-8 h-8 text-amber-400" />
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>CLINICA DE CELULARES</h4>
-                <p className="text-gray-400 text-sm mb-1">Reparacion profesional de iPhones</p>
-                <p className="text-amber-400 text-sm font-semibold mb-4">Diagnostico Gratis</p>
-                <p className="text-gray-400 text-xs mb-6">San Andresito de la 18, Local 11 — Duitama</p>
-                <a
-                  href="https://wa.me/573213815465?text=Hola%20Gordotech%20Clínica%2C%20necesito%20información"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-colors text-sm font-semibold"
-                >
-                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
-                  Contactar Clinica
-                </a>
+                      {/* Social links below the photo */}
+                      <div className="px-5 py-4 flex items-center justify-between gap-3">
+                        {/* WhatsApp */}
+                        <a
+                          href={waUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-green-600/20 hover:bg-green-600/40 border border-green-500/30 text-green-300 rounded-xl transition-colors text-xs font-semibold"
+                        >
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-4 h-4 object-contain" />
+                          WhatsApp
+                        </a>
+
+                        {/* Instagram */}
+                        {s.instagram && (
+                          <a
+                            href={s.instagram}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-pink-600/20 hover:bg-pink-600/40 border border-pink-500/30 text-pink-300 rounded-xl transition-colors text-xs font-semibold"
+                          >
+                            <Instagram className="w-4 h-4" />
+                            Instagram
+                          </a>
+                        )}
+
+                        {/* TikTok */}
+                        {s.tiktok && (
+                          <a
+                            href={s.tiktok}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 rounded-xl transition-colors text-xs font-semibold"
+                          >
+                            <TikTokIcon className="w-4 h-4" />
+                            TikTok
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-            </div>
+            )}
 
             {/* Back button */}
-            <div className="text-center">
+            <div className="text-center mt-10">
               <button
                 onClick={() => navigate('/')}
                 className="inline-flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors text-sm border border-white/10"

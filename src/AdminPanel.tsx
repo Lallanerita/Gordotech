@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film } from 'lucide-react'
+import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -110,7 +110,7 @@ type Stats = {
   hero_slides: number
 }
 
-type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'slideshow' | 'marquee' | 'settings'
+type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'slideshow' | 'marquee' | 'settings' | 'sucursales'
 
 const TAB_PATHS: Record<string, Tab> = {
   '/': 'dashboard',
@@ -122,6 +122,7 @@ const TAB_PATHS: Record<string, Tab> = {
   '/slideshow': 'slideshow',
   '/marquee': 'marquee',
   '/config': 'settings',
+  '/sucursales': 'sucursales',
 }
 
 const TAB_TO_PATH: Record<Tab, string> = {
@@ -133,6 +134,7 @@ const TAB_TO_PATH: Record<Tab, string> = {
   slideshow: '/slideshow',
   marquee: '/marquee',
   settings: '/config',
+  sucursales: '/sucursales',
 }
 
 function getTabFromPath(): Tab {
@@ -950,6 +952,10 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [editingCategory, setEditingCategory] = useState<Category | null | 'new'>(null)
   const [editingBubble, setEditingBubble] = useState<Bubble | null | 'new'>(null)
   const [editingService, setEditingService] = useState<RepairService | null | 'new'>(null)
+  const [sucursales, setSucursales] = useState<Array<{id:number,name:string,slug:string,address:string,city:string,image:string,whatsapp:string,instagram:string,tiktok:string,phone:string,description:string,sort_order:number,active:boolean}>>([])  
+  const [editingSucursal, setEditingSucursal] = useState<null | 'new' | Record<string,unknown>>(null)
+  const [sucursalForm, setSucursalForm] = useState({ name:'', slug:'', address:'', city:'', image:'', whatsapp:'', instagram:'', tiktok:'', phone:'', description:'', sort_order:0, active:true })
+  const [savingSucursal, setSavingSucursal] = useState(false)
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([])
   const [marqueeTexts, setMarqueeTexts] = useState<MarqueeText[]>([])
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; id: number; name: string } | null>(null)
@@ -1050,6 +1056,16 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const loadSucursales = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiGet('/api/admin/sucursales', token)
+      setSucursales(data.sucursales || [])
+    } catch {
+      // not critical
+    }
+  }, [token])
+
   // Sync tab with browser back/forward
   useEffect(() => {
     const onPopState = () => setActiveTabRaw(getTabFromPath())
@@ -1066,8 +1082,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       loadServices()
       loadHeroSlides()
       loadMarqueeTexts()
+      loadSucursales()
     }
-  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts])
+  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts, loadSucursales])
 
   const handleDelete = async () => {
     if (!deleteConfirm || !token) return
@@ -1078,6 +1095,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'service') await apiDelete(`/api/admin/repair-services/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'slide') await apiDelete(`/api/admin/hero-slides/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'marquee') await apiDelete(`/api/admin/marquee-texts/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'sucursal') await apiDelete(`/api/admin/sucursales/${deleteConfirm.id}`, token)
       setDeleteConfirm(null)
       loadStats()
       if (deleteConfirm.type === 'product') loadProducts()
@@ -1086,6 +1104,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'service') loadServices()
       if (deleteConfirm.type === 'slide') loadHeroSlides()
       if (deleteConfirm.type === 'marquee') loadMarqueeTexts()
+      if (deleteConfirm.type === 'sucursal') loadSucursales()
     } catch {
       alert('Error eliminando')
     }
@@ -1124,6 +1143,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     { id: 'services', label: 'Servicios', icon: <Wrench className="w-4 h-4" /> },
     { id: 'slideshow', label: 'Slideshow', icon: <Image className="w-4 h-4" /> },
     { id: 'marquee', label: 'Marquee', icon: <Type className="w-4 h-4" /> },
+    { id: 'sucursales', label: 'Sucursales', icon: <MapPin className="w-4 h-4" /> },
     { id: 'settings', label: 'Config', icon: <Lock className="w-4 h-4" /> },
   ]
 
@@ -1634,6 +1654,151 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                 <div className="text-center py-10 text-gray-500">No hay textos. Agrega uno para mostrar en el banner superior.</div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* SUCURSALES TAB */}
+        {activeTab === 'sucursales' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>SUCURSALES ({sucursales.length})</h2>
+              <button onClick={() => { setSucursalForm({ name:'', slug:'', address:'', city:'', image:'', whatsapp:'', instagram:'', tiktok:'', phone:'', description:'', sort_order: sucursales.length, active:true }); setEditingSucursal('new') }} className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors">
+                <Plus className="w-4 h-4" /> Nueva Sucursal
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm">Gestiona las sedes de Gordotech. Puedes asignarle una foto a cada sucursal para que se muestre en la página de Sucursales.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sucursales.map(s => (
+                <div key={s.id} className={`bg-gray-900/50 border rounded-2xl overflow-hidden transition-all ${s.active ? 'border-white/10' : 'border-white/5 opacity-60'}`}>
+                  {/* Preview image */}
+                  <div className="relative aspect-video bg-gray-800 overflow-hidden">
+                    {s.image ? (
+                      <img src={s.image.startsWith('/uploads') ? `${API_URL}${s.image}` : s.image} alt={s.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <MapPin className="w-10 h-10 text-gray-600" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <div className="absolute bottom-3 left-3">
+                      <p className="text-white font-bold text-sm drop-shadow" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.5px' }}>{s.name}</p>
+                      <p className="text-gray-300 text-xs">{s.city}</p>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-gray-400 text-xs mb-1 truncate">{s.address}</p>
+                    {s.whatsapp && <p className="text-green-400 text-xs truncate">WA: {s.whatsapp}</p>}
+                    <div className="flex gap-2 mt-3">
+                      <button onClick={() => {
+                        setSucursalForm({ name: s.name, slug: s.slug, address: s.address, city: s.city, image: s.image, whatsapp: s.whatsapp, instagram: s.instagram, tiktok: s.tiktok, phone: s.phone, description: s.description, sort_order: s.sort_order, active: s.active })
+                        setEditingSucursal(s as unknown as Record<string,unknown>)
+                      }} className="flex-1 flex items-center justify-center gap-1 py-2 text-xs bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg transition-colors">
+                        <Edit3 className="w-3.5 h-3.5" /> Editar
+                      </button>
+                      <button onClick={() => setDeleteConfirm({ type: 'sucursal', id: s.id, name: s.name })} className="px-3 py-2 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {sucursales.length === 0 && (
+                <div className="col-span-3 text-center py-10 text-gray-500">No hay sucursales configuradas. Crea una nueva.</div>
+              )}
+            </div>
+
+            {/* Sucursal edit modal */}
+            {editingSucursal !== null && (
+              <div className="fixed inset-0 bg-black/70 z-50 flex items-start justify-center p-4 overflow-y-auto">
+                <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg my-8">
+                  <div className="flex items-center justify-between p-5 border-b border-white/10">
+                    <h3 className="text-xl font-bold text-white">{editingSucursal === 'new' ? 'Nueva Sucursal' : 'Editar Sucursal'}</h3>
+                    <button onClick={() => setEditingSucursal(null)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+                  </div>
+                  <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Foto de la sucursal</label>
+                      <ImageUploader token={token} currentImage={sucursalForm.image} onUpload={url => setSucursalForm(f => ({...f, image: url}))} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Nombre *</label>
+                        <input value={sucursalForm.name} onChange={e => setSucursalForm(f => ({...f, name: e.target.value, slug: f.slug || e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}))}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="Gordotech Duitama" />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Ciudad *</label>
+                        <input value={sucursalForm.city} onChange={e => setSucursalForm(f => ({...f, city: e.target.value}))}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="Duitama" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Direccion</label>
+                      <input value={sucursalForm.address} onChange={e => setSucursalForm(f => ({...f, address: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="Pasaje Comercial Solano, Local 102" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">WhatsApp (solo numeros, sin +)</label>
+                      <input value={sucursalForm.whatsapp} onChange={e => setSucursalForm(f => ({...f, whatsapp: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="573144810431" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Instagram (URL completa)</label>
+                      <input value={sucursalForm.instagram} onChange={e => setSucursalForm(f => ({...f, instagram: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="https://www.instagram.com/gordotechduitama" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">TikTok (URL completa)</label>
+                      <input value={sucursalForm.tiktok} onChange={e => setSucursalForm(f => ({...f, tiktok: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="https://www.tiktok.com/@gordotech1" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Telefono</label>
+                        <input value={sucursalForm.phone} onChange={e => setSucursalForm(f => ({...f, phone: e.target.value}))}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="+57 314 481 0431" />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Orden</label>
+                        <input type="number" value={sucursalForm.sort_order} onChange={e => setSucursalForm(f => ({...f, sort_order: parseInt(e.target.value) || 0}))}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Descripcion</label>
+                      <input value={sucursalForm.description} onChange={e => setSucursalForm(f => ({...f, description: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="Tu destino Apple en Duitama" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className="text-gray-400 text-sm">Activa</label>
+                      <button onClick={() => setSucursalForm(f => ({...f, active: !f.active}))} className="p-1">
+                        {sucursalForm.active ? <ToggleRight className="w-6 h-6 text-green-400" /> : <ToggleLeft className="w-6 h-6 text-gray-500" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-5 border-t border-white/10">
+                    <button onClick={() => setEditingSucursal(null)} className="flex-1 py-2.5 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors text-sm">Cancelar</button>
+                    <button onClick={async () => {
+                      if (!sucursalForm.name) return
+                      setSavingSucursal(true)
+                      try {
+                        const payload = { ...sucursalForm, slug: sucursalForm.slug || sucursalForm.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') }
+                        if (editingSucursal === 'new') {
+                          await apiPost('/api/admin/sucursales', payload, token)
+                        } else {
+                          await apiPut(`/api/admin/sucursales/${(editingSucursal as {id:number}).id}`, payload, token)
+                        }
+                        setEditingSucursal(null)
+                        loadSucursales()
+                      } catch { alert('Error guardando sucursal') } finally { setSavingSucursal(false) }
+                    }} disabled={savingSucursal || !sucursalForm.name} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                      <Save className="w-4 h-4" />
+                      {savingSucursal ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

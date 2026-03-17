@@ -163,6 +163,25 @@ async def init_db():
             sort_order INTEGER DEFAULT 0
         )
     """)
+
+    # Sucursales table
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS sucursales (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL DEFAULT '',
+            slug TEXT NOT NULL DEFAULT '',
+            address TEXT NOT NULL DEFAULT '',
+            city TEXT NOT NULL DEFAULT '',
+            image TEXT NOT NULL DEFAULT '',
+            whatsapp TEXT NOT NULL DEFAULT '',
+            instagram TEXT NOT NULL DEFAULT '',
+            tiktok TEXT NOT NULL DEFAULT '',
+            phone TEXT NOT NULL DEFAULT '',
+            description TEXT NOT NULL DEFAULT '',
+            sort_order INTEGER DEFAULT 0,
+            active INTEGER NOT NULL DEFAULT 1
+        )
+    """)
     
     await db.commit()
     await db.close()
@@ -344,6 +363,28 @@ async def seed_default_data():
                     "INSERT INTO repair_services (title, description, price, icon, sort_order) VALUES (?, ?, ?, ?, ?)", s
                 )
     
+    # Seed sucursales if empty
+    cursor = await db.execute("SELECT COUNT(*) as cnt FROM sucursales")
+    row = await cursor.fetchone()
+    if row[0] == 0:
+        if seed and seed.get("sucursales"):
+            for s in seed["sucursales"]:
+                await db.execute(
+                    "INSERT INTO sucursales (name, slug, address, city, image, whatsapp, instagram, tiktok, phone, description, sort_order, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (s.get("name", ""), s.get("slug", ""), s.get("address", ""), s.get("city", ""), s.get("image", ""), s.get("whatsapp", ""), s.get("instagram", ""), s.get("tiktok", ""), s.get("phone", ""), s.get("description", ""), s.get("sort_order", 0), 1 if s.get("active", True) else 0)
+                )
+        else:
+            default_sucursales = [
+                ("Gordotech Duitama", "duitama", "Pasaje Comercial Solano, Local 102", "Duitama", "", "573144810431", "https://www.instagram.com/gordotechduitama", "https://www.tiktok.com/@gordotech1", "+57 314 481 0431", "Tu destino Apple en Duitama", 0, 1),
+                ("Gordotech Tunja", "tunja", "CC. Unicentro, Entrada 1, Isla Comercial", "Tunja", "", "573219863883", "https://www.instagram.com/gordotechtunja", "https://www.tiktok.com/@gordotech1", "+57 321 986 3883", "Tu destino Apple en Tunja", 1, 1),
+                ("Clinica de Celulares", "clinica", "San Andresito de la 18, Local 11", "Duitama", "", "573213815465", "", "", "+57 321 381 5465", "Reparacion profesional de iPhones - Diagnostico Gratis", 2, 1),
+            ]
+            for s in default_sucursales:
+                await db.execute(
+                    "INSERT INTO sucursales (name, slug, address, city, image, whatsapp, instagram, tiktok, phone, description, sort_order, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", s
+                )
+        await db.commit()
+
     # Check if admin exists
     cursor = await db.execute("SELECT COUNT(*) as cnt FROM admin_users")
     row = await cursor.fetchone()

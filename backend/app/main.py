@@ -157,6 +157,34 @@ class MarqueeTextUpdate(BaseModel):
     active: Optional[bool] = None
     sort_order: Optional[int] = None
 
+class SucursalCreate(BaseModel):
+    name: str
+    slug: str = ""
+    address: str = ""
+    city: str = ""
+    image: str = ""
+    whatsapp: str = ""
+    instagram: str = ""
+    tiktok: str = ""
+    phone: str = ""
+    description: str = ""
+    sort_order: int = 0
+    active: bool = True
+
+class SucursalUpdate(BaseModel):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    image: Optional[str] = None
+    whatsapp: Optional[str] = None
+    instagram: Optional[str] = None
+    tiktok: Optional[str] = None
+    phone: Optional[str] = None
+    description: Optional[str] = None
+    sort_order: Optional[int] = None
+    active: Optional[bool] = None
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
@@ -317,6 +345,24 @@ def row_to_service(row):
         "price": row["price"],
         "icon": row["icon"],
         "sort_order": row["sort_order"],
+    }
+
+def row_to_sucursal(row):
+    keys = row.keys()
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "slug": row["slug"] if "slug" in keys else "",
+        "address": row["address"] if "address" in keys else "",
+        "city": row["city"] if "city" in keys else "",
+        "image": row["image"] if "image" in keys else "",
+        "whatsapp": row["whatsapp"] if "whatsapp" in keys else "",
+        "instagram": row["instagram"] if "instagram" in keys else "",
+        "tiktok": row["tiktok"] if "tiktok" in keys else "",
+        "phone": row["phone"] if "phone" in keys else "",
+        "description": row["description"] if "description" in keys else "",
+        "sort_order": row["sort_order"],
+        "active": bool(row["active"]) if "active" in keys else True,
     }
 
 # ==================== HEALTH ====================
@@ -1005,6 +1051,91 @@ async def admin_delete_marquee_text(text_id: int, username: str = Depends(get_cu
         await db.execute("DELETE FROM marquee_texts WHERE id = ?", (text_id,))
         await db.commit()
         return {"message": "Texto eliminado"}
+    finally:
+        await db.close()
+
+# ==================== PUBLIC SUCURSALES ====================
+
+@app.get("/api/sucursales")
+async def get_sucursales():
+    """Public endpoint - get all active sucursales"""
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM sucursales WHERE active = 1 ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"sucursales": [row_to_sucursal(r) for r in rows]}
+    finally:
+        await db.close()
+
+# ==================== ADMIN SUCURSALES ====================
+
+@app.get("/api/admin/sucursales")
+async def admin_get_sucursales(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM sucursales ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"sucursales": [row_to_sucursal(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/sucursales")
+async def admin_create_sucursal(s: SucursalCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        slug = s.slug or generate_slug(s.name)
+        cursor = await db.execute(
+            "INSERT INTO sucursales (name, slug, address, city, image, whatsapp, instagram, tiktok, phone, description, sort_order, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (s.name, slug, s.address, s.city, s.image, s.whatsapp, s.instagram, s.tiktok, s.phone, s.description, s.sort_order, int(s.active))
+        )
+        await db.commit()
+        return {"message": "Sucursal creada", "id": cursor.lastrowid}
+    finally:
+        await db.close()
+
+@app.put("/api/admin/sucursales/{sucursal_id}")
+async def admin_update_sucursal(sucursal_id: int, s: SucursalUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM sucursales WHERE id = ?", (sucursal_id,))
+        existing = await cursor.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Sucursal no encontrada")
+        
+        updates = {}
+        if s.name is not None: updates["name"] = s.name
+        if s.slug is not None: updates["slug"] = s.slug
+        if s.address is not None: updates["address"] = s.address
+        if s.city is not None: updates["city"] = s.city
+        if s.image is not None: updates["image"] = s.image
+        if s.whatsapp is not None: updates["whatsapp"] = s.whatsapp
+        if s.instagram is not None: updates["instagram"] = s.instagram
+        if s.tiktok is not None: updates["tiktok"] = s.tiktok
+        if s.phone is not None: updates["phone"] = s.phone
+        if s.description is not None: updates["description"] = s.description
+        if s.sort_order is not None: updates["sort_order"] = s.sort_order
+        if s.active is not None: updates["active"] = int(s.active)
+        
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [sucursal_id]
+            await db.execute(f"UPDATE sucursales SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        
+        return {"message": "Sucursal actualizada"}
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/sucursales/{sucursal_id}")
+async def admin_delete_sucursal(sucursal_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("DELETE FROM sucursales WHERE id = ?", (sucursal_id,))
+        await db.commit()
+        return {"message": "Sucursal eliminada"}
     finally:
         await db.close()
 
