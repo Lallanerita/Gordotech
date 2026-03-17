@@ -2688,23 +2688,36 @@ function SemiNuevosPage() {
 
   const displayProducts = semiProducts.length > 0 ? semiProducts : products.filter(p => p.condition === 'Semi-usado')
 
-  // Auto-scroll: continuously scroll the container, pause on user interaction, resume after release
+  // Auto-scroll: continuously scroll the container using requestAnimationFrame
+  // Pauses when user touches/drags, resumes 1.5s after release
   useEffect(() => {
     if (loading || displayProducts.length === 0) return
-    const el = semiScrollRef.current
-    if (!el) return
-    const speed = 0.8 // px per frame
-    const tick = () => {
-      if (!semiUserInteracting.current && el) {
-        el.scrollLeft += speed
-        // When we've scrolled past the first set of items, jump back seamlessly
-        const half = el.scrollWidth / 2
-        if (el.scrollLeft >= half) el.scrollLeft -= half
+    // Small delay to ensure DOM is rendered and ref is attached
+    const startTimer = setTimeout(() => {
+      const el = semiScrollRef.current
+      if (!el) return
+      // Start from the first-third position so user can scroll backwards too
+      const oneThird = el.scrollWidth / 3
+      el.scrollLeft = oneThird
+      const speed = 1 // px per frame (~60px/sec)
+      const tick = () => {
+        if (!semiUserInteracting.current && el) {
+          el.scrollLeft += speed
+          // When past 2/3 of total width, jump back to 1/3 (seamless loop)
+          const twoThirds = el.scrollWidth * 2 / 3
+          if (el.scrollLeft >= twoThirds) {
+            el.scrollLeft -= oneThird
+          }
+          // If user scrolled backwards past start, jump forward
+          if (el.scrollLeft <= 0) {
+            el.scrollLeft += oneThird
+          }
+        }
+        semiAnimRef.current = requestAnimationFrame(tick)
       }
       semiAnimRef.current = requestAnimationFrame(tick)
-    }
-    semiAnimRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(semiAnimRef.current)
+    }, 100)
+    return () => { clearTimeout(startTimer); cancelAnimationFrame(semiAnimRef.current) }
   }, [loading, displayProducts.length])
 
   const onSemiTouchStart = () => {
@@ -2716,8 +2729,19 @@ function SemiNuevosPage() {
   const onSemiTouchEnd = () => {
     semiResumeTimer.current = setTimeout(() => { semiUserInteracting.current = false }, 1500)
   }
-  const onSemiMouseEnter = () => { semiUserInteracting.current = true; if (semiResumeTimer.current) clearTimeout(semiResumeTimer.current) }
-  const onSemiMouseLeave = () => { semiUserInteracting.current = false }
+  const onSemiMouseDown = () => {
+    semiUserInteracting.current = true
+    semiDidDrag.current = false
+    if (semiResumeTimer.current) clearTimeout(semiResumeTimer.current)
+  }
+  const onSemiMouseUp = () => {
+    semiResumeTimer.current = setTimeout(() => { semiUserInteracting.current = false }, 1500)
+  }
+  const onSemiMouseLeave = () => {
+    if (semiUserInteracting.current) {
+      semiResumeTimer.current = setTimeout(() => { semiUserInteracting.current = false }, 500)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -2759,7 +2783,8 @@ function SemiNuevosPage() {
                 onTouchStart={onSemiTouchStart}
                 onTouchMove={onSemiTouchMove}
                 onTouchEnd={onSemiTouchEnd}
-                onMouseEnter={onSemiMouseEnter}
+                onMouseDown={onSemiMouseDown}
+                onMouseUp={onSemiMouseUp}
                 onMouseLeave={onSemiMouseLeave}
               >
                 {[...displayProducts, ...displayProducts, ...displayProducts].map((product, idx) => (
