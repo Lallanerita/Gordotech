@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon, Volume2, VolumeX } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -407,6 +407,8 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   const [animKey, setAnimKey] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [videoPlaying, setVideoPlaying] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({})
 
   const goTo = useCallback((index: number) => {
     if (isTransitioning || index === current) return
@@ -483,9 +485,10 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
               <video
                 key={`video-${slide.id}-${current}`}
+                ref={(el) => { videoRefs.current[i] = el }}
                 src={i === current ? slide.video_url : undefined}
                 autoPlay
-                muted
+                muted={isMuted}
                 playsInline
                 preload={i === current ? 'auto' : 'none'}
                 onPlaying={i === current ? () => setVideoPlaying(true) : undefined}
@@ -574,6 +577,22 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
           </div>
         </div>
       ))}
+
+      {/* Mute/Unmute Button */}
+      {slides[current]?.video_url && isVideoUrl(slides[current].video_url) && (
+        <button
+          onClick={() => {
+            const newMuted = !isMuted
+            setIsMuted(newMuted)
+            const vid = videoRefs.current[current]
+            if (vid) vid.muted = newMuted
+          }}
+          className="absolute left-3 bottom-3 z-20 flex w-9 h-9 md:w-10 md:h-10 bg-black/50 backdrop-blur-sm hover:bg-black/70 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/20"
+          aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
+        >
+          {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
+        </button>
+      )}
 
       {/* Navigation Arrows */}
       {slides.length > 1 && (
@@ -1883,14 +1902,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               </div>
             </div>
 
-            {/* Contacto */}
-            <div className="text-center">
-              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contacto</h5>
-              <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-4">
-                <Mail className="w-4 h-4 text-blue-400" />
-                info@gordotech.co
-              </div>
-            </div>
           </div>
 
           {/* Sedes - Duitama & Tunja side by side */}
@@ -1940,8 +1951,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             <span className="text-gray-500 text-xs ml-1">{isDarkMode ? 'Modo Oscuro' : 'Modo Claro'}</span>
           </div>
 
-          <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-xs">&copy; 2026 Gordotech. Todos los derechos reservados. Conectando tus suenos.</p>
+          <div className="border-t border-white/5 pt-8 flex flex-col items-center gap-3 text-center">
             <div className="flex items-center gap-4 text-xs text-gray-500">
               <a href="#" className="hover:text-white transition-colors">Terminos</a>
               <a href="#" className="hover:text-white transition-colors">Privacidad</a>
@@ -1951,6 +1961,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 Admin
               </a>
             </div>
+            <p className="text-gray-500 text-xs">&copy; 2026 Gordotech. Todos los derechos reservados.</p>
+            <p className="text-gray-600 text-[10px] italic">Conectando tus suenos.</p>
           </div>
         </div>
       </footer>
