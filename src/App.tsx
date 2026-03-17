@@ -839,6 +839,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             image: resolveImageUrl(p.image as string),
             images: ((p.images as string[]) || []).map(resolveImageUrl),
             colors: p.colors as string[],
+            color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
             storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null,
             available: p.available as string[],
@@ -851,7 +852,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           setRecommendedProducts(recommendedRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
-            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
+            color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
+            storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
           })))
@@ -860,7 +863,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           setTrendingProducts(trendingRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
-            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
+            image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
+            color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
+            storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
           })))
@@ -1011,10 +1016,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           const res = await fetch(url)
           if (res.ok) {
             const data = await res.json()
+            const ciRaw = (data.color_images as Record<string, string[] | string>) || {}
+            const ciResolved: Record<string, string[]> = {}
+            for (const [k, v] of Object.entries(ciRaw)) { ciResolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl) }
             const product: Product = {
               id: data.id, name: data.name, slug: data.slug, category: data.category || '',
               condition: data.condition, image: resolveImageUrl(data.image), images: (data.images || []).map(resolveImageUrl),
-              colors: data.colors, storageOptions: data.storage_options,
+              colors: data.colors, color_images: ciResolved, storageOptions: data.storage_options,
               badge: data.badge || null, available: data.available,
               price: data.price || '', oldPrice: data.old_price || '', description: data.description || '',
               model_3d: data.model_3d || '',

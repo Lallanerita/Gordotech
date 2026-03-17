@@ -1,7 +1,7 @@
 {
   "products": [
     {
-      "id": 31,
+      "id": 1,
       "name": "iPhone 17 Pro Max",
       "slug": "iphone-17-pro-max",
       "category": "iphones",
@@ -18,6 +18,7 @@
         "Naranja",
         "Silver"
       ],
+      "color_images": {},
       "storage_options": [
         "256GB",
         "512GB"
@@ -32,11 +33,10 @@
       "featured_recommended": true,
       "featured_trending": false,
       "sort_order": 100,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 30,
+      "id": 2,
       "name": "iPhone 17 Pro",
       "slug": "iphone-17-pro",
       "category": "iphones",
@@ -52,6 +52,7 @@
         "Silver",
         "Naranja"
       ],
+      "color_images": {},
       "storage_options": [
         "256GB",
         "512GB"
@@ -66,11 +67,10 @@
       "featured_recommended": true,
       "featured_trending": true,
       "sort_order": 101,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 28,
+      "id": 3,
       "name": "iPhone 17 SIM FISICA/ E -SIM",
       "slug": "iphone-17-sim-fisica-e-sim",
       "category": "iphones",
@@ -87,6 +87,7 @@
         "Azul",
         "Sage"
       ],
+      "color_images": {},
       "storage_options": [
         "256GB"
       ],
@@ -100,11 +101,10 @@
       "featured_recommended": false,
       "featured_trending": true,
       "sort_order": 102,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 27,
+      "id": 4,
       "name": "iPhone 16",
       "slug": "iphone-16",
       "category": "iphones",
@@ -122,6 +122,7 @@
         "Negro",
         "Rosado"
       ],
+      "color_images": {},
       "storage_options": [
         "128GB"
       ],
@@ -135,11 +136,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 103,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 26,
+      "id": 5,
       "name": "iPhone 15",
       "slug": "iphone-15",
       "category": "iphones",
@@ -154,6 +154,7 @@
         "Azul",
         "Negro"
       ],
+      "color_images": {},
       "storage_options": [
         "128GB"
       ],
@@ -167,11 +168,10 @@
       "featured_recommended": false,
       "featured_trending": true,
       "sort_order": 104,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 25,
+      "id": 6,
       "name": "iPhone 14",
       "slug": "iphone-14",
       "category": "iphones",
@@ -185,6 +185,7 @@
       "colors": [
         "Starlight"
       ],
+      "color_images": {},
       "storage_options": [
         "256GB"
       ],
@@ -198,11 +199,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 105,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 11,
+      "id": 7,
       "name": "iPhone 14 Pro",
       "slug": "iphone-14-pro",
       "category": "iphones",
@@ -216,6 +216,7 @@
       "colors": [
         "BLACK"
       ],
+      "color_images": {},
       "storage_options": [
         "128GB",
         "256GB"
@@ -230,11 +231,126 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 106,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 32,
+      "id": 20,
+      "name": "Iphone 13",
+      "slug": "iphone-13",
+      "category": "iphones",
+      "condition": "Semi-usado",
+      "image": "https://app-dskimxia.fly.dev/uploads/404221acda5c4acd9cad91bc8d524fc3.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/404221acda5c4acd9cad91bc8d524fc3.png"
+      ],
+      "colors": [
+        "Black"
+      ],
+      "color_images": {},
+      "storage_options": [
+        "128GB"
+      ],
+      "badge": null,
+      "available": [
+        "duitama"
+      ],
+      "price": "1.450.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 200,
+      "model_3d": ""
+    },
+    {
+      "id": 21,
+      "name": "Iphone 15",
+      "slug": "iphone-15",
+      "category": "iphones",
+      "condition": "Semi-usado",
+      "image": "https://app-dskimxia.fly.dev/uploads/3b15de03917d4e568ff17db13c8f78a7.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/3b15de03917d4e568ff17db13c8f78a7.png"
+      ],
+      "colors": [
+        "Pink"
+      ],
+      "color_images": {},
+      "storage_options": [
+        "128GB"
+      ],
+      "badge": null,
+      "available": [
+        "duitama",
+        "tunja"
+      ],
+      "price": "2.300.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 201,
+      "model_3d": ""
+    },
+    {
+      "id": 22,
+      "name": "Iphone 16 Pro Max",
+      "slug": "iphone-16-pro-max",
+      "category": "iphones",
+      "condition": "Semi-usado",
+      "image": "https://app-dskimxia.fly.dev/uploads/9933ecaee51c48b3a407504d3660bfb5.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/9933ecaee51c48b3a407504d3660bfb5.png"
+      ],
+      "colors": [
+        "Desert"
+      ],
+      "color_images": {},
+      "storage_options": [
+        "256GB"
+      ],
+      "badge": null,
+      "available": [
+        "duitama"
+      ],
+      "price": "3.800.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 202,
+      "model_3d": ""
+    },
+    {
+      "id": 23,
+      "name": "iPhone 14 Pro Max",
+      "slug": "iphone-14-pro-max",
+      "category": "iphones",
+      "condition": "Semi-usado",
+      "image": "https://app-dskimxia.fly.dev/uploads/ba58749b5de24fee97a1af636d3b98ee.png",
+      "images": [
+        "https://app-dskimxia.fly.dev/uploads/ba58749b5de24fee97a1af636d3b98ee.png"
+      ],
+      "colors": [],
+      "color_images": {},
+      "storage_options": [
+        "128GB",
+        "256GB"
+      ],
+      "badge": null,
+      "available": [
+        "duitama"
+      ],
+      "price": "3.000.000",
+      "old_price": "",
+      "description": "",
+      "featured_recommended": false,
+      "featured_trending": false,
+      "sort_order": 203,
+      "model_3d": ""
+    },
+    {
+      "id": 8,
       "name": "iPad A16",
       "slug": "ipad-a16",
       "category": "ipads",
@@ -250,6 +366,7 @@
         "Azul",
         "Amarillo"
       ],
+      "color_images": {},
       "storage_options": [
         "128GB"
       ],
@@ -263,11 +380,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 300,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 33,
+      "id": 9,
       "name": "iPad A16",
       "slug": "ipad-a16",
       "category": "ipads",
@@ -279,6 +395,7 @@
       "colors": [
         "Rosado"
       ],
+      "color_images": {},
       "storage_options": [
         "128GB"
       ],
@@ -292,11 +409,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 301,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 35,
+      "id": 10,
       "name": "iPad Air 13\" M3",
       "slug": "ipad-air-13-m3",
       "category": "ipads",
@@ -310,6 +426,7 @@
         "Blue",
         "Starligth"
       ],
+      "color_images": {},
       "storage_options": [
         "128GB"
       ],
@@ -323,11 +440,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 302,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 37,
+      "id": 11,
       "name": "iPad Pro 13\" M5",
       "slug": "ipad-pro-13-m5",
       "category": "ipads",
@@ -341,6 +457,7 @@
       "colors": [
         "Negro"
       ],
+      "color_images": {},
       "storage_options": [
         "256GB",
         "512GB"
@@ -355,11 +472,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 303,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 38,
+      "id": 12,
       "name": "MacBook Air 13\" M4",
       "slug": "macbook-air-13-m4",
       "category": "macbook",
@@ -373,6 +489,7 @@
         "Midnigth",
         "Starligth"
       ],
+      "color_images": {},
       "storage_options": [
         "256GB"
       ],
@@ -386,11 +503,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 400,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 40,
+      "id": 13,
       "name": "AirPods 4 ANC",
       "slug": "airpods-4-anc",
       "category": "airpods",
@@ -403,6 +519,7 @@
       "colors": [
         "Blanco"
       ],
+      "color_images": {},
       "storage_options": [],
       "badge": "Nuevo",
       "available": [
@@ -414,11 +531,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 500,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 39,
+      "id": 14,
       "name": "AirPods 4",
       "slug": "airpods-4",
       "category": "airpods",
@@ -431,6 +547,7 @@
       "colors": [
         "Blanco"
       ],
+      "color_images": {},
       "storage_options": [],
       "badge": "Nuevo",
       "available": [
@@ -442,11 +559,10 @@
       "featured_recommended": true,
       "featured_trending": false,
       "sort_order": 501,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 47,
+      "id": 15,
       "name": "Apple Watch Ultra 2",
       "slug": "apple-watch-ultra-2",
       "category": "apple-watch",
@@ -461,6 +577,7 @@
         "Negro",
         "gris"
       ],
+      "color_images": {},
       "storage_options": [
         "49mm"
       ],
@@ -474,11 +591,10 @@
       "featured_recommended": true,
       "featured_trending": false,
       "sort_order": 600,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 45,
+      "id": 16,
       "name": "Apple Watch Series 11",
       "slug": "apple-watch-series-11",
       "category": "apple-watch",
@@ -493,6 +609,7 @@
         "Black",
         "Silver"
       ],
+      "color_images": {},
       "storage_options": [
         "42mm"
       ],
@@ -506,11 +623,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 601,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 46,
+      "id": 17,
       "name": "Apple Watch Series 11",
       "slug": "apple-watch-series-11",
       "category": "apple-watch",
@@ -524,6 +640,7 @@
       "colors": [
         "Black"
       ],
+      "color_images": {},
       "storage_options": [
         "46mm"
       ],
@@ -533,15 +650,14 @@
       ],
       "price": "2.100.000",
       "old_price": "",
-      "description": "El Apple Watch Series 11 te ofrece informaci\u00f3n valiosa sobre tu salud, como notificaciones de hipertensi\u00f3n y puntuaci\u00f3n del sue\u00f1o. Mejora tu estado f\u00edsico con m\u00e9tricas avanzadas y Workout Buddy, con tecnolog\u00eda de Apple Intelligence, desde tu iPhone. Disfruta de hasta 24 horas de bater\u00eda. Y ahora, con la r\u00e1pida conexi\u00f3n 5G, disfruta de un rendimiento excepcional dondequiera que est\u00e9s.",
+      "description": "El Apple Watch Series 11 te ofrece información valiosa sobre tu salud, como notificaciones de hipertensión y puntuación del sueño. Mejora tu estado físico con métricas avanzadas y Workout Buddy, con tecnología de Apple Intelligence, desde tu iPhone. Disfruta de hasta 24 horas de batería. Y ahora, con la rápida conexión 5G, disfruta de un rendimiento excepcional dondequiera que estés.",
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 602,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 50,
+      "id": 18,
       "name": "Apple Pencil Pro",
       "slug": "apple-pencil-pro",
       "category": "accesorios",
@@ -551,6 +667,7 @@
         "https://app-dskimxia.fly.dev/uploads/6257dab0cbd74c0eba6c85cc0cee6e1a.png"
       ],
       "colors": [],
+      "color_images": {},
       "storage_options": [],
       "badge": null,
       "available": [
@@ -562,11 +679,10 @@
       "featured_recommended": false,
       "featured_trending": false,
       "sort_order": 700,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     },
     {
-      "id": 49,
+      "id": 19,
       "name": "Airtag x4",
       "slug": "airtag-x4",
       "category": "accesorios",
@@ -578,6 +694,7 @@
         "https://app-dskimxia.fly.dev/uploads/3ee3ce1a6f42433c9d1f13c2c72080b1.png"
       ],
       "colors": [],
+      "color_images": {},
       "storage_options": [],
       "badge": null,
       "available": [
@@ -589,8 +706,7 @@
       "featured_recommended": false,
       "featured_trending": true,
       "sort_order": 701,
-      "model_3d": "",
-      "color_images": {}
+      "model_3d": ""
     }
   ],
   "hero_slides": [
@@ -600,7 +716,7 @@
       "subtitle": "El mas poderoso. Disponible ahora.",
       "image": "https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=1920&q=90&fit=crop",
       "video_url": "/videos/iphone17pro-intro-13s.mp4",
-      "link": "/producto/31/iphone-17-pro-max",
+      "link": "/producto/1/iphone-17-pro-max",
       "active": true,
       "sort_order": 0
     },
@@ -610,7 +726,7 @@
       "subtitle": "Potencia portatil. Desde $4.999.990.",
       "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&h=600&fit=crop",
       "video_url": "/videos/macbook-air-m4.mp4",
-      "link": "/producto/38/macbook-air-13-m4",
+      "link": "/producto/12/macbook-air-13-m4",
       "active": true,
       "sort_order": 1
     },
@@ -620,7 +736,7 @@
       "subtitle": "Aventura sin limites.",
       "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1200&h=600&fit=crop",
       "video_url": "/videos/apple-watch-ultra3.mp4",
-      "link": "/producto/47/apple-watch-ultra-2",
+      "link": "/producto/15/apple-watch-ultra-2",
       "active": true,
       "sort_order": 2
     },
@@ -630,49 +746,93 @@
       "subtitle": "Sonido inmersivo. Cancelacion total.",
       "image": "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=1200&h=600&fit=crop",
       "video_url": "",
-      "link": "/producto/40/airpods-4-anc",
+      "link": "/producto/13/airpods-4-anc",
       "active": true,
       "sort_order": 3
     }
   ],
-  "bubbles": [
+  "categories": [
+    {
+      "id": 1,
+      "slug": "iphones",
+      "name": "iPhones",
+      "image": "https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop",
+      "sort_order": 0
+    },
     {
       "id": 2,
+      "slug": "ipads",
+      "name": "iPads",
+      "image": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop",
+      "sort_order": 1
+    },
+    {
+      "id": 3,
+      "slug": "macbook",
+      "name": "MacBook",
+      "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop",
+      "sort_order": 2
+    },
+    {
+      "id": 4,
+      "slug": "airpods",
+      "name": "AirPods",
+      "image": "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop",
+      "sort_order": 3
+    },
+    {
+      "id": 5,
+      "slug": "apple-watch",
+      "name": "Apple Watch",
+      "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop",
+      "sort_order": 4
+    },
+    {
+      "id": 6,
+      "slug": "accesorios",
+      "name": "Accesorios",
+      "image": "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=300&h=300&fit=crop",
+      "sort_order": 5
+    }
+  ],
+  "bubbles": [
+    {
+      "id": 1,
       "model_id": "iphones",
       "label": "iPhones",
       "image": "https://app-dskimxia.fly.dev/uploads/a12d1b9b8af1428c9a0b8debc2611f56.png",
       "sort_order": 1
     },
     {
-      "id": 3,
+      "id": 2,
       "model_id": "ipads",
       "label": "iPads",
       "image": "https://app-dskimxia.fly.dev/uploads/458d6e1f374c43058646a5f8d455cbf4.png",
       "sort_order": 2
     },
     {
-      "id": 4,
+      "id": 3,
       "model_id": "macbook",
       "label": "MacBook",
       "image": "https://app-dskimxia.fly.dev/uploads/abe7b2ae197649dc87cec843a4f93201.png",
       "sort_order": 3
     },
     {
-      "id": 5,
+      "id": 4,
       "model_id": "airpods",
       "label": "AirPods",
       "image": "https://app-dskimxia.fly.dev/uploads/9a27fa66c9ff40f68af4fe9f61e76948.png",
       "sort_order": 4
     },
     {
-      "id": 6,
+      "id": 5,
       "model_id": "apple watch",
       "label": "Apple Watch",
       "image": "https://app-dskimxia.fly.dev/uploads/75931f981126480189aa4312404d7b37.png",
       "sort_order": 5
     },
     {
-      "id": 7,
+      "id": 6,
       "model_id": "accesorios",
       "label": "Accesorios",
       "image": "https://app-dskimxia.fly.dev/uploads/8e1f335786b444db8ae7462d2011e8b8.png",
@@ -712,8 +872,7 @@
       "description": "Pantallas originales y compatibles para todos los modelos de iPhone",
       "price": "Desde $150.000",
       "icon": "Smartphone",
-      "sort_order": 0,
-      "image": ""
+      "sort_order": 0
     },
     {
       "id": 2,
@@ -721,8 +880,7 @@
       "description": "Baterias de alta calidad con garantia de 6 meses",
       "price": "Desde $120.000",
       "icon": "Zap",
-      "sort_order": 1,
-      "image": ""
+      "sort_order": 1
     },
     {
       "id": 3,
@@ -730,8 +888,7 @@
       "description": "Microelectronica avanzada para solucionar problemas de placa",
       "price": "Consultar",
       "icon": "Shield",
-      "sort_order": 2,
-      "image": ""
+      "sort_order": 2
     },
     {
       "id": 4,
@@ -739,8 +896,7 @@
       "description": "Te decimos exactamente que tiene tu equipo sin costo alguno",
       "price": "Gratis",
       "icon": "Award",
-      "sort_order": 3,
-      "image": ""
+      "sort_order": 3
     }
   ]
 }
