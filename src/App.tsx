@@ -2509,7 +2509,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [allProducts, setAllProducts] = useState<Product[]>(products)
-  const [activeCondition, setActiveCondition] = useState<string>('todos')
+  const [activeCondition, setActiveCondition] = useState<string>(slug === 'iphones' ? 'nuevos' : 'todos')
   const [loading, setLoading] = useState(true)
 
   // Category label mapping
@@ -2589,7 +2589,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
           {/* Condition filter tabs - only for iPhones */}
           {slug === 'iphones' && (
           <div className="flex gap-2 mb-8 justify-center">
-            {(['todos', 'nuevos', 'semi-usados'] as const).map(cond => (
+            {(['nuevos', 'semi-usados'] as const).map(cond => (
               <button
                 key={cond}
                 onClick={() => {
@@ -2605,7 +2605,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
                     : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                {cond === 'todos' ? 'Todos' : cond === 'nuevos' ? 'Nuevos' : 'Semi-nuevos'}
+                {cond === 'nuevos' ? 'Nuevos' : 'Semi-nuevos'}
               </button>
             ))}
           </div>
