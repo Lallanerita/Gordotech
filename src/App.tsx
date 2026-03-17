@@ -1202,11 +1202,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         <div className="py-6 md:py-10">
           <div className="max-w-2xl mx-auto px-4 text-center">
             <button
-              onClick={() => {
-                const sedesEl = document.getElementById('nuestras-sedes')
-                if (sedesEl) sedesEl.scrollIntoView({ behavior: 'smooth' })
-              }}
-              className="group relative inline-flex items-center gap-3 px-8 py-4 md:px-12 md:py-5 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 text-white font-bold text-base md:text-lg rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 border border-white/10"
+              onClick={() => navigate('/sucursales')}
+              className="group relative inline-flex items-center justify-center px-8 py-4 md:px-12 md:py-5 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 text-white font-bold text-base md:text-lg rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 border border-white/10"
             >
               <span style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>Conoce Nuestras Sucursales</span>
             </button>
@@ -1923,37 +1920,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
           </div>
 
-          {/* Sedes - Duitama & Tunja side by side */}
-          <div id="nuestras-sedes" className="border-t border-white/5 pt-8 mb-8">
-            <h5 className="text-white font-semibold mb-6 text-sm uppercase tracking-wider text-center">Nuestras Sedes</h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              {/* Duitama */}
-              <div className="text-center p-5 rounded-2xl bg-white/[0.03] border border-white/5">
-                <p className="text-white text-sm font-bold mb-3">Duitama</p>
-                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs mb-2">
-                  <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                  <span>Pasaje Comercial Solano, Local 102</span>
-                </div>
-                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs">
-                  <Phone className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                  <span>+57 314 481 0431</span>
-                </div>
-              </div>
-              {/* Tunja */}
-              <div className="text-center p-5 rounded-2xl bg-white/[0.03] border border-white/5">
-                <p className="text-white text-sm font-bold mb-3">Tunja</p>
-                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs mb-2">
-                  <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                  <span>CC. Unicentro, Entrada 1, Isla Comercial</span>
-                </div>
-                <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs">
-                  <Phone className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                  <span>+57 321 986 3883</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Theme Toggle */}
           <div className="border-t border-white/5 pt-8 mb-6 flex items-center justify-center gap-3">
             <Sun className="w-4 h-4 text-gray-400" />
@@ -2510,6 +2476,129 @@ function SemiNuevosPage() {
   )
 }
 
+// Sucursales - separate page
+function SucursalesPage() {
+  const navigate = useNavigate()
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+              <ArrowLeft className="w-4 h-4" />
+              Volver
+            </button>
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+            </button>
+            <div className="w-16" />
+          </div>
+        </div>
+      </header>
+
+      <div className="pt-20">
+        <section className="py-16 md:py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/5" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="text-center mb-12">
+              <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                NUESTRAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">SEDES</span>
+              </h3>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Visitanos en nuestras tiendas fisicas en Boyaca. Atencion personalizada y los mejores productos Apple.
+              </p>
+            </div>
+
+            {/* Sede Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+              {/* Duitama */}
+              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-blue-500/30 transition-all duration-500 text-center">
+                <div className="w-16 h-16 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
+                  <MapPin className="w-8 h-8 text-blue-400" />
+                </div>
+                <h4 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>DUITAMA</h4>
+                <p className="text-gray-400 text-sm mb-4">Pasaje Comercial Solano, Local 102</p>
+                <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-6">
+                  <Phone className="w-4 h-4 text-blue-400" />
+                  <span>+57 314 481 0431</span>
+                </div>
+                <a
+                  href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20visitarlos"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-colors text-sm font-semibold"
+                >
+                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
+                  Contactar Duitama
+                </a>
+              </div>
+
+              {/* Tunja */}
+              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-blue-500/30 transition-all duration-500 text-center">
+                <div className="w-16 h-16 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
+                  <MapPin className="w-8 h-8 text-blue-400" />
+                </div>
+                <h4 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TUNJA</h4>
+                <p className="text-gray-400 text-sm mb-4">CC. Unicentro, Entrada 1, Isla Comercial</p>
+                <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-6">
+                  <Phone className="w-4 h-4 text-blue-400" />
+                  <span>+57 321 986 3883</span>
+                </div>
+                <a
+                  href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20visitarlos"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-colors text-sm font-semibold"
+                >
+                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
+                  Contactar Tunja
+                </a>
+              </div>
+            </div>
+
+            {/* Clinica */}
+            <div className="max-w-lg mx-auto mb-12">
+              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-amber-500/30 transition-all duration-500 text-center">
+                <div className="w-16 h-16 mx-auto bg-amber-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Settings className="w-8 h-8 text-amber-400" />
+                </div>
+                <h4 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>CLINICA DE CELULARES</h4>
+                <p className="text-gray-400 text-sm mb-1">Reparacion profesional de iPhones</p>
+                <p className="text-amber-400 text-sm font-semibold mb-4">Diagnostico Gratis</p>
+                <p className="text-gray-400 text-xs mb-6">San Andresito de la 18, Local 11 — Duitama</p>
+                <a
+                  href="https://wa.me/573213815465?text=Hola%20Gordotech%20Clínica%2C%20necesito%20información"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl transition-colors text-sm font-semibold"
+                >
+                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
+                  Contactar Clinica
+                </a>
+              </div>
+            </div>
+
+            {/* Back button */}
+            <div className="text-center">
+              <button
+                onClick={() => navigate('/')}
+                className="inline-flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors text-sm border border-white/10"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Volver al inicio
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
 function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
   const { id, slug } = useParams<{ id: string; slug: string }>()
   const location = useLocation()
@@ -2554,6 +2643,7 @@ function App() {
       <Route path="/plan-retoma" element={<PlanRetomaPage />} />
       <Route path="/reparacion" element={<ReparacionPage />} />
       <Route path="/semi-nuevos" element={<SemiNuevosPage />} />
+      <Route path="/sucursales" element={<SucursalesPage />} />
       <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
