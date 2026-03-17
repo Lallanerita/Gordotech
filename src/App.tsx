@@ -1661,7 +1661,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         const selectedColorImages = Array.isArray(rawColorImages) ? rawColorImages : rawColorImages ? [rawColorImages] : []
 
         const galleryImages = selectedColorImages.length > 0
-          ? [...selectedColorImages, ...baseGalleryImages.filter(img => !selectedColorImages.includes(img))]
+          ? selectedColorImages
           : baseGalleryImages
         const model3DUrl = getModel3DUrl(selectedProduct)
         return (
