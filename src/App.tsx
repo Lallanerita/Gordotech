@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2, Sun, Moon, Home } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -174,55 +174,6 @@ type MarqueeText = {
   sort_order: number
 }
 
-// Cart types
-type CartItem = {
-  productId: number
-  name: string
-  image: string
-  condition: string
-  selectedStorage: string
-  selectedColor: string
-  price: string
-  quantity: number
-}
-
-type CartData = {
-  items: CartItem[]
-  lastActivity: number // timestamp
-}
-
-const CART_EXPIRY_MS = 10 * 60 * 1000 // 10 minutes
-const CART_STORAGE_KEY = 'gordotech_cart'
-
-function loadCart(): CartItem[] {
-  try {
-    const raw = localStorage.getItem(CART_STORAGE_KEY)
-    if (!raw) return []
-    const data: CartData = JSON.parse(raw)
-    if (Date.now() - data.lastActivity > CART_EXPIRY_MS) {
-      localStorage.removeItem(CART_STORAGE_KEY)
-      return []
-    }
-    return data.items
-  } catch {
-    return []
-  }
-}
-
-function saveCart(items: CartItem[]) {
-  const data: CartData = { items, lastActivity: Date.now() }
-  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(data))
-}
-
-function touchCart() {
-  try {
-    const raw = localStorage.getItem(CART_STORAGE_KEY)
-    if (!raw) return
-    const data: CartData = JSON.parse(raw)
-    data.lastActivity = Date.now()
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(data))
-  } catch { /* ignore */ }
-}
 
 // Display-friendly condition label (API uses 'Semi-usado', we show 'Semi-nuevo')
 function displayCondition(condition: string): string {
@@ -687,20 +638,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   ])
   const [apiRepairServices, setApiRepairServices] = useState(repairServices)
 
-  // Cart state
-  const [cartItems, setCartItems] = useState<CartItem[]>(loadCart)
-  const [cartOpen, setCartOpen] = useState(false)
-  const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [whatsappMenuOpen, setWhatsappMenuOpen] = useState(false)
   const [whatsappCityModal, setWhatsappCityModal] = useState(false)
-  const [cartCityModal, setCartCityModal] = useState(false)
-  const [cartAddedFeedback, setCartAddedFeedback] = useState(false)
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<string>('')
-  const [checkoutName, setCheckoutName] = useState('')
-  const [checkoutPhone, setCheckoutPhone] = useState('')
-  const [checkoutNotes, setCheckoutNotes] = useState('')
-  const cartExpiryTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Trending carousel refs
   const trendingTrackRef = useRef<HTMLDivElement>(null)
@@ -712,27 +653,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const trendingHalfWidth = useRef(0)
   const trendingClickBlocked = useRef(false)
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    saveCart(cartItems)
-  }, [cartItems])
-
-  // Cart expiration check every 30s
-  useEffect(() => {
-    cartExpiryTimer.current = setInterval(() => {
-      try {
-        const raw = localStorage.getItem(CART_STORAGE_KEY)
-        if (!raw) return
-        const data: CartData = JSON.parse(raw)
-        if (Date.now() - data.lastActivity > CART_EXPIRY_MS) {
-          setCartItems([])
-          localStorage.removeItem(CART_STORAGE_KEY)
-        }
-      } catch { /* ignore */ }
-    }, 30000)
-    return () => { if (cartExpiryTimer.current) clearInterval(cartExpiryTimer.current) }
-  }, [])
-
   // Reset selected storage/color when product changes
   useEffect(() => {
     if (selectedProduct) {
@@ -740,83 +660,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       setSelectedColor(selectedProduct.colors[0] || '')
     }
   }, [selectedProduct])
-
-  const addToCart = useCallback((product: Product, storage: string, color: string) => {
-    touchCart()
-    setCartItems(prev => {
-      const existing = prev.find(
-        item => item.productId === product.id && item.selectedStorage === storage && item.selectedColor === color
-      )
-      if (existing) {
-        return prev.map(item =>
-          item.productId === product.id && item.selectedStorage === storage && item.selectedColor === color
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      }
-      return [...prev, {
-        productId: product.id,
-        name: product.name,
-        image: product.image,
-        condition: product.condition,
-        selectedStorage: storage,
-        selectedColor: color,
-        price: product.price || '',
-        quantity: 1,
-      }]
-    })
-    setCartAddedFeedback(true)
-    setTimeout(() => setCartAddedFeedback(false), 2000)
-  }, [])
-
-  const removeFromCart = useCallback((productId: number, storage: string, color: string) => {
-    touchCart()
-    setCartItems(prev => prev.filter(
-      item => !(item.productId === productId && item.selectedStorage === storage && item.selectedColor === color)
-    ))
-  }, [])
-
-  const updateCartQuantity = useCallback((productId: number, storage: string, color: string, delta: number) => {
-    touchCart()
-    setCartItems(prev => prev.map(item => {
-      if (item.productId === productId && item.selectedStorage === storage && item.selectedColor === color) {
-        const newQty = item.quantity + delta
-        return newQty > 0 ? { ...item, quantity: newQty } : item
-      }
-      return item
-    }).filter(item => item.quantity > 0))
-  }, [])
-
-  const clearCart = useCallback(() => {
-    setCartItems([])
-    localStorage.removeItem(CART_STORAGE_KEY)
-  }, [])
-
-  const cartTotal = cartItems.reduce((sum, item) => {
-    // Colombian pesos use dots as thousands separator (e.g. 5.750.000)
-    const priceStr = item.price.replace(/[^0-9]/g, '')
-    const price = parseInt(priceStr, 10) || 0
-    return sum + price * item.quantity
-  }, 0)
-
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
-
-  const sendCartWhatsApp = useCallback((whatsappNumber: string, cityLabel: string) => {
-    const lines = cartItems.map((item, i) => {
-      let line = `${i + 1}. ${item.name} (${displayCondition(item.condition)})`
-      if (item.selectedStorage) line += ` - ${item.selectedStorage}`
-      if (item.selectedColor) line += ` - ${item.selectedColor}`
-      line += ` x${item.quantity}`
-      if (item.price && item.price !== '-') line += ` - $${item.price}`
-      return line
-    })
-    let msg = `Hola Gordotech ${cityLabel}! Quiero hacer un pedido:\n\n${lines.join('\n')}`
-    if (cartTotal > 0) msg += `\n\nTotal estimado: $${cartTotal.toLocaleString('es-CO')}`
-    if (checkoutName) msg += `\n\nNombre: ${checkoutName}`
-    if (checkoutPhone) msg += `\nTelefono: ${checkoutPhone}`
-    if (checkoutNotes) msg += `\nNotas: ${checkoutNotes}`
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank')
-  }, [cartItems, cartTotal, checkoutName, checkoutPhone, checkoutNotes])
 
   // Load data from API
   useEffect(() => {
@@ -1228,262 +1071,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
             </nav>
 
-            <div className="flex items-center gap-3">
-              <button onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }} className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                <ShoppingCart className="w-5 h-5 text-gray-300" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full text-[10px] font-bold flex items-center justify-center text-white animate-pulse">{cartCount}</span>
-                )}
-              </button>
-            </div>
           </div>
         </div>
       </header>
 
-      {/* Cart Drawer */}
-      {cartOpen && (
-        <div className="fixed inset-0 z-[60]" onClick={() => setCartOpen(false)}>
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div
-            className="absolute right-0 top-0 h-full w-full max-w-md bg-[#0d0d1a] border-l border-white/10 shadow-2xl flex flex-col"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Cart Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <ShoppingCart className="w-5 h-5 text-blue-400" />
-                <h3 className="text-lg font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>MI CARRITO ({cartCount})</h3>
-              </div>
-              <button onClick={() => setCartOpen(false)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
 
-            {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {cartItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <ShoppingCart className="w-16 h-16 text-gray-600 mb-4" />
-                  <p className="text-gray-400 text-lg font-medium">Tu carrito esta vacio</p>
-                  <p className="text-gray-500 text-sm mt-2">Agrega productos para comenzar</p>
-                  <button onClick={() => setCartOpen(false)} className="mt-6 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all">
-                    Ver Productos
-                  </button>
-                </div>
-              ) : (
-                cartItems.map((item, idx) => (
-                  <div key={`${item.productId}-${item.selectedStorage}-${item.selectedColor}-${idx}`} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
-                    <img src={item.image} alt={item.name} className="w-20 h-20 object-contain rounded-xl bg-gray-800/50 flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/80x80/1a1a2e/7BA3C9/png?text=P` }} />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-bold text-white truncate">{item.name}</h4>
-                      <p className={`text-xs ${item.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(item.condition)}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        {item.selectedStorage && <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">{item.selectedStorage}</span>}
-                        {item.selectedColor && <div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(item.selectedColor) }} />}
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => updateCartQuantity(item.productId, item.selectedStorage, item.selectedColor, -1)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">
-                            <Minus className="w-3 h-3 text-gray-400" />
-                          </button>
-                          <span className="text-sm font-bold text-white w-6 text-center">{item.quantity}</span>
-                          <button onClick={() => updateCartQuantity(item.productId, item.selectedStorage, item.selectedColor, 1)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">
-                            <Plus className="w-3 h-3 text-gray-400" />
-                          </button>
-                        </div>
-                        {item.price && item.price !== '-' && (
-                          <p className="text-sm font-bold text-white">$ {item.price}</p>
-                        )}
-                      </div>
-                    </div>
-                    <button onClick={() => removeFromCart(item.productId, item.selectedStorage, item.selectedColor)} className="p-1.5 rounded-lg hover:bg-red-500/20 transition-all self-start">
-                      <Trash2 className="w-4 h-4 text-gray-500 hover:text-red-400" />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Cart Footer */}
-            {cartItems.length > 0 && (
-              <div className="border-t border-white/10 p-6 space-y-4">
-                {cartTotal > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Total estimado</span>
-                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString('es-CO')}</span>
-                  </div>
-                )}
-                <button
-                  onClick={() => { setCartOpen(false); setCheckoutOpen(true) }}
-                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  Continuar al Pre-Checkout
-                </button>
-                <button onClick={clearCart} className="w-full py-3 bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 text-gray-400 hover:text-red-400 font-medium rounded-xl transition-all text-sm">
-                  Vaciar Carrito
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Pre-Checkout Modal */}
-      {checkoutOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={() => setCheckoutOpen(false)}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div
-            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0d1a] border border-white/10 rounded-3xl shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Checkout Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-[#0d0d1a] z-10 rounded-t-3xl">
-              <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRE-CHECKOUT</h3>
-              <button onClick={() => setCheckoutOpen(false)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Order Summary */}
-              <div>
-                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Resumen del Pedido</h4>
-                <div className="space-y-3">
-                  {cartItems.map((item, idx) => (
-                    <div key={`checkout-${item.productId}-${idx}`} className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
-                      <img src={item.image} alt={item.name} className="w-12 h-12 object-contain rounded-lg bg-gray-800/50" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/48x48/1a1a2e/7BA3C9/png?text=P` }} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{item.name}</p>
-                        <p className="text-xs text-gray-400">
-                          {item.selectedStorage}{item.selectedColor ? ` · ${item.selectedColor}` : ''} · x{item.quantity}
-                        </p>
-                      </div>
-                      {item.price && item.price !== '-' && (
-                        <p className="text-sm font-bold text-white flex-shrink-0">$ {item.price}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {cartTotal > 0 && (
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
-                    <span className="text-gray-400 font-medium">Total estimado</span>
-                    <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$ {cartTotal.toLocaleString('es-CO')}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Customer Info */}
-              <div>
-                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Tus Datos (Opcional)</h4>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Tu nombre"
-                    value={checkoutName}
-                    onChange={e => setCheckoutName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Tu telefono"
-                    value={checkoutPhone}
-                    onChange={e => setCheckoutPhone(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
-                  />
-                  <textarea
-                    placeholder="Notas adicionales (ej: color preferido, metodo de pago...)"
-                    value={checkoutNotes}
-                    onChange={e => setCheckoutNotes(e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors text-sm resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Checkout Actions */}
-              <div className="space-y-3">
-                <button
-                  onClick={() => setCartCityModal(true)}
-                  className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/25 flex items-center justify-center gap-3 text-lg"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Enviar Pedido por WhatsApp
-                </button>
-                <button onClick={() => { setCheckoutOpen(false); setCartOpen(true) }} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-medium rounded-xl transition-all text-sm">
-                  Volver al Carrito
-                </button>
-              </div>
-
-              <p className="text-center text-xs text-gray-500">
-                Tu pedido sera enviado por WhatsApp para confirmar disponibilidad y coordinar el pago y entrega.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Cart City Selector Modal (for checkout) */}
-      {cartCityModal && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setCartCityModal(false)}>
-          <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="p-5 border-b border-white/10">
-              <h3 className="text-lg font-bold text-white text-center">¿A cuál sede deseas enviar tu pedido?</h3>
-              <p className="text-gray-400 text-sm text-center mt-1">Escoge tu tienda Gordotech más cercana</p>
-            </div>
-            <div className="p-4 space-y-3">
-              {([{ key: 'tunja' as const, label: 'Tunja', sublabel: 'Unicentro Isla Comercial' }, { key: 'duitama' as const, label: 'Duitama', sublabel: 'Pasaje Solano Local 102' }]).map(cityOpt => (
-                <button
-                  key={cityOpt.key}
-                  onClick={() => { sendCartWhatsApp(CITY_SOCIALS[cityOpt.key].whatsappNumber, cityOpt.label); clearCart(); setCheckoutOpen(false); setCartCityModal(false) }}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-green-600/10 border border-green-600/20 hover:bg-green-600 hover:border-green-600 text-green-400 hover:text-white transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-green-500/20 group-hover:bg-white/20 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-bold text-base text-white">{cityOpt.label}</p>
-                    <p className="text-xs text-gray-400 group-hover:text-green-100">{cityOpt.sublabel}</p>
-                  </div>
-                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-6 h-6 flex-shrink-0" />
-                </button>
-              ))}
-            </div>
-            <div className="p-4 pt-0">
-              <button onClick={() => setCartCityModal(false)} className="w-full py-2.5 text-gray-400 hover:text-white text-sm transition-colors">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Cart Added Feedback Toast */}
-      {cartAddedFeedback && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[80] px-6 py-3 bg-green-600 text-white font-medium rounded-2xl shadow-lg shadow-green-500/25 flex items-center gap-2 animate-bounce">
-          <ShoppingCart className="w-4 h-4" />
-          Producto agregado al carrito
-        </div>
-      )}
-
-      {/* Floating Sidebar - Cart + Home */}
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3">
-        <button
-          onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate('/') }}
-          className="w-12 h-12 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center shadow-lg hover:bg-white/10 hover:scale-110 transition-all"
-          title="Ir al inicio"
-        >
-          <Home className="w-5 h-5 text-gray-300" />
-        </button>
-        <button
-          onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }}
-          className="relative w-12 h-12 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center shadow-lg hover:bg-white/10 hover:scale-110 transition-all"
-          title="Carrito de compras"
-        >
-          <ShoppingCart className="w-5 h-5 text-gray-300" />
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full text-[10px] font-bold flex items-center justify-center text-white animate-pulse">{cartCount}</span>
-          )}
-        </button>
-      </div>
 
       {/* Category Quick Links + Marquee - hidden on product detail */}
       {!selectedProduct && (
@@ -1924,15 +1516,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   ))}
                 </div>
 
-                {/* Add to Cart + WhatsApp buttons */}
+                {/* WhatsApp button */}
                 <div className="space-y-3">
-                  <button
-                    onClick={() => addToCart(selectedProduct, selectedStorage, selectedColor)}
-                    className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-3 text-lg"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    Agregar al Carrito
-                  </button>
                   <button
                     onClick={() => setWhatsappCityModal(true)}
                     className="w-full py-4 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-semibold rounded-2xl transition-all flex items-center justify-center gap-3 text-base"
