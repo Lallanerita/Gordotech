@@ -2189,6 +2189,17 @@ function ReparacionPage() {
               </p>
             </div>
 
+            <div className="text-center mb-12">
+              <a
+                href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                Agendar Reparacion por WhatsApp
+              </a>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service, i) => (
                 <div
@@ -2198,23 +2209,10 @@ function ReparacionPage() {
                   <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
                     <service.icon className="w-7 h-7 text-blue-400" />
                   </div>
-                  <h4 className="text-lg font-bold text-white mb-2">{service.title}</h4>
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">{service.description}</p>
-                  <p className="text-blue-400 font-bold text-lg" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{service.price}</p>
+                  <h4 className="text-lg font-bold text-white mb-2 text-center">{service.title}</h4>
+                  <p className="text-gray-400 text-sm leading-relaxed text-center">{service.description}</p>
                 </div>
               ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <a
-                href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Agendar Reparacion por WhatsApp
-              </a>
             </div>
           </div>
         </section>
