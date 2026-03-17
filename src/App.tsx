@@ -2654,10 +2654,27 @@ function SemiNuevosPage() {
   const [loading, setLoading] = useState(true)
   const [whatsappOpen, setWhatsappOpen] = useState(false)
   const semiCarouselRef = useRef<HTMLDivElement>(null)
-  const [semiDragging, setSemiDragging] = useState(false)
+  const semiIsDragging = useRef(false)
   const semiStartX = useRef(0)
   const semiScrollStart = useRef(0)
+  const semiDidDrag = useRef(false)
   useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  // Auto-scroll for semi-nuevos carousel
+  useEffect(() => {
+    const el = semiCarouselRef.current
+    if (!el || loading) return
+    const interval = setInterval(() => {
+      if (semiIsDragging.current) return
+      const maxScroll = el.scrollWidth - el.clientWidth
+      if (el.scrollLeft >= maxScroll - 10) {
+        el.scrollTo({ left: 0, behavior: 'smooth' })
+      } else {
+        el.scrollBy({ left: 280, behavior: 'smooth' })
+      }
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [loading, semiProducts])
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -2784,18 +2801,21 @@ function SemiNuevosPage() {
                 {/* Carousel */}
                 <div
                   ref={semiCarouselRef}
-                  className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 cursor-grab active:cursor-grabbing select-none"
+                  className="flex gap-3 md:gap-6 overflow-x-auto scrollbar-hide pb-4 cursor-grab active:cursor-grabbing select-none"
                   style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
-                  onPointerDown={(e) => { setSemiDragging(true); semiStartX.current = e.clientX; semiScrollStart.current = semiCarouselRef.current?.scrollLeft || 0; (e.target as HTMLElement).setPointerCapture(e.pointerId) }}
-                  onPointerMove={(e) => { if (!semiDragging) return; const dx = e.clientX - semiStartX.current; if (semiCarouselRef.current) semiCarouselRef.current.scrollLeft = semiScrollStart.current - dx }}
-                  onPointerUp={() => setSemiDragging(false)}
-                  onPointerCancel={() => setSemiDragging(false)}
+                  onMouseDown={(e) => { semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.clientX; semiScrollStart.current = semiCarouselRef.current?.scrollLeft || 0 }}
+                  onMouseMove={(e) => { if (!semiIsDragging.current) return; e.preventDefault(); const dx = e.clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; if (semiCarouselRef.current) semiCarouselRef.current.scrollLeft = semiScrollStart.current - dx }}
+                  onMouseUp={() => { semiIsDragging.current = false }}
+                  onMouseLeave={() => { semiIsDragging.current = false }}
+                  onTouchStart={(e) => { semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.touches[0].clientX; semiScrollStart.current = semiCarouselRef.current?.scrollLeft || 0 }}
+                  onTouchMove={(e) => { if (!semiIsDragging.current) return; const dx = e.touches[0].clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; if (semiCarouselRef.current) semiCarouselRef.current.scrollLeft = semiScrollStart.current - dx }}
+                  onTouchEnd={() => { semiIsDragging.current = false }}
                 >
                   {displayProducts.map((product) => (
                     <button
                       key={product.id}
-                      onClick={() => { if (Math.abs((semiCarouselRef.current?.scrollLeft || 0) - semiScrollStart.current) < 5) navigate(`/producto/${product.id}/${getProductSlug(product)}`) }}
-                      className="flex-shrink-0 w-[70vw] sm:w-[45vw] md:w-[30vw] lg:w-[23vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5"
+                      onClick={() => { if (!semiDidDrag.current) navigate(`/producto/${product.id}/${getProductSlug(product)}`) }}
+                      className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5"
                       style={{ scrollSnapAlign: 'start' }}
                     >
                       <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
