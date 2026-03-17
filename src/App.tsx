@@ -2576,7 +2576,7 @@ function ReparacionPage() {
 
             <div className="text-center mt-12">
               <a
-                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20necesito%20una%20reparacion`}
+                href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
