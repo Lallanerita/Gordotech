@@ -2819,16 +2819,14 @@ function SemiNuevosPage() {
               </div>
             )}
 
-            {/* WhatsApp CTA */}
-            <div className="text-center mt-12">
-              <p className="text-gray-400 text-sm mb-4">La disponibilidad cambia constantemente. Confirma antes de visitarnos.</p>
+            {/* WhatsApp CTA - right after carousel */}
+            <div className="text-center mt-8">
               <div className="relative inline-block">
                 <button
                   onClick={() => setWhatsappOpen(!whatsappOpen)}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+                  className="block w-full px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 text-center"
                 >
-                  <MessageCircle className="w-5 h-5" />
-                  Consulta Disponibilidad en Tiempo Real
+                  Consulta tu Equipo/Precio En tiempo real
                 </button>
                 {whatsappOpen && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-gray-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden w-56">
@@ -2839,25 +2837,26 @@ function SemiNuevosPage() {
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                     >
                       <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-                                          <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
-                                        </a>
-                                        <a
-                                          href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
-                                        >
-                                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
-                                          <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
+                      <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
+                    </a>
+                    <a
+                      href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+                    >
+                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                      <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
                     </a>
                   </div>
                 )}
               </div>
+              <p className="text-gray-400 text-sm mt-4">La disponibilidad cambia constantemente. Confirma antes de visitarnos.</p>
             </div>
           </div>
         </section>
 
-        {/* Info Section - BELOW catalog */}
+        {/* Info Section - BELOW catalog and CTA */}
         <section className="py-12 md:py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-600/10 via-transparent to-blue-600/5" />
           <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
