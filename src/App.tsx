@@ -1139,9 +1139,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <button
                 key={model.id}
                 onClick={() => {
-                  setActiveModel(model.id)
                   setHoveredBubbleId(null)
-                  document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
+                  navigate(`/categoria/${model.id}`)
                 }}
                 onMouseEnter={() => setHoveredBubbleId(model.id)}
                 onMouseLeave={() => setHoveredBubbleId(null)}
@@ -2505,6 +2504,169 @@ function SucursalesPage() {
   )
 }
 
+// Category page - shows all products of a specific category
+function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
+  const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
+  const [allProducts, setAllProducts] = useState<Product[]>(products)
+  const [activeCondition, setActiveCondition] = useState<string>('todos')
+  const [loading, setLoading] = useState(true)
+
+  // Category label mapping
+  const categoryLabels: Record<string, string> = {
+    'iphones': 'iPhones', 'ipads': 'iPads', 'macbook': 'MacBook', 'macbooks': 'MacBook',
+    'airpods': 'AirPods', 'apple-watch': 'Apple Watch', 'apple watch': 'Apple Watch',
+    'accesorios': 'Accesorios', 'todos': 'Todos los Productos',
+  }
+  const categoryLabel = categoryLabels[slug || ''] || slug || 'Productos'
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const loadProducts = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/products?city=duitama`)
+        const data = await res.json()
+        if (data?.products) {
+          setAllProducts(data.products.map((p: Record<string, unknown>) => ({
+            id: p.id as number, name: p.name as string, category: (p.category as string) || '',
+            condition: p.condition as string, image: resolveImageUrl(p.image as string),
+            images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
+            color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
+            storageOptions: p.storage_options as string[], badge: (p.badge as string) || null,
+            available: p.available as string[], price: (p.price as string) || '',
+            oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+          })))
+        }
+      } catch {
+        // fallback to static
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProducts()
+  }, [slug])
+
+  const filtered = allProducts.filter(p => {
+    if (activeCondition === 'nuevos' && p.condition !== 'Nuevo') return false
+    if (activeCondition === 'semi-usados' && p.condition !== 'Semi-usado') return false
+    if (slug && slug !== 'todos') {
+      if (p.category) {
+        if (p.category === slug || p.category === slug.replace(' ', '-')) return true
+      }
+      const name = p.name.toLowerCase()
+      switch (slug) {
+        case 'iphones': return name.includes('iphone')
+        case 'ipads': return name.includes('ipad')
+        case 'macbook': case 'macbooks': return name.includes('macbook')
+        case 'airpods': return name.includes('airpods')
+        case 'apple-watch': case 'apple watch': return name.includes('apple watch')
+        case 'accesorios': return name.includes('pencil') || name.includes('accesorio') || name.includes('airtag')
+        default: return name.includes(slug.toLowerCase())
+      }
+    }
+    return true
+  })
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2">
+              <ArrowLeft className="w-5 h-5 text-gray-400" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-5 hidden sm:block" />
+            </button>
+            <h1 className="text-lg font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>{categoryLabel}</h1>
+            <div className="w-20" />
+          </div>
+        </div>
+      </header>
+
+      <div className="pt-20 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Condition filter tabs */}
+          <div className="flex gap-2 mb-8 justify-center">
+            {(['todos', 'nuevos', 'semi-usados'] as const).map(cond => (
+              <button
+                key={cond}
+                onClick={() => setActiveCondition(cond)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeCondition === cond
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {cond === 'todos' ? 'Todos' : cond === 'nuevos' ? 'Nuevos' : 'Semi-nuevos'}
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <img src="/images/gordotech-icon-white.png" alt="Cargando" className="h-12 animate-pulse" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-gray-400 text-lg mb-4">No hay productos en esta categoria</p>
+              <button onClick={() => navigate('/')} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors">Volver al inicio</button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {filtered.map(product => (
+                <button
+                  key={product.id}
+                  onClick={() => navigate(`/producto/${product.id}/${getProductSlug(product)}`, { state: { product } })}
+                  className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
+                >
+                  <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
+                    {product.badge && (
+                      <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
+                    )}
+                    <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
+                      <Heart className="w-4 h-4 text-gray-300" />
+                    </div>
+                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                  </div>
+                  <div className="p-3 md:p-4">
+                    <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
+                    <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                    <div className="flex flex-wrap items-center gap-1 mb-2">
+                      {product.storageOptions.map((s, i) => (
+                        <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
+                      ))}
+                      {product.colors.length > 0 && <span className="mx-0.5" />}
+                      {product.colors.map((color, i) => (
+                        <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                      ))}
+                    </div>
+                    {product.condition !== 'Semi-usado' && product.price && product.price !== '-' ? (
+                      <div className="mb-1">
+                        {product.oldPrice && product.oldPrice !== '-' && (
+                          <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                        )}
+                        <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                      </div>
+                    ) : product.condition !== 'Semi-usado' ? (
+                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                    ) : null}
+                    <div className="flex flex-wrap gap-x-2">
+                      {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
+                        <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
+                      ))}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
   const { id, slug } = useParams<{ id: string; slug: string }>()
   const location = useLocation()
@@ -2550,6 +2712,7 @@ function App() {
       <Route path="/reparacion" element={<ReparacionPage />} />
       <Route path="/semi-nuevos" element={<SemiNuevosPage />} />
       <Route path="/sucursales" element={<SucursalesPage />} />
+      <Route path="/categoria/:slug" element={<CategoryPage onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
       <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
