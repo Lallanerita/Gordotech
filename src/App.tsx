@@ -2586,7 +2586,8 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
 
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          {/* Condition filter tabs */}
+          {/* Condition filter tabs - only for iPhones */}
+          {slug === 'iphones' && (
           <div className="flex gap-2 mb-8 justify-center">
             {(['todos', 'nuevos', 'semi-usados'] as const).map(cond => (
               <button
@@ -2608,6 +2609,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
               </button>
             ))}
           </div>
+          )}
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
