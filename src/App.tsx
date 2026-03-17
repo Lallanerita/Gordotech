@@ -1467,34 +1467,39 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>{selectedProduct.name}</h2>
                 
                 <div className="mb-6">
-                  <p className="text-gray-400 text-sm mb-3">Almacenamiento disponible</p>
-                  <div className="flex flex-wrap gap-3">
-                    {selectedProduct.storageOptions.map((storage, i) => (
-                      <button key={i} onClick={() => setSelectedStorage(storage)} className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
-                    ))}
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div>
+                      <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProduct.storageOptions.map((storage, i) => (
+                          <button key={i} onClick={() => setSelectedStorage(storage)} className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
+                        ))}
+                      </div>
+                    </div>
+                    {selectedProduct.colors.length > 0 && (
+                      <div>
+                        <p className="text-gray-400 text-sm mb-2">Colores</p>
+                        <div className="flex items-center gap-2">
+                          {selectedProduct.colors.map((color, i) => (
+                            <button
+                              key={i}
+                              onClick={() => {
+                                setSelectedColor(color)
+                                setGalleryIndex(0)
+                              }}
+                              className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
+                              style={{ backgroundColor: resolveColor(color) }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="mb-8">
-                  <p className="text-gray-400 text-sm mb-3">Colores disponibles</p>
-                  <div className="flex items-center gap-3">
-                    {selectedProduct.colors.map((color, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          setSelectedColor(color)
-                          setGalleryIndex(0)
-                        }}
-                        className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
-                        style={{ backgroundColor: resolveColor(color) }}
-                        title={color}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Price */}
-                {selectedProduct.price && selectedProduct.price !== '-' && (
+                {/* Price - hidden for semi-used products */}
+                {selectedProduct.price && selectedProduct.price !== '-' && selectedProduct.condition !== 'Semi-usado' && (
                   <div className="mb-6">
                     {selectedProduct.oldPrice && selectedProduct.oldPrice !== '-' && (
                       <p className="text-sm text-red-400 line-through">$ {selectedProduct.oldPrice}</p>
