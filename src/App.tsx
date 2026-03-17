@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon, Volume2, VolumeX } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -407,7 +407,6 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   const [animKey, setAnimKey] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [videoPlaying, setVideoPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
   const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({})
 
   const goTo = useCallback((index: number) => {
@@ -488,7 +487,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                 ref={(el) => { videoRefs.current[i] = el }}
                 src={i === current ? slide.video_url : undefined}
                 autoPlay
-                muted={isMuted}
+                muted
                 playsInline
                 preload={i === current ? 'auto' : 'none'}
                 onPlaying={i === current ? () => setVideoPlaying(true) : undefined}
@@ -578,21 +577,6 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         </div>
       ))}
 
-      {/* Mute/Unmute Button */}
-      {slides[current]?.video_url && isVideoUrl(slides[current].video_url) && (
-        <button
-          onClick={() => {
-            const newMuted = !isMuted
-            setIsMuted(newMuted)
-            const vid = videoRefs.current[current]
-            if (vid) vid.muted = newMuted
-          }}
-          className="absolute left-3 bottom-3 z-20 flex w-9 h-9 md:w-10 md:h-10 bg-black/50 backdrop-blur-sm hover:bg-black/70 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/20"
-          aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
-        >
-          {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
-        </button>
-      )}
 
       {/* Navigation Arrows */}
       {slides.length > 1 && (
