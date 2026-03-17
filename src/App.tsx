@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2, Sun, Moon } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2, Sun, Moon, Home } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -693,6 +693,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [whatsappMenuOpen, setWhatsappMenuOpen] = useState(false)
   const [whatsappCityModal, setWhatsappCityModal] = useState(false)
+  const [cartCityModal, setCartCityModal] = useState(false)
   const [cartAddedFeedback, setCartAddedFeedback] = useState(false)
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<string>('')
@@ -800,7 +801,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
-  const sendCartWhatsApp = useCallback(() => {
+  const sendCartWhatsApp = useCallback((whatsappNumber: string, cityLabel: string) => {
     const lines = cartItems.map((item, i) => {
       let line = `${i + 1}. ${item.name} (${displayCondition(item.condition)})`
       if (item.selectedStorage) line += ` - ${item.selectedStorage}`
@@ -809,13 +810,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       if (item.price && item.price !== '-') line += ` - $${item.price}`
       return line
     })
-    let msg = `Hola Gordotech! Quiero hacer un pedido:\n\n${lines.join('\n')}`
+    let msg = `Hola Gordotech ${cityLabel}! Quiero hacer un pedido:\n\n${lines.join('\n')}`
     if (cartTotal > 0) msg += `\n\nTotal estimado: $${cartTotal.toLocaleString('es-CO')}`
     if (checkoutName) msg += `\n\nNombre: ${checkoutName}`
     if (checkoutPhone) msg += `\nTelefono: ${checkoutPhone}`
     if (checkoutNotes) msg += `\nNotas: ${checkoutNotes}`
-    window.open(`https://wa.me/${socials.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank')
-  }, [cartItems, cartTotal, checkoutName, checkoutPhone, checkoutNotes, socials.whatsappNumber])
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank')
+  }, [cartItems, cartTotal, checkoutName, checkoutPhone, checkoutNotes])
 
   // Load data from API
   useEffect(() => {
@@ -1403,7 +1404,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               {/* Checkout Actions */}
               <div className="space-y-3">
                 <button
-                  onClick={() => { sendCartWhatsApp(); clearCart(); setCheckoutOpen(false) }}
+                  onClick={() => setCartCityModal(true)}
                   className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/25 flex items-center justify-center gap-3 text-lg"
                 >
                   <MessageCircle className="w-5 h-5" />
@@ -1422,13 +1423,67 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         </div>
       )}
 
+      {/* Cart City Selector Modal (for checkout) */}
+      {cartCityModal && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setCartCityModal(false)}>
+          <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-white/10">
+              <h3 className="text-lg font-bold text-white text-center">¿A cuál sede deseas enviar tu pedido?</h3>
+              <p className="text-gray-400 text-sm text-center mt-1">Escoge tu tienda Gordotech más cercana</p>
+            </div>
+            <div className="p-4 space-y-3">
+              {([{ key: 'tunja' as const, label: 'Tunja', sublabel: 'Unicentro Isla Comercial' }, { key: 'duitama' as const, label: 'Duitama', sublabel: 'Pasaje Solano Local 102' }]).map(cityOpt => (
+                <button
+                  key={cityOpt.key}
+                  onClick={() => { sendCartWhatsApp(CITY_SOCIALS[cityOpt.key].whatsappNumber, cityOpt.label); clearCart(); setCheckoutOpen(false); setCartCityModal(false) }}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-green-600/10 border border-green-600/20 hover:bg-green-600 hover:border-green-600 text-green-400 hover:text-white transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-green-500/20 group-hover:bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-bold text-base text-white">{cityOpt.label}</p>
+                    <p className="text-xs text-gray-400 group-hover:text-green-100">{cityOpt.sublabel}</p>
+                  </div>
+                  <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-6 h-6 flex-shrink-0" />
+                </button>
+              ))}
+            </div>
+            <div className="p-4 pt-0">
+              <button onClick={() => setCartCityModal(false)} className="w-full py-2.5 text-gray-400 hover:text-white text-sm transition-colors">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Cart Added Feedback Toast */}
       {cartAddedFeedback && (
-        <div className="fixed bottom-6 right-6 z-[80] px-6 py-3 bg-green-600 text-white font-medium rounded-2xl shadow-lg shadow-green-500/25 flex items-center gap-2 animate-bounce">
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[80] px-6 py-3 bg-green-600 text-white font-medium rounded-2xl shadow-lg shadow-green-500/25 flex items-center gap-2 animate-bounce">
           <ShoppingCart className="w-4 h-4" />
           Producto agregado al carrito
         </div>
       )}
+
+      {/* Floating Sidebar - Cart + Home */}
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3">
+        <button
+          onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate('/') }}
+          className="w-12 h-12 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center shadow-lg hover:bg-white/10 hover:scale-110 transition-all"
+          title="Ir al inicio"
+        >
+          <Home className="w-5 h-5 text-gray-300" />
+        </button>
+        <button
+          onClick={() => { setCartOpen(!cartOpen); setCheckoutOpen(false) }}
+          className="relative w-12 h-12 bg-gray-900/90 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center shadow-lg hover:bg-white/10 hover:scale-110 transition-all"
+          title="Carrito de compras"
+        >
+          <ShoppingCart className="w-5 h-5 text-gray-300" />
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full text-[10px] font-bold flex items-center justify-center text-white animate-pulse">{cartCount}</span>
+          )}
+        </button>
+      </div>
 
       {/* Category Quick Links + Marquee - hidden on product detail */}
       {!selectedProduct && (
