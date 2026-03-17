@@ -2653,6 +2653,10 @@ function SemiNuevosPage() {
   const [semiProducts, setSemiProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [whatsappOpen, setWhatsappOpen] = useState(false)
+  const semiCarouselRef = useRef<HTMLDivElement>(null)
+  const [semiDragging, setSemiDragging] = useState(false)
+  const semiStartX = useRef(0)
+  const semiScrollStart = useRef(0)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
@@ -2752,10 +2756,9 @@ function SemiNuevosPage() {
         <section className="py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="mb-8">
-              <h3 className="text-3xl md:text-5xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+              <h3 className="text-3xl md:text-5xl font-bold text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                 CATALOGO SEMINUEVOS
               </h3>
-              <p className="text-gray-400 mt-2">{displayProducts.length} equipos disponibles</p>
             </div>
 
             {loading ? (
@@ -2763,47 +2766,73 @@ function SemiNuevosPage() {
                 <img src="/images/gordotech-icon-white.png" alt="Cargando" className="h-12 animate-pulse" />
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {displayProducts.map((product) => (
-                  <button
-                    key={product.id}
-                    onClick={() => navigate(`/producto/${product.id}/${getProductSlug(product)}`)}
-                    className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1"
-                  >
-                    <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
-                      <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
-                      />
-                    </div>
-                    <div className="p-3 md:p-4">
-                      <p className="text-xs font-medium mb-1 text-amber-400">Seminuevo</p>
-                      <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                      <div className="flex flex-wrap items-center gap-1 mb-2">
-                        {product.storageOptions.map((storage, i) => (
-                          <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{storage}</span>
-                        ))}
-                        {product.colors.length > 0 && <span className="mx-0.5" />}
-                        {product.colors.map((color, i) => (
-                          <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
-                        ))}
+              <div className="relative">
+                {/* Left Arrow */}
+                <button
+                  onClick={() => { if (semiCarouselRef.current) semiCarouselRef.current.scrollBy({ left: -300, behavior: 'smooth' }) }}
+                  className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-900/90 border border-white/10 rounded-full items-center justify-center hover:bg-white/10 transition-all"
+                >
+                  <ChevronLeft className="w-5 h-5 text-white" />
+                </button>
+                {/* Right Arrow */}
+                <button
+                  onClick={() => { if (semiCarouselRef.current) semiCarouselRef.current.scrollBy({ left: 300, behavior: 'smooth' }) }}
+                  className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-900/90 border border-white/10 rounded-full items-center justify-center hover:bg-white/10 transition-all"
+                >
+                  <ChevronRight className="w-5 h-5 text-white" />
+                </button>
+                {/* Carousel */}
+                <div
+                  ref={semiCarouselRef}
+                  className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 cursor-grab active:cursor-grabbing select-none"
+                  style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
+                  onPointerDown={(e) => { setSemiDragging(true); semiStartX.current = e.clientX; semiScrollStart.current = semiCarouselRef.current?.scrollLeft || 0; (e.target as HTMLElement).setPointerCapture(e.pointerId) }}
+                  onPointerMove={(e) => { if (!semiDragging) return; const dx = e.clientX - semiStartX.current; if (semiCarouselRef.current) semiCarouselRef.current.scrollLeft = semiScrollStart.current - dx }}
+                  onPointerUp={() => setSemiDragging(false)}
+                  onPointerCancel={() => setSemiDragging(false)}
+                >
+                  {displayProducts.map((product) => (
+                    <button
+                      key={product.id}
+                      onClick={() => { if (Math.abs((semiCarouselRef.current?.scrollLeft || 0) - semiScrollStart.current) < 5) navigate(`/producto/${product.id}/${getProductSlug(product)}`) }}
+                      className="flex-shrink-0 w-[70vw] sm:w-[45vw] md:w-[30vw] lg:w-[23vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5"
+                      style={{ scrollSnapAlign: 'start' }}
+                    >
+                      <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
+                        <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
+                        />
                       </div>
-                      {product.price && product.price !== '-' ? (
-                        <div className="mb-1">
-                          {product.oldPrice && product.oldPrice !== '-' && (
-                            <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
-                          )}
-                          <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                      <div className="p-3 md:p-4">
+                        <p className="text-xs font-medium mb-1 text-amber-400">Seminuevo</p>
+                        <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                        <div className="flex flex-wrap items-center gap-1 mb-2">
+                          {product.storageOptions.map((storage, i) => (
+                            <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{storage}</span>
+                          ))}
+                          {product.colors.length > 0 && <span className="mx-0.5" />}
+                          {product.colors.map((color, i) => (
+                            <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                          ))}
                         </div>
-                      ) : (
-                        <p className="text-xs text-amber-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                      )}
-                    </div>
-                  </button>
-                ))}
+                        {product.price && product.price !== '-' ? (
+                          <div className="mb-1">
+                            {product.oldPrice && product.oldPrice !== '-' && (
+                              <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                            )}
+                            <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-amber-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
