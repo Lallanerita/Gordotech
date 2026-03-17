@@ -2653,12 +2653,11 @@ function SemiNuevosPage() {
   const [semiProducts, setSemiProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [whatsappOpen, setWhatsappOpen] = useState(false)
-  const semiTrackRef = useRef<HTMLDivElement>(null)
-  const semiIsDragging = useRef(false)
-  const semiStartX = useRef(0)
-  const semiDragOffset = useRef(0)
+  const semiScrollRef = useRef<HTMLDivElement>(null)
+  const semiAnimRef = useRef<number>(0)
+  const semiUserInteracting = useRef(false)
   const semiDidDrag = useRef(false)
-  const [semiPaused, setSemiPaused] = useState(false)
+  const semiResumeTimer = useRef<ReturnType<typeof setTimeout>>(null)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
@@ -2688,6 +2687,37 @@ function SemiNuevosPage() {
   }, [])
 
   const displayProducts = semiProducts.length > 0 ? semiProducts : products.filter(p => p.condition === 'Semi-usado')
+
+  // Auto-scroll: continuously scroll the container, pause on user interaction, resume after release
+  useEffect(() => {
+    if (loading || displayProducts.length === 0) return
+    const el = semiScrollRef.current
+    if (!el) return
+    const speed = 0.8 // px per frame
+    const tick = () => {
+      if (!semiUserInteracting.current && el) {
+        el.scrollLeft += speed
+        // When we've scrolled past the first set of items, jump back seamlessly
+        const half = el.scrollWidth / 2
+        if (el.scrollLeft >= half) el.scrollLeft -= half
+      }
+      semiAnimRef.current = requestAnimationFrame(tick)
+    }
+    semiAnimRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(semiAnimRef.current)
+  }, [loading, displayProducts.length])
+
+  const onSemiTouchStart = () => {
+    semiUserInteracting.current = true
+    semiDidDrag.current = false
+    if (semiResumeTimer.current) clearTimeout(semiResumeTimer.current)
+  }
+  const onSemiTouchMove = () => { semiDidDrag.current = true }
+  const onSemiTouchEnd = () => {
+    semiResumeTimer.current = setTimeout(() => { semiUserInteracting.current = false }, 1500)
+  }
+  const onSemiMouseEnter = () => { semiUserInteracting.current = true; if (semiResumeTimer.current) clearTimeout(semiResumeTimer.current) }
+  const onSemiMouseLeave = () => { semiUserInteracting.current = false }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -2723,52 +2753,44 @@ function SemiNuevosPage() {
                 <img src="/images/gordotech-icon-white.png" alt="Cargando" className="h-12 animate-pulse" />
               </div>
             ) : (
-              <div className="relative overflow-hidden"
-                onMouseEnter={() => setSemiPaused(true)}
-                onMouseLeave={() => { setSemiPaused(false); semiIsDragging.current = false }}
-                onTouchStart={(e) => { setSemiPaused(true); semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.touches[0].clientX; semiDragOffset.current = 0 }}
-                onTouchMove={(e) => { if (!semiIsDragging.current) return; const dx = e.touches[0].clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; semiDragOffset.current = dx; if (semiTrackRef.current) semiTrackRef.current.style.transform = `translateX(${dx}px)` }}
-                onTouchEnd={() => { semiIsDragging.current = false; setSemiPaused(false); if (semiTrackRef.current) semiTrackRef.current.style.transform = '' }}
-                onMouseDown={(e) => { semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.clientX; semiDragOffset.current = 0 }}
-                onMouseMove={(e) => { if (!semiIsDragging.current) return; e.preventDefault(); const dx = e.clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; semiDragOffset.current = dx; if (semiTrackRef.current) semiTrackRef.current.style.transform = `translateX(${dx}px)` }}
-                onMouseUp={() => { semiIsDragging.current = false; if (semiTrackRef.current) semiTrackRef.current.style.transform = '' }}
+              <div
+                ref={semiScrollRef}
+                className="flex gap-3 md:gap-6 pb-4 overflow-x-auto scrollbar-hide select-none cursor-grab active:cursor-grabbing"
+                onTouchStart={onSemiTouchStart}
+                onTouchMove={onSemiTouchMove}
+                onTouchEnd={onSemiTouchEnd}
+                onMouseEnter={onSemiMouseEnter}
+                onMouseLeave={onSemiMouseLeave}
               >
-                {/* Infinite scrolling track */}
-                <div
-                  ref={semiTrackRef}
-                  className="flex gap-3 md:gap-6 pb-4 select-none"
-                  style={{ animation: `semiCarouselScroll ${Math.max(displayProducts.length * 5, 20)}s linear infinite`, animationPlayState: semiPaused ? 'paused' : 'running', width: 'max-content' }}
-                >
-                  {[...displayProducts, ...displayProducts].map((product, idx) => (
-                    <button
-                      key={`semi-${idx}`}
-                      onClick={() => { if (!semiDidDrag.current) navigate(`/producto/${product.id}/${getProductSlug(product)}`) }}
-                      className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 cursor-grab active:cursor-grabbing"
-                    >
-                      <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
-                        <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
-                        />
+                {[...displayProducts, ...displayProducts, ...displayProducts].map((product, idx) => (
+                  <button
+                    key={`semi-${idx}`}
+                    onClick={() => { if (!semiDidDrag.current) navigate(`/producto/${product.id}/${getProductSlug(product)}`) }}
+                    className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5"
+                  >
+                    <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
+                      <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
+                      />
+                    </div>
+                    <div className="p-3 md:p-4 text-center">
+                      <h4 className="text-base md:text-lg font-bold text-white mb-2 line-clamp-2">{product.name}</h4>
+                      <div className="flex flex-wrap items-center justify-center gap-1 mb-2">
+                        {product.storageOptions.map((storage, i) => (
+                          <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{storage}</span>
+                        ))}
+                        {product.colors.length > 0 && <span className="mx-0.5" />}
+                        {product.colors.map((color, i) => (
+                          <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                        ))}
                       </div>
-                      <div className="p-3 md:p-4 text-center">
-                        <h4 className="text-base md:text-lg font-bold text-white mb-2 line-clamp-2">{product.name}</h4>
-                        <div className="flex flex-wrap items-center justify-center gap-1 mb-2">
-                          {product.storageOptions.map((storage, i) => (
-                            <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{storage}</span>
-                          ))}
-                          {product.colors.length > 0 && <span className="mx-0.5" />}
-                          {product.colors.map((color, i) => (
-                            <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
-                          ))}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                    </div>
+                  </button>
+                ))}
               </div>
             )}
 
