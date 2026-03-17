@@ -1196,6 +1196,27 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       </ScrollReveal>
       )}
 
+      {/* Conoce Nuestras Sucursales CTA */}
+      {!selectedProduct && (
+        <ScrollReveal>
+        <div className="py-6 md:py-10">
+          <div className="max-w-2xl mx-auto px-4 text-center">
+            <button
+              onClick={() => {
+                const sedesEl = document.getElementById('nuestras-sedes')
+                if (sedesEl) sedesEl.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="group relative inline-flex items-center gap-3 px-8 py-4 md:px-12 md:py-5 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 text-white font-bold text-base md:text-lg rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 border border-white/10"
+            >
+              <MapPin className="w-5 h-5 md:w-6 md:h-6 group-hover:animate-bounce" />
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>Conoce Nuestras Sucursales</span>
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+        </ScrollReveal>
+      )}
+
       {/* Add top padding when viewing product detail (no hero/marquee) */}
       {selectedProduct && <div className="pt-20 md:pt-24" />}
 
@@ -1905,7 +1926,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           </div>
 
           {/* Sedes - Duitama & Tunja side by side */}
-          <div className="border-t border-white/5 pt-8 mb-8">
+          <div id="nuestras-sedes" className="border-t border-white/5 pt-8 mb-8">
             <h5 className="text-white font-semibold mb-6 text-sm uppercase tracking-wider text-center">Nuestras Sedes</h5>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
               {/* Duitama */}
