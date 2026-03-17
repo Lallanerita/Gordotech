@@ -2400,7 +2400,7 @@ function SemiNuevosPage() {
                   onClick={() => setWhatsappOpen(!whatsappOpen)}
                   className="block w-full px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 text-center"
                 >
-                  Consulta tu Equipo/Precio En tiempo real
+                  Consulta tu Equipo/Precio/Estado de bateria/Capacidad en Tienda real
                 </button>
                 {whatsappOpen && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-gray-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden w-56">
