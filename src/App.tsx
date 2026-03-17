@@ -1208,9 +1208,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               }}
               className="group relative inline-flex items-center gap-3 px-8 py-4 md:px-12 md:py-5 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 text-white font-bold text-base md:text-lg rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 border border-white/10"
             >
-              <MapPin className="w-5 h-5 md:w-6 md:h-6 group-hover:animate-bounce" />
               <span style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>Conoce Nuestras Sucursales</span>
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </div>
