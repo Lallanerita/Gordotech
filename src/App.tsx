@@ -2653,28 +2653,13 @@ function SemiNuevosPage() {
   const [semiProducts, setSemiProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [whatsappOpen, setWhatsappOpen] = useState(false)
-  const semiCarouselRef = useRef<HTMLDivElement>(null)
+  const semiTrackRef = useRef<HTMLDivElement>(null)
   const semiIsDragging = useRef(false)
   const semiStartX = useRef(0)
-  const semiScrollStart = useRef(0)
+  const semiDragOffset = useRef(0)
   const semiDidDrag = useRef(false)
+  const [semiPaused, setSemiPaused] = useState(false)
   useEffect(() => { window.scrollTo(0, 0) }, [])
-
-  // Auto-scroll for semi-nuevos carousel
-  useEffect(() => {
-    const el = semiCarouselRef.current
-    if (!el || loading) return
-    const interval = setInterval(() => {
-      if (semiIsDragging.current) return
-      const maxScroll = el.scrollWidth - el.clientWidth
-      if (el.scrollLeft >= maxScroll - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' })
-      } else {
-        el.scrollBy({ left: 280, behavior: 'smooth' })
-      }
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [loading, semiProducts])
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -2783,40 +2768,27 @@ function SemiNuevosPage() {
                 <img src="/images/gordotech-icon-white.png" alt="Cargando" className="h-12 animate-pulse" />
               </div>
             ) : (
-              <div className="relative">
-                {/* Left Arrow */}
-                <button
-                  onClick={() => { if (semiCarouselRef.current) semiCarouselRef.current.scrollBy({ left: -300, behavior: 'smooth' }) }}
-                  className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-900/90 border border-white/10 rounded-full items-center justify-center hover:bg-white/10 transition-all"
-                >
-                  <ChevronLeft className="w-5 h-5 text-white" />
-                </button>
-                {/* Right Arrow */}
-                <button
-                  onClick={() => { if (semiCarouselRef.current) semiCarouselRef.current.scrollBy({ left: 300, behavior: 'smooth' }) }}
-                  className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-900/90 border border-white/10 rounded-full items-center justify-center hover:bg-white/10 transition-all"
-                >
-                  <ChevronRight className="w-5 h-5 text-white" />
-                </button>
-                {/* Carousel */}
+              <div className="relative overflow-hidden"
+                onMouseEnter={() => setSemiPaused(true)}
+                onMouseLeave={() => { setSemiPaused(false); semiIsDragging.current = false }}
+                onTouchStart={(e) => { setSemiPaused(true); semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.touches[0].clientX; semiDragOffset.current = 0 }}
+                onTouchMove={(e) => { if (!semiIsDragging.current) return; const dx = e.touches[0].clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; semiDragOffset.current = dx; if (semiTrackRef.current) semiTrackRef.current.style.transform = `translateX(${dx}px)` }}
+                onTouchEnd={() => { semiIsDragging.current = false; setSemiPaused(false); if (semiTrackRef.current) semiTrackRef.current.style.transform = '' }}
+                onMouseDown={(e) => { semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.clientX; semiDragOffset.current = 0 }}
+                onMouseMove={(e) => { if (!semiIsDragging.current) return; e.preventDefault(); const dx = e.clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; semiDragOffset.current = dx; if (semiTrackRef.current) semiTrackRef.current.style.transform = `translateX(${dx}px)` }}
+                onMouseUp={() => { semiIsDragging.current = false; if (semiTrackRef.current) semiTrackRef.current.style.transform = '' }}
+              >
+                {/* Infinite scrolling track */}
                 <div
-                  ref={semiCarouselRef}
-                  className="flex gap-3 md:gap-6 overflow-x-auto scrollbar-hide pb-4 cursor-grab active:cursor-grabbing select-none"
-                  style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
-                  onMouseDown={(e) => { semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.clientX; semiScrollStart.current = semiCarouselRef.current?.scrollLeft || 0 }}
-                  onMouseMove={(e) => { if (!semiIsDragging.current) return; e.preventDefault(); const dx = e.clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; if (semiCarouselRef.current) semiCarouselRef.current.scrollLeft = semiScrollStart.current - dx }}
-                  onMouseUp={() => { semiIsDragging.current = false }}
-                  onMouseLeave={() => { semiIsDragging.current = false }}
-                  onTouchStart={(e) => { semiIsDragging.current = true; semiDidDrag.current = false; semiStartX.current = e.touches[0].clientX; semiScrollStart.current = semiCarouselRef.current?.scrollLeft || 0 }}
-                  onTouchMove={(e) => { if (!semiIsDragging.current) return; const dx = e.touches[0].clientX - semiStartX.current; if (Math.abs(dx) > 5) semiDidDrag.current = true; if (semiCarouselRef.current) semiCarouselRef.current.scrollLeft = semiScrollStart.current - dx }}
-                  onTouchEnd={() => { semiIsDragging.current = false }}
+                  ref={semiTrackRef}
+                  className="flex gap-3 md:gap-6 pb-4 select-none"
+                  style={{ animation: `semiCarouselScroll ${Math.max(displayProducts.length * 5, 20)}s linear infinite`, animationPlayState: semiPaused ? 'paused' : 'running', width: 'max-content' }}
                 >
-                  {displayProducts.map((product) => (
+                  {[...displayProducts, ...displayProducts].map((product, idx) => (
                     <button
-                      key={product.id}
+                      key={`semi-${idx}`}
                       onClick={() => { if (!semiDidDrag.current) navigate(`/producto/${product.id}/${getProductSlug(product)}`) }}
-                      className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5"
-                      style={{ scrollSnapAlign: 'start' }}
+                      className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 cursor-grab active:cursor-grabbing"
                     >
                       <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
                         <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>

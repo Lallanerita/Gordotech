@@ -121,6 +121,12 @@
   scrollbar-width: none;
 }
 
+/* Semi-nuevos infinite carousel */
+@keyframes semiCarouselScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* ============================================================
    LIGHT MODE - Comprehensive theme overrides
    Applied when .light-mode class is on a parent element
