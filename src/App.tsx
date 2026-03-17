@@ -2754,10 +2754,9 @@ function SemiNuevosPage() {
                           onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
                         />
                       </div>
-                      <div className="p-3 md:p-4">
-                        <p className="text-xs font-medium mb-1 text-amber-400">Seminuevo</p>
-                        <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                        <div className="flex flex-wrap items-center gap-1 mb-2">
+                      <div className="p-3 md:p-4 text-center">
+                        <h4 className="text-base md:text-lg font-bold text-white mb-2 line-clamp-2">{product.name}</h4>
+                        <div className="flex flex-wrap items-center justify-center gap-1 mb-2">
                           {product.storageOptions.map((storage, i) => (
                             <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{storage}</span>
                           ))}
