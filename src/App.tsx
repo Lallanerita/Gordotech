@@ -2766,16 +2766,6 @@ function SemiNuevosPage() {
                             <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
                           ))}
                         </div>
-                        {product.price && product.price !== '-' ? (
-                          <div className="mb-1">
-                            {product.oldPrice && product.oldPrice !== '-' && (
-                              <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
-                            )}
-                            <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
-                          </div>
-                        ) : (
-                          <p className="text-xs text-amber-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                        )}
                       </div>
                     </button>
                   ))}
