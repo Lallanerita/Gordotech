@@ -1816,38 +1816,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       </section>
       )}
 
-      {/* CTA Banner - hidden on product detail */}
-      {!selectedProduct && (
-      <ScrollReveal animation="scale">
-      <section className="py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="relative rounded-3xl bg-gradient-to-r from-blue-600 to-blue-800 p-10 md:p-16 overflow-hidden">
-            <div className="absolute inset-0 opacity-10" style={{
-              backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-              backgroundSize: '30px 30px'
-            }} />
-            <div className="relative z-10 text-center">
-              <h3 className="text-3xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                ENCUENTRA TU iPHONE IDEAL
-              </h3>
-              <p className="text-blue-100/80 text-lg mb-8 max-w-2xl mx-auto">
-                Escribenos por WhatsApp y te asesoramos para que encuentres el iPhone perfecto para ti al mejor precio
-              </p>
-              <a
-                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20quiero%20información%20sobre%20iPhones`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-700 font-bold rounded-2xl transition-all hover:scale-105 hover:shadow-lg"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Chatea con Nosotros
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-      </ScrollReveal>
-      )}
 
       </main>
 
