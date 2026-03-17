@@ -2591,7 +2591,13 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
             {(['todos', 'nuevos', 'semi-usados'] as const).map(cond => (
               <button
                 key={cond}
-                onClick={() => setActiveCondition(cond)}
+                onClick={() => {
+                  if (cond === 'semi-usados') {
+                    navigate('/semi-nuevos')
+                  } else {
+                    setActiveCondition(cond)
+                  }
+                }}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeCondition === cond
                     ? 'bg-blue-600 text-white'
