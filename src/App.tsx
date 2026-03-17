@@ -2709,53 +2709,8 @@ function SemiNuevosPage() {
       </header>
 
       <div className="pt-20">
-        {/* Info Section */}
-        <section className="py-12 md:py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-600/10 via-transparent to-blue-600/5" />
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
-                <Smartphone className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-400 text-sm font-medium">Calidad garantizada</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-bold mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                iPHONES <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">SEMINUEVOS</span>
-              </h2>
-              <p className="text-gray-300 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
-                Equipos de exhibicion, 100% originales, con uso minimo y en excelentes condiciones. La mejor relacion precio-calidad con el respaldo de Gordotech.
-              </p>
-            </div>
-
-            {/* Benefits Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
-                <div className="w-12 h-12 mx-auto bg-amber-500/10 rounded-full flex items-center justify-center mb-3">
-                  <Shield className="w-6 h-6 text-amber-400" />
-                </div>
-                <h4 className="text-white font-bold text-sm mb-1">100% Originales</h4>
-                <p className="text-gray-400 text-xs leading-relaxed">Equipos de exhibicion de operadores y tiendas oficiales Apple. Sin piezas cambiadas ni reparaciones.</p>
-              </div>
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
-                <div className="w-12 h-12 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-3">
-                  <Award className="w-6 h-6 text-green-400" />
-                </div>
-                <h4 className="text-white font-bold text-sm mb-1">Garantia Gordotech</h4>
-                <p className="text-gray-400 text-xs leading-relaxed">Todos nuestros seminuevos incluyen garantia. Si algo falla, nosotros respondemos.</p>
-              </div>
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
-                <div className="w-12 h-12 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-3">
-                  <Star className="w-6 h-6 text-blue-400" />
-                </div>
-                <h4 className="text-white font-bold text-sm mb-1">Uso Minimo</h4>
-                <p className="text-gray-400 text-xs leading-relaxed">Han sido usados unicamente como muestra. Bateria en excelente estado y estetica impecable.</p>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* Products Gallery */}
-        <section className="py-12 md:py-16">
+        {/* Products Gallery - FIRST */}
+        <section className="py-8 md:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="mb-8">
               <h3 className="text-3xl md:text-5xl font-bold text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
@@ -2863,6 +2818,51 @@ function SemiNuevosPage() {
                 )}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Info Section - BELOW catalog */}
+        <section className="py-12 md:py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-600/10 via-transparent to-blue-600/5" />
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
+                <Smartphone className="w-4 h-4 text-amber-400" />
+                <span className="text-amber-400 text-sm font-medium">Calidad garantizada</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-bold mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                iPHONES <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">SEMINUEVOS</span>
+              </h2>
+              <p className="text-gray-300 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
+                Equipos de exhibicion, 100% originales, con uso minimo y en excelentes condiciones. La mejor relacion precio-calidad con el respaldo de Gordotech.
+              </p>
+            </div>
+
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                <div className="w-12 h-12 mx-auto bg-amber-500/10 rounded-full flex items-center justify-center mb-3">
+                  <Shield className="w-6 h-6 text-amber-400" />
+                </div>
+                <h4 className="text-white font-bold text-sm mb-1">100% Originales</h4>
+                <p className="text-gray-400 text-xs leading-relaxed">Equipos de exhibicion de operadores y tiendas oficiales Apple. Sin piezas cambiadas ni reparaciones.</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                <div className="w-12 h-12 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-3">
+                  <Award className="w-6 h-6 text-green-400" />
+                </div>
+                <h4 className="text-white font-bold text-sm mb-1">Garantia Gordotech</h4>
+                <p className="text-gray-400 text-xs leading-relaxed">Todos nuestros seminuevos incluyen garantia. Si algo falla, nosotros respondemos.</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-center">
+                <div className="w-12 h-12 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-3">
+                  <Star className="w-6 h-6 text-blue-400" />
+                </div>
+                <h4 className="text-white font-bold text-sm mb-1">Uso Minimo</h4>
+                <p className="text-gray-400 text-xs leading-relaxed">Han sido usados unicamente como muestra. Bateria en excelente estado y estetica impecable.</p>
+              </div>
+            </div>
+
           </div>
         </section>
       </div>
