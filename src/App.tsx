@@ -2375,15 +2375,6 @@ function SemiNuevosPage() {
                     </div>
                     <div className="p-3 md:p-4 text-center">
                       <h4 className="text-base md:text-lg font-bold text-white mb-2 line-clamp-2">{product.name}</h4>
-                      <div className="flex flex-wrap items-center justify-center gap-1 mb-2">
-                        {product.storageOptions.map((storage, i) => (
-                          <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{storage}</span>
-                        ))}
-                        {product.colors.length > 0 && <span className="mx-0.5" />}
-                        {product.colors.map((color, i) => (
-                          <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
-                        ))}
-                      </div>
                     </div>
                   </button>
                 ))}
