@@ -657,11 +657,25 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const trendingHalfWidth = useRef(0)
   const trendingClickBlocked = useRef(false)
 
-  // Reset selected storage/color when product changes
+  // Reset selected storage/color when product changes — for new products with variants, pre-select cheapest variant
   useEffect(() => {
     if (selectedProduct) {
-      setSelectedStorage(selectedProduct.storageOptions[0] || '')
-      setSelectedColor(selectedProduct.colors[0] || '')
+      const variants = selectedProduct.variants || []
+      if (variants.length > 0 && selectedProduct.condition !== 'Semi-usado') {
+        // Parse price string to number for comparison (e.g. "5.650.000" → 5650000)
+        const parsePrice = (p: string) => parseInt((p || '0').replace(/\./g, '').replace(/[^\d]/g, ''), 10) || 0
+        const cheapest = [...variants].filter(v => v.active && v.price).sort((a, b) => parsePrice(a.price) - parsePrice(b.price))[0]
+        if (cheapest) {
+          setSelectedStorage(cheapest.storage || selectedProduct.storageOptions[0] || '')
+          setSelectedColor(cheapest.color || selectedProduct.colors[0] || '')
+        } else {
+          setSelectedStorage(selectedProduct.storageOptions[0] || '')
+          setSelectedColor(selectedProduct.colors[0] || '')
+        }
+      } else {
+        setSelectedStorage(selectedProduct.storageOptions[0] || '')
+        setSelectedColor(selectedProduct.colors[0] || '')
+      }
     }
   }, [selectedProduct])
 
@@ -1525,14 +1539,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 {selectedProduct.condition !== 'Semi-usado' && (() => {
                   const variants = selectedProduct.variants || []
                   if (variants.length > 0) {
-                    // Find matching variant for selected storage + color
+                    // Find matching variant for selected storage + color (case-insensitive)
+                    const selStorageLower = (selectedStorage || '').toLowerCase().trim()
+                    const selColorLower = (selectedColor || '').toLowerCase().trim()
                     const match = variants.find(v =>
-                      ((!v.storage && !selectedStorage) || v.storage === selectedStorage) &&
-                      ((!v.color && !selectedColor) || v.color === selectedColor)
+                      ((!v.storage && !selectedStorage) || (v.storage || '').toLowerCase().trim() === selStorageLower) &&
+                      ((!v.color && !selectedColor) || (v.color || '').toLowerCase().trim() === selColorLower)
                     ) || variants.find(v =>
-                      v.storage === selectedStorage && !v.color
+                      (v.storage || '').toLowerCase().trim() === selStorageLower && !v.color
                     ) || variants.find(v =>
-                      v.color === selectedColor && !v.storage
+                      (v.color || '').toLowerCase().trim() === selColorLower && !v.storage
                     )
                     if (match && match.price) {
                       return (
