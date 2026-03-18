@@ -1513,7 +1513,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.storageOptions.map((storage, i) => (
-                          <button key={i} onClick={() => setSelectedStorage(storage)} className={`storage-btn px-4 py-2...
+                                                    <button key={i} onClick={() => setSelectedStorage(storage)} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium transition-colors cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
                         ))}
                       </div>
                     </div>
