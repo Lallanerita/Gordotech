@@ -1340,8 +1340,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         const extraImgs = (selectedProduct.images || []).filter(img => img && img !== mainImg)
         const baseGalleryImages = [mainImg, ...extraImgs].filter(Boolean)
 
-        // If a color has an explicit image group, show those first when that color is selected.
-        const rawColorImages = selectedColor ? selectedProduct.color_images?.[selectedColor] : undefined
+        // If a color has an explicit image group, show those when that color is selected (case-insensitive key lookup).
+        const colorImagesMap = selectedProduct.color_images || {}
+        const colorKey = selectedColor ? Object.keys(colorImagesMap).find(k => k.toLowerCase().trim() === selectedColor.toLowerCase().trim()) : undefined
+        const rawColorImages = colorKey ? colorImagesMap[colorKey] : undefined
         const selectedColorImages = Array.isArray(rawColorImages) ? rawColorImages : rawColorImages ? [rawColorImages] : []
 
         const galleryImages = selectedColorImages.length > 0
