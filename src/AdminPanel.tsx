@@ -37,6 +37,16 @@ function resolveColor(color: string): string {
   return color
 }
 
+type Variant = {
+  id: number
+  product_id: number
+  storage: string
+  color: string
+  price: string
+  sort_order: number
+  active: boolean
+}
+
 type Product = {
   id: number
   name: string
@@ -55,6 +65,7 @@ type Product = {
   featured_recommended: boolean
   featured_trending: boolean
   sort_order: number
+  variants?: Variant[]
 }
 
 type Category = {
@@ -688,6 +699,11 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
               Tendencia
             </label>
           </div>
+
+          {/* ===== Variants Section (only for saved products) ===== */}
+          {product && (
+            <VariantsSection productId={product.id} token={token} />
+          )}
         </div>
 
         <div className="flex gap-3 p-5 border-t border-white/10">
@@ -698,6 +714,151 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ==================== VARIANTS SECTION ====================
+
+function VariantsSection({ productId, token }: { productId: number; token: string }) {
+  const [variants, setVariants] = useState<Variant[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editingVariant, setEditingVariant] = useState<Variant | null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [vForm, setVForm] = useState({ storage: '', color: '', price: '', sort_order: 0, active: true })
+  const [saving, setSaving] = useState(false)
+
+  const loadVariants = useCallback(async () => {
+    try {
+      const data = await apiGet(`/api/admin/products/${productId}/variants`, token)
+      setVariants(data.variants || [])
+    } catch { /* ignore */ }
+    setLoading(false)
+  }, [productId, token])
+
+  useEffect(() => { loadVariants() }, [loadVariants])
+
+  const openNew = () => {
+    setEditingVariant(null)
+    setVForm({ storage: '', color: '', price: '', sort_order: 0, active: true })
+    setShowForm(true)
+  }
+
+  const openEdit = (v: Variant) => {
+    setEditingVariant(v)
+    setVForm({ storage: v.storage, color: v.color, price: v.price, sort_order: v.sort_order, active: v.active })
+    setShowForm(true)
+  }
+
+  const handleSaveVariant = async () => {
+    setSaving(true)
+    try {
+      if (editingVariant) {
+        await apiPut(`/api/admin/products/${productId}/variants/${editingVariant.id}`, vForm, token)
+      } else {
+        await apiPost(`/api/admin/products/${productId}/variants`, vForm, token)
+      }
+      setShowForm(false)
+      await loadVariants()
+    } catch {
+      alert('Error guardando variante')
+    }
+    setSaving(false)
+  }
+
+  const handleDeleteVariant = async (variantId: number) => {
+    if (!confirm('Eliminar esta variante?')) return
+    try {
+      await apiDelete(`/api/admin/products/${productId}/variants/${variantId}`, token)
+      await loadVariants()
+    } catch {
+      alert('Error eliminando variante')
+    }
+  }
+
+  return (
+    <div className="border border-purple-500/30 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h4 className="text-sm font-bold text-purple-300">Variantes de Precio (Almacenamiento + Color)</h4>
+          <p className="text-xs text-gray-500">Cada combinacion puede tener un precio diferente</p>
+        </div>
+        <button onClick={openNew} className="flex items-center gap-1 px-3 py-1.5 bg-purple-600/30 border border-purple-500/30 rounded-lg text-purple-300 text-xs hover:bg-purple-600/50 transition-colors">
+          <Plus className="w-3 h-3" /> Agregar
+        </button>
+      </div>
+
+      {loading ? (
+        <p className="text-gray-500 text-xs">Cargando variantes...</p>
+      ) : variants.length === 0 ? (
+        <p className="text-gray-500 text-xs">Sin variantes. El producto usara el precio base.</p>
+      ) : (
+        <div className="space-y-1.5">
+          {variants.map(v => (
+            <div key={v.id} className={`flex items-center justify-between p-2.5 rounded-lg border text-sm ${v.active ? 'bg-gray-800/30 border-white/10' : 'bg-gray-800/10 border-white/5 opacity-50'}`}>
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                {v.color && (
+                  <div className="w-4 h-4 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: resolveColor(v.color) }} title={v.color} />
+                )}
+                <span className="text-white font-medium truncate">
+                  {v.storage && v.color ? `${v.storage} / ${v.color}` : v.storage || v.color || 'Sin especificar'}
+                </span>
+                <span className="text-green-400 font-bold flex-shrink-0">$ {v.price || '-'}</span>
+                {!v.active && <span className="text-xs text-red-400 flex-shrink-0">(inactiva)</span>}
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                <button onClick={() => openEdit(v)} className="w-7 h-7 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-500/40 transition-colors">
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => handleDeleteVariant(v.id)} className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-500/40 transition-colors">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Variant form modal */}
+      {showForm && (
+        <div className="mt-3 p-3 bg-gray-800/50 border border-purple-500/20 rounded-xl space-y-3">
+          <h5 className="text-sm font-bold text-white">{editingVariant ? 'Editar Variante' : 'Nueva Variante'}</h5>
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <label className="block text-gray-400 text-xs mb-1">Almacenamiento</label>
+              <input value={vForm.storage} onChange={e => setVForm({ ...vForm, storage: e.target.value })}
+                className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-2.5 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50" placeholder="256GB" />
+            </div>
+            <div>
+              <label className="block text-gray-400 text-xs mb-1">Color</label>
+              <input value={vForm.color} onChange={e => setVForm({ ...vForm, color: e.target.value })}
+                className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-2.5 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50" placeholder="Negro" />
+            </div>
+            <div>
+              <label className="block text-gray-400 text-xs mb-1">Precio</label>
+              <input value={vForm.price} onChange={e => setVForm({ ...vForm, price: e.target.value })}
+                className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-2.5 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50" placeholder="5.200.000" />
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+              <input type="checkbox" checked={vForm.active} onChange={e => setVForm({ ...vForm, active: e.target.checked })} className="rounded" />
+              Activa
+            </label>
+            <div className="flex items-center gap-1">
+              <label className="text-gray-400 text-xs">Orden:</label>
+              <input type="number" value={vForm.sort_order} onChange={e => setVForm({ ...vForm, sort_order: parseInt(e.target.value) || 0 })}
+                className="w-16 bg-gray-900/50 border border-white/10 rounded px-2 py-1 text-white text-xs focus:outline-none" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setShowForm(false)} className="px-3 py-1.5 border border-white/10 text-gray-300 rounded-lg text-xs hover:bg-white/5">Cancelar</button>
+            <button onClick={handleSaveVariant} disabled={saving} className="px-3 py-1.5 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg text-xs font-medium">
+              {saving ? 'Guardando...' : editingVariant ? 'Actualizar' : 'Crear'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -284,6 +284,7 @@ type Product = {
   description?: string
   sort_order?: number
   model_3d?: string
+  variants?: { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]
 }
 
 function generateSlug(name: string): string {
@@ -693,6 +694,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             price: (p.price as string) || '',
             oldPrice: (p.old_price as string) || '',
             description: (p.description as string) || '',
+            variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
           })))
         }
         if (recommendedRes?.products) {
@@ -704,6 +706,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+            variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
           })))
         }
         if (trendingRes?.products) {
@@ -715,6 +718,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             storageOptions: p.storage_options as string[],
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+            variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
           })))
         }
         if (bubblesRes?.bubbles) {
@@ -873,6 +877,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               badge: data.badge || null, available: data.available,
               price: data.price || '', oldPrice: data.old_price || '', description: data.description || '',
               model_3d: data.model_3d || '',
+              variants: data.variants || [],
             }
             setSelectedProduct(product)
             setGalleryIndex(0)
@@ -1516,15 +1521,48 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   </div>
                 </div>
 
-                {/* Price - hidden for semi-used products */}
-                {selectedProduct.price && selectedProduct.price !== '-' && selectedProduct.condition !== 'Semi-usado' && (
-                  <div className="mb-6">
-                    {selectedProduct.oldPrice && selectedProduct.oldPrice !== '-' && (
-                      <p className="text-sm text-red-400 line-through">$ {selectedProduct.oldPrice}</p>
-                    )}
-                    <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>$ {selectedProduct.price}</p>
-                  </div>
-                )}
+                {/* Price - dynamic based on variant or base price */}
+                {selectedProduct.condition !== 'Semi-usado' && (() => {
+                  const variants = selectedProduct.variants || []
+                  if (variants.length > 0) {
+                    // Find matching variant for selected storage + color
+                    const match = variants.find(v =>
+                      ((!v.storage && !selectedStorage) || v.storage === selectedStorage) &&
+                      ((!v.color && !selectedColor) || v.color === selectedColor)
+                    ) || variants.find(v =>
+                      v.storage === selectedStorage && !v.color
+                    ) || variants.find(v =>
+                      v.color === selectedColor && !v.storage
+                    )
+                    if (match && match.price) {
+                      return (
+                        <div className="mb-6">
+                          {selectedProduct.oldPrice && selectedProduct.oldPrice !== '-' && (
+                            <p className="text-sm text-red-400 line-through">$ {selectedProduct.oldPrice}</p>
+                          )}
+                          <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>$ {match.price}</p>
+                          <p className="text-xs text-gray-500 mt-1">{match.storage && match.color ? `${match.storage} / ${match.color}` : match.storage || match.color || ''}</p>
+                        </div>
+                      )
+                    } else {
+                      return (
+                        <div className="mb-6">
+                          <p className="text-sm text-gray-400 italic">Selecciona almacenamiento y color para ver el precio</p>
+                        </div>
+                      )
+                    }
+                  } else if (selectedProduct.price && selectedProduct.price !== '-') {
+                    return (
+                      <div className="mb-6">
+                        {selectedProduct.oldPrice && selectedProduct.oldPrice !== '-' && (
+                          <p className="text-sm text-red-400 line-through">$ {selectedProduct.oldPrice}</p>
+                        )}
+                        <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>$ {selectedProduct.price}</p>
+                      </div>
+                    )
+                  }
+                  return null
+                })()}
 
                 {/* WhatsApp button */}
                 <div className="space-y-3">

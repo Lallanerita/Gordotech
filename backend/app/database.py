@@ -196,6 +196,21 @@ async def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # Product variants table (storage + color + price combinations)
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS product_variants (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER NOT NULL,
+            storage TEXT NOT NULL DEFAULT '',
+            color TEXT NOT NULL DEFAULT '',
+            price TEXT NOT NULL DEFAULT '',
+            sort_order INTEGER DEFAULT 0,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+        )
+    """)
     
     await db.commit()
     await db.close()

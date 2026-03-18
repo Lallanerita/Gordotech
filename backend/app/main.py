@@ -201,6 +201,20 @@ class ReviewUpdate(BaseModel):
     sort_order: Optional[int] = None
     active: Optional[bool] = None
 
+class VariantCreate(BaseModel):
+    storage: str = ""
+    color: str = ""
+    price: str = ""
+    sort_order: int = 0
+    active: bool = True
+
+class VariantUpdate(BaseModel):
+    storage: Optional[str] = None
+    color: Optional[str] = None
+    price: Optional[str] = None
+    sort_order: Optional[int] = None
+    active: Optional[bool] = None
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
@@ -241,6 +255,25 @@ def generate_slug(name: str) -> str:
     slug = re.sub(r'[\s]+', '-', slug)
     slug = re.sub(r'-+', '-', slug)
     return slug.strip('-')
+
+def row_to_variant(row):
+    return {
+        "id": row["id"],
+        "product_id": row["product_id"],
+        "storage": row["storage"] or "",
+        "color": row["color"] or "",
+        "price": row["price"] or "",
+        "sort_order": row["sort_order"],
+        "active": bool(row["active"]),
+    }
+
+async def get_variants_for_product(db, product_id: int) -> list:
+    cursor = await db.execute(
+        "SELECT * FROM product_variants WHERE product_id = ? AND active = 1 ORDER BY sort_order ASC, id ASC",
+        (product_id,)
+    )
+    rows = await cursor.fetchall()
+    return [row_to_variant(r) for r in rows]
 
 def row_to_product(row):
     keys = row.keys()
@@ -294,6 +327,7 @@ def row_to_product(row):
         "featured_trending": bool(row["featured_trending"]),
         "sort_order": row["sort_order"],
         "model_3d": row["model_3d"] if "model_3d" in keys else "",
+        "variants": [],  # populated separately
     }
 
 def normalize_color_images_payload(color_images: Any) -> dict[str, list[str]]:
@@ -399,6 +433,10 @@ async def get_products(city: Optional[str] = None, condition: Optional[str] = No
         rows = await cursor.fetchall()
         products = [row_to_product(r) for r in rows]
         
+        # Fetch variants for all products
+        for p in products:
+            p["variants"] = await get_variants_for_product(db, p["id"])
+        
         if city:
             products = [p for p in products if city in p["available"]]
         if condition and condition != "todos":
@@ -420,6 +458,8 @@ async def get_recommended(city: Optional[str] = None):
         cursor = await db.execute("SELECT * FROM products WHERE featured_recommended = 1 ORDER BY sort_order ASC LIMIT 8")
         rows = await cursor.fetchall()
         products = [row_to_product(r) for r in rows]
+        for p in products:
+            p["variants"] = await get_variants_for_product(db, p["id"])
         if city:
             products = [p for p in products if city in p["available"]]
         return {"products": products}
@@ -434,6 +474,8 @@ async def get_trending(city: Optional[str] = None):
         cursor = await db.execute("SELECT * FROM products WHERE featured_trending = 1 ORDER BY sort_order ASC LIMIT 8")
         rows = await cursor.fetchall()
         products = [row_to_product(r) for r in rows]
+        for p in products:
+            p["variants"] = await get_variants_for_product(db, p["id"])
         if city:
             products = [p for p in products if city in p["available"]]
         return {"products": products}
@@ -450,6 +492,7 @@ async def get_product_by_slug(slug: str):
         for row in rows:
             product = row_to_product(row)
             if product["slug"] == slug:
+                product["variants"] = await get_variants_for_product(db, product["id"])
                 return product
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     finally:
@@ -464,7 +507,9 @@ async def get_product(product_id: int):
         row = await cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Producto no encontrado")
-        return row_to_product(row)
+        product = row_to_product(row)
+        product["variants"] = await get_variants_for_product(db, product["id"])
+        return product
     finally:
         await db.close()
 
@@ -1229,6 +1274,91 @@ async def admin_delete_review(review_id: int, username: str = Depends(get_curren
         await db.execute("DELETE FROM resenas WHERE id = ?", (review_id,))
         await db.commit()
         return {"message": "Resena eliminada"}
+    finally:
+        await db.close()
+
+# ==================== ADMIN VARIANT CRUD ====================
+
+@app.get("/api/admin/products/{product_id}/variants")
+async def admin_get_variants(product_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute(
+            "SELECT * FROM product_variants WHERE product_id = ? ORDER BY sort_order ASC, id ASC",
+            (product_id,)
+        )
+        rows = await cursor.fetchall()
+        return {"variants": [row_to_variant(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/products/{product_id}/variants")
+async def admin_create_variant(product_id: int, variant: VariantCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        # Verify product exists
+        cursor = await db.execute("SELECT id FROM products WHERE id = ?", (product_id,))
+        if not await cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        cursor = await db.execute(
+            "INSERT INTO product_variants (product_id, storage, color, price, sort_order, active) VALUES (?, ?, ?, ?, ?, ?)",
+            (product_id, variant.storage, variant.color, variant.price, variant.sort_order, int(variant.active))
+        )
+        await db.commit()
+        new_id = cursor.lastrowid
+        cursor = await db.execute("SELECT * FROM product_variants WHERE id = ?", (new_id,))
+        row = await cursor.fetchone()
+        return row_to_variant(row)
+    finally:
+        await db.close()
+
+@app.put("/api/admin/products/{product_id}/variants/{variant_id}")
+async def admin_update_variant(product_id: int, variant_id: int, v: VariantUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute(
+            "SELECT * FROM product_variants WHERE id = ? AND product_id = ?",
+            (variant_id, product_id)
+        )
+        existing = await cursor.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Variante no encontrada")
+        
+        updates = {}
+        if v.storage is not None: updates["storage"] = v.storage
+        if v.color is not None: updates["color"] = v.color
+        if v.price is not None: updates["price"] = v.price
+        if v.sort_order is not None: updates["sort_order"] = v.sort_order
+        if v.active is not None: updates["active"] = int(v.active)
+        
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [variant_id]
+            await db.execute(f"UPDATE product_variants SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        
+        cursor = await db.execute("SELECT * FROM product_variants WHERE id = ?", (variant_id,))
+        row = await cursor.fetchone()
+        return row_to_variant(row)
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/products/{product_id}/variants/{variant_id}")
+async def admin_delete_variant(product_id: int, variant_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "SELECT id FROM product_variants WHERE id = ? AND product_id = ?",
+            (variant_id, product_id)
+        )
+        if not await cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Variante no encontrada")
+        await db.execute("DELETE FROM product_variants WHERE id = ?", (variant_id,))
+        await db.commit()
+        return {"message": "Variante eliminada"}
     finally:
         await db.close()
 
