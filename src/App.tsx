@@ -1856,8 +1856,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 // Plan Retoma - separate page
 function PlanRetomaPage() {
   const navigate = useNavigate()
-  const city = 'duitama' as City
-  const socials = CITY_SOCIALS[city]
+  const [showCitySelect, setShowCitySelect] = useState(false)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
@@ -1892,7 +1891,7 @@ function PlanRetomaPage() {
                 PLAN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">RETOMA</span>
               </h3>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Del iPhone que tienes... al iPhone que suenas. Te recibimos tu equipo como parte de pago.
+                Del iPhone que tienes... al iPhone que sueñas. Te recibimos tu equipo como parte de pago.
               </p>
             </div>
 
@@ -1940,19 +1939,10 @@ function PlanRetomaPage() {
                       <p className="text-gray-400 text-xs mt-1">Nunca debe haber sido abierto, reparado o con piezas cambiadas</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
-                    <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-5 h-5 text-yellow-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Bateria en buen estado</p>
-                      <p className="text-gray-400 text-xs mt-1">Minimo 85% de salud de bateria</p>
-                    </div>
-                  </div>
                 </div>
                 <div className="mt-6 text-center">
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">
-                    Desde iPhone 11 hasta iPhone 16
+                    Aceptamos desde el iPhone 12 en adelante
                   </span>
                 </div>
               </div>
@@ -1960,15 +1950,31 @@ function PlanRetomaPage() {
 
             {/* CTA */}
             <div className="text-center mt-10">
-              <a
-                href={`https://wa.me/${socials.whatsappNumber}?text=Hola%20Gordotech%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setShowCitySelect(!showCitySelect)}
                 className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
               >
-                <MessageCircle className="w-5 h-5" />
-                Consultar Plan Retoma por WhatsApp
-              </a>
+                Consultar Plan Retoma
+              </button>
+              {showCitySelect && (
+                <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <a href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
+                  </a>
+                  <a href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
+                  </a>
+                  <a href="https://wa.me/573213815465?text=Hola%20Clinica%20de%20Celulares%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -2433,6 +2439,7 @@ function SucursalesPage() {
   const navigate = useNavigate()
   const [sucursales, setSucursales] = useState<Sucursal[]>([])
   const [loading, setLoading] = useState(true)
+  const [reviewsMap, setReviewsMap] = useState<Record<string, { reviews: SucursalReview[]; googleUrl: string; rating: number; count: number }>>({})
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -2442,11 +2449,33 @@ function SucursalesPage() {
         const data = await res.json()
         if (data.sucursales && data.sucursales.length > 0) {
           setSucursales(data.sucursales)
+          // Load reviews from API for each sucursal
+          const rMap: Record<string, { reviews: SucursalReview[]; googleUrl: string; rating: number; count: number }> = {}
+          await Promise.all(data.sucursales.map(async (s: Sucursal) => {
+            try {
+              const rRes = await fetch(`${API_URL}/api/sucursales/${s.slug}/resenas`)
+              const rData = await rRes.json()
+              if (rData.reviews && rData.reviews.length > 0) {
+                const apiReviews: SucursalReview[] = rData.reviews.map((r: { customer_name: string; text: string; rating: number }) => ({ name: r.customer_name, text: r.text, rating: r.rating }))
+                const avgRating = apiReviews.reduce((sum: number, r: SucursalReview) => sum + r.rating, 0) / apiReviews.length
+                rMap[s.slug] = { reviews: apiReviews, googleUrl: SUCURSAL_REVIEWS[s.slug]?.googleUrl || '#', rating: Math.round(avgRating * 10) / 10, count: apiReviews.length }
+              } else if (SUCURSAL_REVIEWS[s.slug]) {
+                rMap[s.slug] = SUCURSAL_REVIEWS[s.slug]
+              }
+            } catch {
+              if (SUCURSAL_REVIEWS[s.slug]) {
+                rMap[s.slug] = SUCURSAL_REVIEWS[s.slug]
+              }
+            }
+          }))
+          setReviewsMap(rMap)
         } else {
           setSucursales(DEFAULT_SUCURSALES)
+          setReviewsMap(SUCURSAL_REVIEWS)
         }
       } catch {
         setSucursales(DEFAULT_SUCURSALES)
+        setReviewsMap(SUCURSAL_REVIEWS)
       } finally {
         setLoading(false)
       }
@@ -2495,7 +2524,7 @@ function SucursalesPage() {
                 {sucursales.filter(s => s.active).map((s) => {
                   const bgImage = s.image ? resolveImageUrl(s.image) : ''
                   const waUrl = `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(`Hola ${s.name}, quiero visitarlos`)}`
-                  const reviewData = SUCURSAL_REVIEWS[s.slug]
+                  const reviewData = reviewsMap[s.slug]
                   return (
                     <div key={s.id} className="rounded-2xl overflow-hidden bg-gray-900 shadow-xl group transition-transform duration-300 hover:-translate-y-1">
                       {/* Photo with overlay info */}

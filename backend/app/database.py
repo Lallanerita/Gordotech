@@ -182,6 +182,20 @@ async def init_db():
             active INTEGER NOT NULL DEFAULT 1
         )
     """)
+
+    # Reviews table (resenas)
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS resenas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sucursal_slug TEXT NOT NULL DEFAULT '',
+            customer_name TEXT NOT NULL DEFAULT '',
+            rating INTEGER NOT NULL DEFAULT 5,
+            text TEXT NOT NULL DEFAULT '',
+            sort_order INTEGER DEFAULT 0,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     
     await db.commit()
     await db.close()
@@ -382,6 +396,39 @@ async def seed_default_data():
             for s in default_sucursales:
                 await db.execute(
                     "INSERT INTO sucursales (name, slug, address, city, image, whatsapp, instagram, tiktok, phone, description, sort_order, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", s
+                )
+        await db.commit()
+
+    # Seed resenas if empty
+    cursor = await db.execute("SELECT COUNT(*) as cnt FROM resenas")
+    row = await cursor.fetchone()
+    if row[0] == 0:
+        if seed and seed.get("resenas"):
+            for r in seed["resenas"]:
+                await db.execute(
+                    "INSERT INTO resenas (sucursal_slug, customer_name, rating, text, sort_order, active) VALUES (?, ?, ?, ?, ?, ?)",
+                    (r.get("sucursal_slug", ""), r.get("customer_name", ""), r.get("rating", 5), r.get("text", ""), r.get("sort_order", 0), 1 if r.get("active", True) else 0)
+                )
+        else:
+            default_resenas = [
+                ("duitama", "Sara Corredor", 5, "Excelente servicio, los equipos en muy buen estado, siempre te reciben con la mejor actitud.", 0, 1),
+                ("duitama", "Juan Morales", 5, "Excelente atencion, los dispositivos son muy confiables y muy accesibles.", 1, 1),
+                ("duitama", "Erik Hernandez", 5, "Excelente servicio muy serios y buena atencion.", 2, 1),
+                ("duitama", "Andres Salcedo", 5, "Excelente, equipos en buen estado, con sus garantias respectivas y en excelentes condiciones de funcionamiento.", 3, 1),
+                ("duitama", "Sergio Salcedo", 5, "Excelente servicio y muy amable la muchacha que me atendio Daniela 10/10.", 4, 1),
+                ("duitama", "Deisy Diaz", 5, "Tuve una experiencia muy bonita, los vendedores son muy amables y le recomiendo, los felicito.", 5, 1),
+                ("duitama", "Lucyca", 5, "Excelente servicio, me senti comoda, voy a volver y a recomendar a mis amigos y conocidos.", 6, 1),
+                ("tunja", "Juan Fernando G.", 5, "Hoy compre un iPhone 17 pro, excelente atencion de las chicas y productos totalmente originales 10/10.", 0, 1),
+                ("tunja", "Sol Jacome", 5, "Los visite en Unicentro Tunja y muy buenos los precios, adquiri con ellos mi 17 pro.", 1, 1),
+                ("tunja", "Juanita Sosa", 5, "Super recomendado, tienen todos los productos de Apple con excelentes precios y una buena atencion.", 2, 1),
+                ("tunja", "Valentina Rodriguez", 5, "Visite la tienda en Unicentro Tunja para ver algunas MacBook y me gusto mucho la experiencia. La atencion fue buena y me explicaron sobre los equipos. Recomendado.", 3, 1),
+                ("tunja", "Luis A. Rodriguez", 5, "La atencion, los precios y los equipos son los mejores. Gran experiencia.", 4, 1),
+                ("clinica", "Sergio Melendez", 5, "Buena experiencia arreglando mi S24, rapido y buen servicio.", 0, 1),
+                ("clinica", "Sarai Daniela S.", 4, "Buen servicio tecnico, atencion rapida y profesional.", 1, 1),
+            ]
+            for r in default_resenas:
+                await db.execute(
+                    "INSERT INTO resenas (sucursal_slug, customer_name, rating, text, sort_order, active) VALUES (?, ?, ?, ?, ?, ?)", r
                 )
         await db.commit()
 

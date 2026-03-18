@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin } from 'lucide-react'
+import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin, Star, MessageSquare } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -110,7 +110,18 @@ type Stats = {
   hero_slides: number
 }
 
-type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'slideshow' | 'marquee' | 'settings' | 'sucursales'
+type Review = {
+  id: number
+  sucursal_slug: string
+  customer_name: string
+  rating: number
+  text: string
+  sort_order: number
+  active: boolean
+  created_at: string | null
+}
+
+type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'slideshow' | 'marquee' | 'settings' | 'sucursales' | 'resenas'
 
 const TAB_PATHS: Record<string, Tab> = {
   '/': 'dashboard',
@@ -123,6 +134,7 @@ const TAB_PATHS: Record<string, Tab> = {
   '/marquee': 'marquee',
   '/config': 'settings',
   '/sucursales': 'sucursales',
+  '/resenas': 'resenas',
 }
 
 const TAB_TO_PATH: Record<Tab, string> = {
@@ -135,6 +147,7 @@ const TAB_TO_PATH: Record<Tab, string> = {
   marquee: '/marquee',
   settings: '/config',
   sucursales: '/sucursales',
+  resenas: '/resenas',
 }
 
 function getTabFromPath(): Tab {
@@ -971,6 +984,13 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [editingMarqueeValue, setEditingMarqueeValue] = useState('')
   const [savingMarquee, setSavingMarquee] = useState(false)
 
+  // Reviews
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [reviewFilter, setReviewFilter] = useState('todos')
+  const [editingReview, setEditingReview] = useState<Review | null | 'new'>(null)
+  const [reviewForm, setReviewForm] = useState({ sucursal_slug: 'duitama', customer_name: '', rating: 5, text: '', sort_order: 0, active: true })
+  const [savingReview, setSavingReview] = useState(false)
+
   // Password change
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -1066,6 +1086,16 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const loadReviews = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiGet('/api/admin/resenas', token)
+      setReviews(data.reviews || [])
+    } catch {
+      // not critical
+    }
+  }, [token])
+
   // Sync tab with browser back/forward
   useEffect(() => {
     const onPopState = () => setActiveTabRaw(getTabFromPath())
@@ -1083,8 +1113,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       loadHeroSlides()
       loadMarqueeTexts()
       loadSucursales()
+      loadReviews()
     }
-  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts, loadSucursales])
+  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts, loadSucursales, loadReviews])
 
   const handleDelete = async () => {
     if (!deleteConfirm || !token) return
@@ -1096,6 +1127,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'slide') await apiDelete(`/api/admin/hero-slides/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'marquee') await apiDelete(`/api/admin/marquee-texts/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'sucursal') await apiDelete(`/api/admin/sucursales/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'review') await apiDelete(`/api/admin/resenas/${deleteConfirm.id}`, token)
       setDeleteConfirm(null)
       loadStats()
       if (deleteConfirm.type === 'product') loadProducts()
@@ -1105,6 +1137,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'slide') loadHeroSlides()
       if (deleteConfirm.type === 'marquee') loadMarqueeTexts()
       if (deleteConfirm.type === 'sucursal') loadSucursales()
+      if (deleteConfirm.type === 'review') loadReviews()
     } catch {
       alert('Error eliminando')
     }
@@ -1144,6 +1177,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     { id: 'slideshow', label: 'Slideshow', icon: <Image className="w-4 h-4" /> },
     { id: 'marquee', label: 'Marquee', icon: <Type className="w-4 h-4" /> },
     { id: 'sucursales', label: 'Sucursales', icon: <MapPin className="w-4 h-4" /> },
+    { id: 'resenas', label: 'Resenas', icon: <MessageSquare className="w-4 h-4" /> },
     { id: 'settings', label: 'Config', icon: <Lock className="w-4 h-4" /> },
   ]
 
@@ -1794,6 +1828,155 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     }} disabled={savingSucursal || !sucursalForm.name} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
                       <Save className="w-4 h-4" />
                       {savingSucursal ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* RESENAS TAB */}
+        {activeTab === 'resenas' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>RESENAS ({reviews.length})</h2>
+              <button onClick={() => { setReviewForm({ sucursal_slug: 'duitama', customer_name: '', rating: 5, text: '', sort_order: reviews.length, active: true }); setEditingReview('new') }} className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors">
+                <Plus className="w-4 h-4" /> Nueva Resena
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm">Gestiona las resenas que se muestran en la pagina de Sucursales. Puedes agregar, editar y eliminar resenas manualmente.</p>
+
+            {/* Filter by sucursal */}
+            <div className="flex gap-2 flex-wrap">
+              {['todos', 'duitama', 'tunja', 'clinica'].map(slug => (
+                <button key={slug} onClick={() => setReviewFilter(slug)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${reviewFilter === slug ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                  {slug === 'todos' ? 'Todas' : slug === 'clinica' ? 'Clinica' : slug.charAt(0).toUpperCase() + slug.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {/* Reviews list */}
+            <div className="space-y-3">
+              {reviews
+                .filter(r => reviewFilter === 'todos' || r.sucursal_slug === reviewFilter)
+                .sort((a, b) => a.sort_order - b.sort_order)
+                .map(review => (
+                <div key={review.id} className={`bg-gray-900/50 border rounded-xl p-4 transition-all ${review.active ? 'border-white/10' : 'border-white/5 opacity-60'}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="font-semibold text-white text-sm">{review.customer_name}</span>
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-300">
+                          {review.sucursal_slug === 'clinica' ? 'Clinica' : review.sucursal_slug.charAt(0).toUpperCase() + review.sucursal_slug.slice(1)}
+                        </span>
+                        <span className="flex items-center gap-0.5 text-yellow-400 text-xs">
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-yellow-400' : 'fill-gray-600 text-gray-600'}`} />
+                          ))}
+                        </span>
+                        {!review.active && <span className="text-xs text-gray-500">(inactiva)</span>}
+                      </div>
+                      <p className="text-gray-300 text-sm leading-relaxed">{review.text}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button onClick={async () => {
+                        await apiPut(`/api/admin/resenas/${review.id}`, { active: !review.active }, token)
+                        loadReviews()
+                      }} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title={review.active ? 'Desactivar' : 'Activar'}>
+                        {review.active ? <ToggleRight className="w-4 h-4 text-green-400" /> : <ToggleLeft className="w-4 h-4 text-gray-500" />}
+                      </button>
+                      <button onClick={() => {
+                        setReviewForm({ sucursal_slug: review.sucursal_slug, customer_name: review.customer_name, rating: review.rating, text: review.text, sort_order: review.sort_order, active: review.active })
+                        setEditingReview(review)
+                      }} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => setDeleteConfirm({ type: 'review', id: review.id, name: review.customer_name })} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-red-400">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {reviews.filter(r => reviewFilter === 'todos' || r.sucursal_slug === reviewFilter).length === 0 && (
+                <div className="text-center py-10 text-gray-500">No hay resenas{reviewFilter !== 'todos' ? ` para ${reviewFilter}` : ''}. Agrega una nueva.</div>
+              )}
+            </div>
+
+            {/* Review edit/create modal */}
+            {editingReview !== null && (
+              <div className="fixed inset-0 bg-black/70 z-50 flex items-start justify-center p-4 overflow-y-auto">
+                <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg my-8">
+                  <div className="flex items-center justify-between p-5 border-b border-white/10">
+                    <h3 className="text-xl font-bold text-white">{editingReview === 'new' ? 'Nueva Resena' : 'Editar Resena'}</h3>
+                    <button onClick={() => setEditingReview(null)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Sucursal *</label>
+                      <select value={reviewForm.sucursal_slug} onChange={e => setReviewForm(f => ({...f, sucursal_slug: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50">
+                        <option value="duitama">Duitama</option>
+                        <option value="tunja">Tunja</option>
+                        <option value="clinica">Clinica de Celulares</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Nombre del cliente *</label>
+                      <input value={reviewForm.customer_name} onChange={e => setReviewForm(f => ({...f, customer_name: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="Juan Perez" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Calificacion *</label>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <button key={n} onClick={() => setReviewForm(f => ({...f, rating: n}))}
+                            className="p-1 transition-colors">
+                            <Star className={`w-6 h-6 ${n <= reviewForm.rating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-600 text-gray-600'}`} />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Texto de la resena *</label>
+                      <textarea value={reviewForm.text} onChange={e => setReviewForm(f => ({...f, text: e.target.value}))} rows={3}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50 resize-none" placeholder="Excelente servicio..." />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Orden</label>
+                        <input type="number" value={reviewForm.sort_order} onChange={e => setReviewForm(f => ({...f, sort_order: parseInt(e.target.value) || 0}))}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" />
+                      </div>
+                      <div className="flex items-end pb-1">
+                        <div className="flex items-center gap-3">
+                          <label className="text-gray-400 text-sm">Activa</label>
+                          <button onClick={() => setReviewForm(f => ({...f, active: !f.active}))} className="p-1">
+                            {reviewForm.active ? <ToggleRight className="w-6 h-6 text-green-400" /> : <ToggleLeft className="w-6 h-6 text-gray-500" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-5 border-t border-white/10">
+                    <button onClick={() => setEditingReview(null)} className="flex-1 py-2.5 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors text-sm">Cancelar</button>
+                    <button onClick={async () => {
+                      if (!reviewForm.customer_name || !reviewForm.text) return
+                      setSavingReview(true)
+                      try {
+                        if (editingReview === 'new') {
+                          await apiPost('/api/admin/resenas', reviewForm, token)
+                        } else {
+                          await apiPut(`/api/admin/resenas/${editingReview.id}`, reviewForm, token)
+                        }
+                        setEditingReview(null)
+                        loadReviews()
+                      } catch { alert('Error guardando resena') } finally { setSavingReview(false) }
+                    }} disabled={savingReview || !reviewForm.customer_name || !reviewForm.text} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                      <Save className="w-4 h-4" />
+                      {savingReview ? 'Guardando...' : 'Guardar'}
                     </button>
                   </div>
                 </div>

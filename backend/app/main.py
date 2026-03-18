@@ -185,6 +185,22 @@ class SucursalUpdate(BaseModel):
     sort_order: Optional[int] = None
     active: Optional[bool] = None
 
+class ReviewCreate(BaseModel):
+    sucursal_slug: str
+    customer_name: str
+    rating: int = 5
+    text: str = ""
+    sort_order: int = 0
+    active: bool = True
+
+class ReviewUpdate(BaseModel):
+    sucursal_slug: Optional[str] = None
+    customer_name: Optional[str] = None
+    rating: Optional[int] = None
+    text: Optional[str] = None
+    sort_order: Optional[int] = None
+    active: Optional[bool] = None
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
@@ -1139,6 +1155,83 @@ async def admin_delete_sucursal(sucursal_id: int, username: str = Depends(get_cu
     finally:
         await db.close()
 
+# ==================== REVIEWS PUBLIC ENDPOINTS ====================
+
+@app.get("/api/sucursales/{slug}/resenas")
+async def get_sucursal_reviews(slug: str):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM resenas WHERE sucursal_slug = ? AND active = 1 ORDER BY sort_order ASC", (slug,))
+        rows = await cursor.fetchall()
+        return {"reviews": [row_to_review(r) for r in rows]}
+    finally:
+        await db.close()
+
+# ==================== REVIEWS ADMIN ENDPOINTS ====================
+
+@app.get("/api/admin/resenas")
+async def admin_get_reviews(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM resenas ORDER BY sucursal_slug ASC, sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"reviews": [row_to_review(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/resenas")
+async def admin_create_review(r: ReviewCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "INSERT INTO resenas (sucursal_slug, customer_name, rating, text, sort_order, active) VALUES (?, ?, ?, ?, ?, ?)",
+            (r.sucursal_slug, r.customer_name, r.rating, r.text, r.sort_order, int(r.active))
+        )
+        await db.commit()
+        return {"id": cursor.lastrowid, "message": "Resena creada"}
+    finally:
+        await db.close()
+
+@app.put("/api/admin/resenas/{review_id}")
+async def admin_update_review(review_id: int, r: ReviewUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM resenas WHERE id = ?", (review_id,))
+        existing = await cursor.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Resena no encontrada")
+        
+        updates = {}
+        if r.sucursal_slug is not None: updates["sucursal_slug"] = r.sucursal_slug
+        if r.customer_name is not None: updates["customer_name"] = r.customer_name
+        if r.rating is not None: updates["rating"] = r.rating
+        if r.text is not None: updates["text"] = r.text
+        if r.sort_order is not None: updates["sort_order"] = r.sort_order
+        if r.active is not None: updates["active"] = int(r.active)
+        
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [review_id]
+            await db.execute(f"UPDATE resenas SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        
+        return {"message": "Resena actualizada"}
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/resenas/{review_id}")
+async def admin_delete_review(review_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("DELETE FROM resenas WHERE id = ?", (review_id,))
+        await db.commit()
+        return {"message": "Resena eliminada"}
+    finally:
+        await db.close()
+
 # ==================== IMAGE UPLOAD ==
 
 @app.post("/api/admin/upload")
@@ -1209,6 +1302,9 @@ async def admin_stats(username: str = Depends(get_current_admin)):
         cursor = await db.execute("SELECT COUNT(*) FROM hero_slides")
         slides_count = (await cursor.fetchone())[0]
         
+        cursor = await db.execute("SELECT COUNT(*) FROM resenas")
+        reviews_count = (await cursor.fetchone())[0]
+        
         return {
             "total_products": total_products,
             "new_products": new_count,
@@ -1217,6 +1313,7 @@ async def admin_stats(username: str = Depends(get_current_admin)):
             "bubbles": bubble_count,
             "repair_services": service_count,
             "hero_slides": slides_count,
+            "reviews": reviews_count,
         }
     finally:
         await db.close()
