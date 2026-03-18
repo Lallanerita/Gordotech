@@ -1511,7 +1511,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.storageOptions.map((storage, i) => (
-                          <button key={i} onClick={() => setSelectedStorage(storage)} className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
+                          <button key={i} onClick={() => setSelectedStorage(storage)} onTouchEnd={(e) => { e.preventDefault(); setSelectedStorage(storage) }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium transition-colors cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
                         ))}
                       </div>
                     </div>
@@ -1526,7 +1526,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                 setSelectedColor(color)
                                 setGalleryIndex(0)
                               }}
-                              className={`w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
+                              onTouchEnd={(e) => {
+                                e.preventDefault()
+                                setSelectedColor(color)
+                                setGalleryIndex(0)
+                              }}
+                              className={`color-btn w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
                               style={{ backgroundColor: resolveColor(color) }}
                               title={color}
                             />

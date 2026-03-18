@@ -8,6 +8,19 @@
   text-align: left;
 }
 
+/* Fix mobile 300ms tap delay on all interactive elements */
+button, a, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Ensure storage/color selector buttons respond instantly on mobile */
+.storage-btn, .color-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* Marquee animation */
 @keyframes marquee {
   0% { transform: translateX(0); }
