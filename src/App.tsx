@@ -1984,8 +1984,8 @@ function PlanRetomaPage() {
                       <Award className="w-5 h-5 text-green-400" />
                     </div>
                     <div>
-                      <p className="text-white font-semibold text-sm">Caja y factura original</p>
-                      <p className="text-gray-400 text-xs mt-1">Sin eso no podemos validar el equipo</p>
+                      <p className="text-white font-semibold text-sm">Factura o caja original</p>
+                      <p className="text-gray-400 text-xs mt-1">Requisito escencial para validar la propiedad y legalidad del equipo</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
@@ -1995,6 +1995,15 @@ function PlanRetomaPage() {
                     <div>
                       <p className="text-white font-semibold text-sm">Sin reparaciones</p>
                       <p className="text-gray-400 text-xs mt-1">Nunca debe haber sido abierto, reparado o con piezas cambiadas</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5">
+                    <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-5 h-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Estado de bateria minimo al 85%</p>
+                      <p className="text-gray-400 text-xs mt-1">Si esta por debajo del 85%, el equipo se recibe pero el valor de retoma baja considerablemente</p>
                     </div>
                   </div>
                 </div>
