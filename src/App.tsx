@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense, useMemo } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon } from 'lucide-react'
@@ -2178,7 +2178,7 @@ function SemiNuevosPage() {
   }, [])
 
   // Shuffle products to intercalate models (e.g. 12, 14, Air, 13 Pro Max...)
-  const shuffledProducts = React.useMemo(() => {
+  const shuffledProducts = useMemo(() => {
     const src = semiProducts.length > 0 ? [...semiProducts] : products.filter(p => p.condition === 'Semi-usado')
     if (src.length <= 1) return src
     // Spread products apart by picking from alternating halves
