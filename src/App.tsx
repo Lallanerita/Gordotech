@@ -666,8 +666,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         const parsePrice = (p: string) => parseInt((p || '0').replace(/\./g, '').replace(/[^\d]/g, ''), 10) || 0
         const cheapest = [...variants].filter(v => v.active && v.price).sort((a, b) => parsePrice(a.price) - parsePrice(b.price))[0]
         if (cheapest) {
-          setSelectedStorage(cheapest.storage || selectedProduct.storageOptions[0] || '')
-          setSelectedColor(cheapest.color || selectedProduct.colors[0] || '')
+           const matchedStorage = selectedProduct.storageOptions.find(s => s.toLowerCase().trim() === (cheapest.storage || '').toLowerCase().trim()) || cheapest.storage || selectedProduct.storageOptions[0] || ''
+          const matchedColor = selectedProduct.colors.find(c => c.toLowerCase().trim() === (cheapest.color || '').toLowerCase().trim()) || cheapest.color || selectedProduct.colors[0] || ''
+          setSelectedStorage(matchedStorage)
+          setSelectedColor(matchedColor)
         } else {
           setSelectedStorage(selectedProduct.storageOptions[0] || '')
           setSelectedColor(selectedProduct.colors[0] || '')
@@ -1511,7 +1513,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.storageOptions.map((storage, i) => (
-                          <button key={i} onClick={() => setSelectedStorage(storage)} onTouchEnd={(e) => { e.preventDefault(); setSelectedStorage(storage) }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium transition-colors cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
+                                                    <button key={i} onClick={() => setSelectedStorage(storage)} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium transition-colors cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
                         ))}
                       </div>
                     </div>
@@ -1523,11 +1525,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                             <button
                               key={i}
                               onClick={() => {
-                                setSelectedColor(color)
-                                setGalleryIndex(0)
-                              }}
-                              onTouchEnd={(e) => {
-                                e.preventDefault()
                                 setSelectedColor(color)
                                 setGalleryIndex(0)
                               }}
@@ -2180,7 +2177,24 @@ function SemiNuevosPage() {
     loadProducts()
   }, [])
 
-  const displayProducts = semiProducts.length > 0 ? semiProducts : products.filter(p => p.condition === 'Semi-usado')
+  // Shuffle products to intercalate models (e.g. 12, 14, Air, 13 Pro Max...)
+  const shuffledProducts = React.useMemo(() => {
+    const src = semiProducts.length > 0 ? [...semiProducts] : products.filter(p => p.condition === 'Semi-usado')
+    if (src.length <= 1) return src
+    // Spread products apart by picking from alternating halves
+    const sorted = [...src]
+    const mid = Math.ceil(sorted.length / 2)
+    const firstHalf = sorted.slice(0, mid)
+    const secondHalf = sorted.slice(mid)
+    const interleaved: Product[] = []
+    for (let i = 0; i < Math.max(firstHalf.length, secondHalf.length); i++) {
+      if (i < secondHalf.length) interleaved.push(secondHalf[i])
+      if (i < firstHalf.length) interleaved.push(firstHalf[i])
+    }
+    return interleaved
+  }, [semiProducts])
+
+  const displayProducts = shuffledProducts
 
   // Auto-scroll: continuously scroll the container using requestAnimationFrame
   // Pauses when user touches/drags, resumes 1.5s after release
@@ -2193,7 +2207,7 @@ function SemiNuevosPage() {
       // Start from the first-third position so user can scroll backwards too
       const oneThird = el.scrollWidth / 3
       el.scrollLeft = oneThird
-      const speed = 1 // px per frame (~60px/sec)
+      const speed = 1.25 // px per frame (~75px/sec) - 25% faster
       const tick = () => {
         if (!semiUserInteracting.current && el) {
           el.scrollLeft += speed
