@@ -1959,7 +1959,7 @@ function PlanRetomaPage() {
                 { step: '1', title: 'Trae tu iPhone', icon: Smartphone },
                 { step: '2', title: 'Lo evaluamos', icon: Settings },
                 { step: '3', title: 'Te damos precio de retoma', icon: Star },
-                { step: '4', title: 'Lo cambias por uno nuevo', icon: Zap },
+                { step: '4', title: 'Lo cambias por uno nuevo o seminuevo más avanzado', icon: Zap },
               ].map((item, i) => (
                 <div key={i} className="text-center p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500">
                   <div className="w-12 h-12 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-3">
