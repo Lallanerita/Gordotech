@@ -184,85 +184,85 @@ function displayCondition(condition: string): string {
 // Product data - Semi-nuevos
 const semiUsados = [
   // iPhone 12 Series
-  { id: 101, name: 'iPhone 12', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=400&h=500&fit=crop', colors: ['#000000', '#FFFFFF', '#4169E1'] },
-  { id: 102, name: 'iPhone 12 Mini', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#FFFFFF'] },
-  { id: 103, name: 'iPhone 12 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1607936854279-55e8a4c64888?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#FFD700', '#1C1C1E'] },
-  { id: 104, name: 'iPhone 12 Pro Max', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1607936854279-55e8a4c64888?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#FFD700', '#1C1C1E'] },
+  { id: 101, name: 'iPhone 12', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#FFFFFF', '#4169E1'] },
+  { id: 102, name: 'iPhone 12 Mini', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#F28B82', '#FFFFFF'] },
+  { id: 103, name: 'iPhone 12 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1607936854279-55e8a4c64888?w=400&h=500&fit=crop&q=80', colors: ['#4A4A4A', '#FFD700', '#1C1C1E'] },
+  { id: 104, name: 'iPhone 12 Pro Max', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1607936854279-55e8a4c64888?w=400&h=500&fit=crop&q=80', colors: ['#4A4A4A', '#FFD700', '#1C1C1E'] },
   // iPhone 13 Series
-  { id: 105, name: 'iPhone 13', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F28B82', '#AECBFA'] },
-  { id: 106, name: 'iPhone 13 Mini', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F28B82', '#FFFFFF'] },
-  { id: 107, name: 'iPhone 13 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#87CEEB', '#FFD700'] },
-  { id: 108, name: 'iPhone 13 Pro Max', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=400&h=500&fit=crop', colors: ['#4A4A4A', '#87CEEB', '#FFD700'] },
+  { id: 105, name: 'iPhone 13', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F28B82', '#AECBFA'] },
+  { id: 106, name: 'iPhone 13 Mini', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1632633173522-47456de71b76?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F28B82', '#FFFFFF'] },
+  { id: 107, name: 'iPhone 13 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=400&h=500&fit=crop&q=80', colors: ['#4A4A4A', '#87CEEB', '#FFD700'] },
+  { id: 108, name: 'iPhone 13 Pro Max', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1638038772924-ef79cce2426d?w=400&h=500&fit=crop&q=80', colors: ['#4A4A4A', '#87CEEB', '#FFD700'] },
   // iPhone 14 Series
-  { id: 109, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop', colors: ['#000000', '#E3D0B9', '#F28B82'] },
-  { id: 110, name: 'iPhone 14 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop', colors: ['#000000', '#E3D0B9', '#AECBFA'] },
-  { id: 111, name: 'iPhone 14 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#6B5B4F', '#F5F5DC'] },
-  { id: 112, name: 'iPhone 14 Pro Max', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#6B5B4F', '#F5F5DC'] },
+  { id: 109, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#E3D0B9', '#F28B82'] },
+  { id: 110, name: 'iPhone 14 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#E3D0B9', '#AECBFA'] },
+  { id: 111, name: 'iPhone 14 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#6B5B4F', '#F5F5DC'] },
+  { id: 112, name: 'iPhone 14 Pro Max', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#6B5B4F', '#F5F5DC'] },
   // iPhone 15 Series
-  { id: 113, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#AECBFA'] },
-  { id: 114, name: 'iPhone 15 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#AECBFA'] },
-  { id: 115, name: 'iPhone 15 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
-  { id: 116, name: 'iPhone 15 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
+  { id: 113, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#F28B82', '#AECBFA'] },
+  { id: 114, name: 'iPhone 15 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#F28B82', '#AECBFA'] },
+  { id: 115, name: 'iPhone 15 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
+  { id: 116, name: 'iPhone 15 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
   // iPhone 16 Series
-  { id: 117, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 118, name: 'iPhone 16 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 119, name: 'iPhone 16 Pro', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
-  { id: 120, name: 'iPhone 16 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  { id: 117, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 118, name: 'iPhone 16 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 119, name: 'iPhone 16 Pro', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  { id: 120, name: 'iPhone 16 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
   // iPhone 17 Series
-  { id: 121, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC'] },
-  { id: 122, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
-  { id: 123, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
-  { id: 124, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 121, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 122, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 123, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 124, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
 ]
 
 // Product data - Nuevos iPhones
 const nuevos = [
-  { id: 201, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop', colors: ['#000000', '#E3D0B9', '#F28B82'] },
-  { id: 202, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop', colors: ['#000000', '#F28B82', '#AECBFA'] },
-  { id: 203, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 204, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC'] },
-  { id: 205, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
-  { id: 206, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
-  { id: 207, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 201, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#E3D0B9', '#F28B82'] },
+  { id: 202, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#F28B82', '#AECBFA'] },
+  { id: 203, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 204, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 205, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 206, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 207, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
 ]
 
 // Product data - iPads Nuevas
 const ipads = [
-  { id: 301, name: 'iPad A16 128GB', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#87CEEB', '#FFD700'] },
-  { id: 302, name: 'iPad A16 256GB', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#87CEEB', '#FFD700'] },
-  { id: 303, name: 'iPad Air 11" M3', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1587033411391-5d9e51cce126?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#4A4A4A', '#E8D0AA'] },
-  { id: 304, name: 'iPad Air 13" M3', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1587033411391-5d9e51cce126?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#4A4A4A', '#E8D0AA'] },
-  { id: 305, name: 'iPad Pro 11"', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#1C1C1E'] },
-  { id: 306, name: 'iPad Pro 13"', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#1C1C1E'] },
+  { id: 301, name: 'iPad A16 128GB', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#87CEEB', '#FFD700'] },
+  { id: 302, name: 'iPad A16 256GB', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#87CEEB', '#FFD700'] },
+  { id: 303, name: 'iPad Air 11" M3', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1587033411391-5d9e51cce126?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#4A4A4A', '#E8D0AA'] },
+  { id: 304, name: 'iPad Air 13" M3', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1587033411391-5d9e51cce126?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#4A4A4A', '#E8D0AA'] },
+  { id: 305, name: 'iPad Pro 11"', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E'] },
+  { id: 306, name: 'iPad Pro 13"', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E'] },
 ]
 
 // Product data - MacBook
 const macbooks = [
-  { id: 401, name: 'MacBook Air 13" M4', storageOptions: ['256GB/16GB'], image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#4A4A4A', '#E8D0AA', '#1C1C1E'] },
+  { id: 401, name: 'MacBook Air 13" M4', storageOptions: ['256GB/16GB'], image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#4A4A4A', '#E8D0AA', '#1C1C1E'] },
 ]
 
 // Product data - AirPods
 const airpods = [
-  { id: 501, name: 'AirPods 4', storageOptions: [], image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=500&fit=crop', colors: ['#FFFFFF'] },
-  { id: 502, name: 'AirPods 4 ANC', storageOptions: [], image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=500&fit=crop', colors: ['#FFFFFF'] },
-  { id: 503, name: 'AirPods Pro 2', storageOptions: [], image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&h=500&fit=crop', colors: ['#FFFFFF'] },
-  { id: 504, name: 'AirPods Pro 3', storageOptions: [], image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&h=500&fit=crop', colors: ['#FFFFFF'] },
+  { id: 501, name: 'AirPods 4', storageOptions: [], image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=500&fit=crop&q=80', colors: ['#FFFFFF'] },
+  { id: 502, name: 'AirPods 4 ANC', storageOptions: [], image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=500&fit=crop&q=80', colors: ['#FFFFFF'] },
+  { id: 503, name: 'AirPods Pro 2', storageOptions: [], image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&h=500&fit=crop&q=80', colors: ['#FFFFFF'] },
+  { id: 504, name: 'AirPods Pro 3', storageOptions: [], image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&h=500&fit=crop&q=80', colors: ['#FFFFFF'] },
 ]
 
 // Product data - Apple Watch
 const appleWatches = [
-  { id: 601, name: 'Apple Watch SE2', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
-  { id: 602, name: 'Apple Watch SE3', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
-  { id: 603, name: 'Apple Watch Series 10', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
-  { id: 604, name: 'Apple Watch Series 11', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop', colors: ['#C0C0C0', '#1C1C1E', '#4A4A4A'] },
-  { id: 605, name: 'Apple Watch Ultra 2', storageOptions: ['49mm'], image: 'https://images.unsplash.com/photo-1694618432450-44056bd70e87?w=400&h=500&fit=crop', colors: ['#E8D0AA', '#1C1C1E'] },
-  { id: 606, name: 'Apple Watch Ultra 3', storageOptions: ['49mm'], image: 'https://images.unsplash.com/photo-1694618432450-44056bd70e87?w=400&h=500&fit=crop', colors: ['#E8D0AA', '#1C1C1E'] },
+  { id: 601, name: 'Apple Watch SE2', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
+  { id: 602, name: 'Apple Watch SE3', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
+  { id: 603, name: 'Apple Watch Series 10', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
+  { id: 604, name: 'Apple Watch Series 11', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#4A4A4A'] },
+  { id: 605, name: 'Apple Watch Ultra 2', storageOptions: ['49mm'], image: 'https://images.unsplash.com/photo-1694618432450-44056bd70e87?w=400&h=500&fit=crop&q=80', colors: ['#E8D0AA', '#1C1C1E'] },
+  { id: 606, name: 'Apple Watch Ultra 3', storageOptions: ['49mm'], image: 'https://images.unsplash.com/photo-1694618432450-44056bd70e87?w=400&h=500&fit=crop&q=80', colors: ['#E8D0AA', '#1C1C1E'] },
 ]
 
 // Product data - Accesorios
 const accesorios = [
-  { id: 701, name: 'Apple Pencil USB-C', storageOptions: [], image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=500&fit=crop', colors: ['#FFFFFF'] },
-  { id: 702, name: 'Apple Pencil Pro', storageOptions: [], image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=500&fit=crop', colors: ['#FFFFFF'] },
+  { id: 701, name: 'Apple Pencil USB-C', storageOptions: [], image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=500&fit=crop&q=80', colors: ['#FFFFFF'] },
+  { id: 702, name: 'Apple Pencil Pro', storageOptions: [], image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=500&fit=crop&q=80', colors: ['#FFFFFF'] },
 ]
 
 // Build unified product list
@@ -1182,6 +1182,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   <img
                     src={model.image}
                     alt={model.label}
+                    loading="lazy"
+                    decoding="async"
                     className={`w-full h-full transition-all duration-300 ${isHovered ? 'object-contain p-1' : 'object-cover'}`}
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
@@ -1239,7 +1241,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                     <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                                       <Heart className="w-4 h-4 text-gray-300" />
                                     </div>
-                                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                                   </div>
                                   <div className="p-3 md:p-4">
                                     <p className="text-xs text-blue-400 font-medium mb-1">{displayCondition(product.condition)}</p>
@@ -1299,7 +1301,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 <button key={`t-${idx}`} onClick={() => { if (!trendingClickBlocked.current) selectProduct(product) }} className="w-44 md:w-56 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
                   <div className="relative aspect-square bg-gray-900/50 p-3 flex items-center justify-center">
                     <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" /> Trending</div>
-                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
                   <div className="p-3">
                     <p className={`text-[10px] font-medium mb-0.5 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
@@ -1454,7 +1456,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                         onClick={() => setGalleryIndex(i)}
                         className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${i === galleryIndex ? 'border-blue-500 ring-1 ring-blue-500/50' : 'border-white/10 hover:border-white/30'}`}
                       >
-                        <img src={img} alt={`${selectedProduct.name} - Miniatura ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/100x100/1a1a2e/7BA3C9/png?text=${i + 1}` }} />
+                        <img src={img} alt={`${selectedProduct.name} - Miniatura ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/100x100/1a1a2e/7BA3C9/png?text=${i + 1}` }} />
                       </button>
                     ))}
                   </div>
@@ -1618,7 +1620,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                 <p className="font-bold text-base text-white">{city.label}</p>
                                 <p className="text-xs text-gray-400 group-hover:text-green-100">{city.sublabel}</p>
                               </div>
-                              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-6 h-6 flex-shrink-0" />
+                              <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-6 h-6 flex-shrink-0" />
                             </a>
                           ))}
                         </div>
@@ -1645,7 +1647,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                             <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                               <Heart className="w-4 h-4 text-gray-300" />
                             </div>
-                            <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                            <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                           </div>
                           <div className="p-3 md:p-4">
                             <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
@@ -1788,7 +1790,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           {/* Brand top section */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <img src="/images/gordotech-logo.png" alt="Gordotech" className="h-14" />
+              <img src="/images/gordotech-logo.png" alt="Gordotech" loading="lazy" decoding="async" className="h-14" />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y seminuevos en Boyaca.</p>
             <div className="flex gap-3 mt-5 justify-center">
@@ -1877,7 +1879,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
             >
-              <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+              <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
                           <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
                         </a>
                         <a
@@ -1886,7 +1888,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
                         >
-                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
                           <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
                         </a>
                         <a
@@ -1895,7 +1897,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
                         >
-                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
                           <div><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
             </a>
           </div>
@@ -1904,7 +1906,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           onClick={() => setWhatsappMenuOpen(!whatsappMenuOpen)}
           className={`w-14 h-14 ${whatsappMenuOpen ? 'bg-gray-700' : 'bg-white hover:bg-gray-100'} rounded-full flex items-center justify-center shadow-lg shadow-black/20 hover:scale-110 transition-all`}
         >
-          {whatsappMenuOpen ? <X className="w-7 h-7 text-white" /> : <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />}
+          {whatsappMenuOpen ? <X className="w-7 h-7 text-white" /> : <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />}
         </button>
       </div>
     </div>
@@ -2027,17 +2029,17 @@ function PlanRetomaPage() {
                 <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
                   <a href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-7 h-7 object-contain" />
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
                     <div className="text-left"><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
                   </a>
                   <a href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-7 h-7 object-contain" />
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
                     <div className="text-left"><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
                   </a>
                   <a href="https://wa.me/573213815465?text=Hola%20Clinica%20de%20Celulares%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-7 h-7 object-contain" />
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
                     <div className="text-left"><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
                   </a>
                 </div>
@@ -2315,6 +2317,8 @@ function SemiNuevosPage() {
                       <img
                         src={product.image}
                         alt={product.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
                       />
@@ -2344,7 +2348,7 @@ function SemiNuevosPage() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                     >
-                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
                       <div><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
                     </a>
                     <a
@@ -2353,7 +2357,7 @@ function SemiNuevosPage() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
                     >
-                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
+                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
                       <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
                     </a>
                   </div>
@@ -2660,7 +2664,7 @@ function SucursalesPage() {
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
                         >
-                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" className="w-4 h-4 object-contain" />
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain" />
                           WhatsApp
                         </a>
 
@@ -2844,7 +2848,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
                     <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                       <Heart className="w-4 h-4 text-gray-300" />
                     </div>
-                    <img src={product.image} alt={product.name} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
                   <div className="p-3 md:p-4">
                     <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
