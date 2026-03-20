@@ -647,6 +647,28 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<string>('')
 
+  // Compute matched variant price using useMemo for instant, reliable updates on ALL devices
+  const matchedVariant = useMemo(() => {
+    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return null
+    const variants = selectedProduct.variants || []
+    if (variants.length === 0) return null
+    const selStorageLower = (selectedStorage || '').toLowerCase().trim()
+    const selColorLower = (selectedColor || '').toLowerCase().trim()
+    // Try exact match (both storage + color)
+    return variants.find(v =>
+      ((!v.storage && !selectedStorage) || (v.storage || '').toLowerCase().trim() === selStorageLower) &&
+      ((!v.color && !selectedColor) || (v.color || '').toLowerCase().trim() === selColorLower)
+    ) ||
+    // Fallback: match storage only (variant has no color)
+    variants.find(v =>
+      (v.storage || '').toLowerCase().trim() === selStorageLower && !v.color
+    ) ||
+    // Fallback: match color only (variant has no storage)
+    variants.find(v =>
+      (v.color || '').toLowerCase().trim() === selColorLower && !v.storage
+    ) || null
+  }, [selectedProduct, selectedStorage, selectedColor])
+
   // Trending carousel refs
   const trendingTrackRef = useRef<HTMLDivElement>(null)
   const trendingAnimId = useRef<number>(0)
@@ -1515,7 +1537,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.storageOptions.map((storage, i) => (
-                                                    <button key={i} onClick={() => setSelectedStorage(storage)} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium transition-colors cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`}>{storage}</button>
+                          <button key={i} onClick={() => { setSelectedStorage(storage) }} onPointerDown={(e) => { e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{storage}</button>
                         ))}
                       </div>
                     </div>
@@ -1530,8 +1552,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                 setSelectedColor(color)
                                 setGalleryIndex(0)
                               }}
-                              className={`color-btn w-8 h-8 rounded-full border-2 transition-colors cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
-                              style={{ backgroundColor: resolveColor(color) }}
+                              onPointerDown={(e) => { e.currentTarget.click() }}
+                              className={`color-btn w-8 h-8 rounded-full border-2 cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
+                              style={{ backgroundColor: resolveColor(color), WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
                               title={color}
                             />
                           ))}
@@ -1541,29 +1564,18 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   </div>
                 </div>
 
-                {/* Price - dynamic based on variant or base price */}
+                {/* Price - dynamic based on variant or base price (uses useMemo for instant updates) */}
                 {selectedProduct.condition !== 'Semi-usado' && (() => {
                   const variants = selectedProduct.variants || []
                   if (variants.length > 0) {
-                    // Find matching variant for selected storage + color (case-insensitive)
-                    const selStorageLower = (selectedStorage || '').toLowerCase().trim()
-                    const selColorLower = (selectedColor || '').toLowerCase().trim()
-                    const match = variants.find(v =>
-                      ((!v.storage && !selectedStorage) || (v.storage || '').toLowerCase().trim() === selStorageLower) &&
-                      ((!v.color && !selectedColor) || (v.color || '').toLowerCase().trim() === selColorLower)
-                    ) || variants.find(v =>
-                      (v.storage || '').toLowerCase().trim() === selStorageLower && !v.color
-                    ) || variants.find(v =>
-                      (v.color || '').toLowerCase().trim() === selColorLower && !v.storage
-                    )
-                    if (match && match.price) {
+                    if (matchedVariant && matchedVariant.price) {
                       return (
                         <div className="mb-6">
                           {selectedProduct.oldPrice && selectedProduct.oldPrice !== '-' && (
                             <p className="text-sm text-red-400 line-through">$ {selectedProduct.oldPrice}</p>
                           )}
-                          <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>$ {match.price}</p>
-                          <p className="text-xs text-gray-500 mt-1">{match.storage && match.color ? `${match.storage} / ${match.color}` : match.storage || match.color || ''}</p>
+                          <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>$ {matchedVariant.price}</p>
+                          <p className="text-xs text-gray-500 mt-1">{matchedVariant.storage && matchedVariant.color ? `${matchedVariant.storage} / ${matchedVariant.color}` : matchedVariant.storage || matchedVariant.color || ''}</p>
                         </div>
                       )
                     } else {
