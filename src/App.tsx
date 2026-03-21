@@ -874,6 +874,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   }, [])
 
   // Navigate to product URL and select product
+  // CRITICAL: If the product has no variants, fetch the full product from API to get them
   const selectProduct = useCallback((product: Product) => {
     scrollToTop()
     setSelectedProduct(product)
@@ -882,7 +883,19 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     navigate(`/producto/${product.id}/${slug}`, { state: { product } })
     // extra safety after navigation/render
     setTimeout(scrollToTop, 50)
-  }, [navigate, scrollToTop])
+    // If product has no variants, fetch full data from API (variants may not be in static/cached data)
+    if (!product.variants || product.variants.length === 0) {
+      fetch(`${API_URL}/api/products/${product.id}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.variants && data.variants.length > 0) {
+            const fullProduct = buildProductFromApi(data)
+            setSelectedProduct(fullProduct)
+          }
+        })
+        .catch(() => { /* API unavailable, use product as-is */ })
+    }
+  }, [navigate, scrollToTop, buildProductFromApi])
 
   // Clear product selection and go back to home
   const clearProduct = useCallback(() => {
@@ -893,7 +906,24 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     navigate('/')
   }, [navigate])
 
+  // Helper to build a Product from API response data
+  const buildProductFromApi = useCallback((data: Record<string, unknown>): Product => {
+    const ciRaw = (data.color_images as Record<string, string[] | string>) || {}
+    const ciResolved: Record<string, string[]> = {}
+    for (const [k, v] of Object.entries(ciRaw)) { ciResolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl) }
+    return {
+      id: data.id as number, name: data.name as string, slug: (data.slug as string) || '', category: (data.category as string) || '',
+      condition: data.condition as string, image: resolveImageUrl(data.image as string), images: ((data.images as string[]) || []).map(resolveImageUrl),
+      colors: data.colors as string[], color_images: ciResolved, storageOptions: data.storage_options as string[],
+      badge: (data.badge as string) || null, available: data.available as string[],
+      price: (data.price as string) || '', oldPrice: (data.old_price as string) || '', description: (data.description as string) || '',
+      model_3d: (data.model_3d as string) || '',
+      variants: (data.variants as Product['variants']) || [],
+    }
+  }, [])
+
   // Load product from URL (for direct links / sharing)
+  // CRITICAL: Always fetch from API to ensure variants are loaded (static/cached data may lack variants)
   useEffect(() => {
     if (!productSlug && !productId) {
       if (selectedProduct) {
@@ -902,53 +932,52 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       }
       return
     }
-    // If already have the right product selected (e.g. from initialProduct or route state), skip
-    if (selectedProduct && productId && String(selectedProduct.id) === productId) {
-      return
-    }
-    // Find by product ID first (unique), then fall back to slug
-    const found = productId
-      ? apiProducts.find(p => String(p.id) === productId)
-      : apiProducts.find(p => getProductSlug(p) === productSlug)
-    if (found && (!selectedProduct || String(selectedProduct.id) !== String(found.id))) {
-      setSelectedProduct(found)
-      setGalleryIndex(0)
-      scrollToTop()
-      return
-    }
-    // If not found locally, fetch from API by ID or slug
-    if (!found && !selectedProduct) {
-      const fetchProduct = async () => {
-        try {
-          const url = productId
-            ? `${API_URL}/api/products/${productId}`
-            : `${API_URL}/api/products/by-slug/${productSlug}`
-          const res = await fetch(url)
-          if (res.ok) {
-            const data = await res.json()
-            const ciRaw = (data.color_images as Record<string, string[] | string>) || {}
-            const ciResolved: Record<string, string[]> = {}
-            for (const [k, v] of Object.entries(ciRaw)) { ciResolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl) }
-            const product: Product = {
-              id: data.id, name: data.name, slug: data.slug, category: data.category || '',
-              condition: data.condition, image: resolveImageUrl(data.image), images: (data.images || []).map(resolveImageUrl),
-              colors: data.colors, color_images: ciResolved, storageOptions: data.storage_options,
-              badge: data.badge || null, available: data.available,
-              price: data.price || '', oldPrice: data.old_price || '', description: data.description || '',
-              model_3d: data.model_3d || '',
-              variants: data.variants || [],
-            }
-            setSelectedProduct(product)
-            setGalleryIndex(0)
-            scrollToTop()
-          }
-        } catch {
-          // Product not found, stay on home
+
+    const pid = productId || null
+    const pslug = productSlug || null
+
+    // Always fetch the full product from the API to ensure variants are included
+    const fetchFullProduct = async () => {
+      try {
+        const url = pid
+          ? `${API_URL}/api/products/${pid}`
+          : `${API_URL}/api/products/by-slug/${pslug}`
+        const res = await fetch(url)
+        if (res.ok) {
+          const data = await res.json()
+          const product = buildProductFromApi(data)
+          setSelectedProduct(product)
+          setGalleryIndex(0)
+          scrollToTop()
         }
+      } catch {
+        // API failed — try to use local data as fallback
       }
-      fetchProduct()
     }
-  }, [productSlug, productId, apiProducts, selectedProduct, scrollToTop])
+
+    // If we already have this product selected WITH variants, no need to re-fetch
+    if (selectedProduct && pid && String(selectedProduct.id) === pid && (selectedProduct.variants || []).length > 0) {
+      return
+    }
+
+    // Try to find in already-loaded apiProducts (which include variants from API)
+    const found = pid
+      ? apiProducts.find(p => String(p.id) === pid)
+      : apiProducts.find(p => getProductSlug(p) === pslug)
+
+    if (found && (found.variants || []).length > 0) {
+      // Found locally WITH variants — use it
+      if (!selectedProduct || String(selectedProduct.id) !== String(found.id) || (selectedProduct.variants || []).length === 0) {
+        setSelectedProduct(found)
+        setGalleryIndex(0)
+        scrollToTop()
+      }
+      return
+    }
+
+    // Either not found locally, or found but WITHOUT variants — always fetch from API
+    fetchFullProduct()
+  }, [productSlug, productId, apiProducts, selectedProduct, scrollToTop, buildProductFromApi])
 
   const cityName = 'Duitama'
 
