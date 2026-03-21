@@ -2262,38 +2262,12 @@ function ReparacionPage() {
               </p>
             </div>
 
-            <div className="text-center mb-12">
-              <a
-                href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-              >
-                Agendar Reparacion por WhatsApp
-              </a>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {services.map((service, i) => (
-                <div
-                  key={i}
-                  className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
-                >
-                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
-                    <service.icon className="w-7 h-7 text-blue-400" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2 text-center">{service.title}</h4>
-                  <p className="text-gray-400 text-sm leading-relaxed text-center">{service.description}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Galeria de Trabajos - Carousel */}
+            {/* Galeria de Trabajos - Carousel (right after title) */}
             {galleryPhotos.length > 0 && (() => {
               const tripled = [...galleryPhotos, ...galleryPhotos, ...galleryPhotos]
               return (
-                <div className="mt-20">
-                  <div className="text-center mb-10">
+                <div className="mb-16">
+                  <div className="text-center mb-8">
                     <h3 className="text-3xl md:text-5xl font-bold mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                       GALERIA DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TRABAJOS</span>
                     </h3>
@@ -2339,6 +2313,32 @@ function ReparacionPage() {
                 </div>
               )
             })()}
+
+            <div className="text-center mb-12">
+              <a
+                href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                Agendar Reparacion por WhatsApp
+              </a>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {services.map((service, i) => (
+                <div
+                  key={i}
+                  className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
+                    <service.icon className="w-7 h-7 text-blue-400" />
+                  </div>
+                  <h4 className="text-lg font-bold text-white mb-2 text-center">{service.title}</h4>
+                  <p className="text-gray-400 text-sm leading-relaxed text-center">{service.description}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </div>
