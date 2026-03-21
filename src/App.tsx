@@ -880,14 +880,27 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     const ciRaw = (data.color_images as Record<string, string[] | string>) || {}
     const ciResolved: Record<string, string[]> = {}
     for (const [k, v] of Object.entries(ciRaw)) { ciResolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl) }
+    const variants = (data.variants as Product['variants']) || []
+    let storageOpts = (data.storage_options as string[]) || []
+    // If storageOptions is empty but variants exist, extract unique storage values from variants
+    if (storageOpts.length === 0 && variants.length > 0) {
+      const seen = new Set<string>()
+      variants.forEach(v => { if (v.storage && v.active !== false) { const s = v.storage.trim(); if (s && !seen.has(s)) { seen.add(s); storageOpts.push(s) } } })
+    }
+    // Same for colors: if empty but variants have colors, extract them
+    let colors = (data.colors as string[]) || []
+    if (colors.length === 0 && variants.length > 0) {
+      const seen = new Set<string>()
+      variants.forEach(v => { if (v.color) { const c = v.color.trim(); if (c && !seen.has(c.toLowerCase())) { seen.add(c.toLowerCase()); colors.push(c) } } })
+    }
     return {
       id: data.id as number, name: data.name as string, slug: (data.slug as string) || '', category: (data.category as string) || '',
       condition: data.condition as string, image: resolveImageUrl(data.image as string), images: ((data.images as string[]) || []).map(resolveImageUrl),
-      colors: data.colors as string[], color_images: ciResolved, storageOptions: data.storage_options as string[],
+      colors, color_images: ciResolved, storageOptions: storageOpts,
       badge: (data.badge as string) || null, available: data.available as string[],
       price: (data.price as string) || '', oldPrice: (data.old_price as string) || '', description: (data.description as string) || '',
       model_3d: (data.model_3d as string) || '',
-      variants: (data.variants as Product['variants']) || [],
+      variants,
     }
   }, [])
 
@@ -913,8 +926,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             // Merge: keep the current product but add any missing data from API
             const hasMoreVariants = (fullProduct.variants || []).length > (prev.variants || []).length
             const hasMoreColorImages = Object.keys(fullProduct.color_images || {}).length > Object.keys(prev.color_images || {}).length
-            if (hasMoreVariants || hasMoreColorImages) {
-              return { ...prev, variants: fullProduct.variants || prev.variants, color_images: fullProduct.color_images || prev.color_images }
+            const hasMoreStorage = (fullProduct.storageOptions || []).length > (prev.storageOptions || []).length
+            const hasMoreColors = (fullProduct.colors || []).length > (prev.colors || []).length
+            if (hasMoreVariants || hasMoreColorImages || hasMoreStorage || hasMoreColors) {
+              return { ...prev, variants: fullProduct.variants || prev.variants, color_images: fullProduct.color_images || prev.color_images, storageOptions: fullProduct.storageOptions.length > 0 ? fullProduct.storageOptions : prev.storageOptions, colors: fullProduct.colors.length > 0 ? fullProduct.colors : prev.colors }
             }
             return prev // no new data, don't trigger re-render
           })
@@ -968,7 +983,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           setSelectedProduct(prev => {
             if (prev && prev.id === product.id) {
               // Product already loaded — merge API data without replacing (preserves user selections)
-              return { ...prev, ...product, color_images: { ...(prev.color_images || {}), ...(product.color_images || {}) } }
+              return { ...prev, ...product, color_images: { ...(prev.color_images || {}), ...(product.color_images || {}) }, storageOptions: product.storageOptions.length > 0 ? product.storageOptions : prev.storageOptions, colors: product.colors.length > 0 ? product.colors : prev.colors }
             }
             // First load — set the full product
             return product
