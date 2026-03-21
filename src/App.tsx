@@ -2251,7 +2251,6 @@ function ReparacionPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-                <Wrench className="w-4 h-4 text-blue-400" />
                 <span className="text-blue-400 text-sm font-medium">Servicio Tecnico</span>
               </div>
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
