@@ -873,6 +873,22 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     document.body.scrollTop = 0
   }, [])
 
+  // Helper to build a Product from API response data — MUST be defined before selectProduct
+  const buildProductFromApi = useCallback((data: Record<string, unknown>): Product => {
+    const ciRaw = (data.color_images as Record<string, string[] | string>) || {}
+    const ciResolved: Record<string, string[]> = {}
+    for (const [k, v] of Object.entries(ciRaw)) { ciResolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl) }
+    return {
+      id: data.id as number, name: data.name as string, slug: (data.slug as string) || '', category: (data.category as string) || '',
+      condition: data.condition as string, image: resolveImageUrl(data.image as string), images: ((data.images as string[]) || []).map(resolveImageUrl),
+      colors: data.colors as string[], color_images: ciResolved, storageOptions: data.storage_options as string[],
+      badge: (data.badge as string) || null, available: data.available as string[],
+      price: (data.price as string) || '', oldPrice: (data.old_price as string) || '', description: (data.description as string) || '',
+      model_3d: (data.model_3d as string) || '',
+      variants: (data.variants as Product['variants']) || [],
+    }
+  }, [])
+
   // Navigate to product URL and select product
   // CRITICAL: If the product has no variants, fetch the full product from API to get them
   const selectProduct = useCallback((product: Product) => {
@@ -905,22 +921,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     setShow3DView(false)
     navigate('/')
   }, [navigate])
-
-  // Helper to build a Product from API response data
-  const buildProductFromApi = useCallback((data: Record<string, unknown>): Product => {
-    const ciRaw = (data.color_images as Record<string, string[] | string>) || {}
-    const ciResolved: Record<string, string[]> = {}
-    for (const [k, v] of Object.entries(ciRaw)) { ciResolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl) }
-    return {
-      id: data.id as number, name: data.name as string, slug: (data.slug as string) || '', category: (data.category as string) || '',
-      condition: data.condition as string, image: resolveImageUrl(data.image as string), images: ((data.images as string[]) || []).map(resolveImageUrl),
-      colors: data.colors as string[], color_images: ciResolved, storageOptions: data.storage_options as string[],
-      badge: (data.badge as string) || null, available: data.available as string[],
-      price: (data.price as string) || '', oldPrice: (data.old_price as string) || '', description: (data.description as string) || '',
-      model_3d: (data.model_3d as string) || '',
-      variants: (data.variants as Product['variants']) || [],
-    }
-  }, [])
 
   // Load product from URL (for direct links / sharing)
   // CRITICAL: Always fetch from API to ensure variants are loaded (static/cached data may lack variants)
