@@ -2282,12 +2282,12 @@ function ReparacionPage() {
                           key={`gallery-${i}`}
                           onClick={() => setLightboxPhoto(photo)}
                           className="group relative flex-shrink-0 rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
-                          style={{ width: 'min(70vw, 320px)', aspectRatio: '3/4' }}
+                          style={{ width: 'min(70vw, 320px)', aspectRatio: '1/1' }}
                         >
                           <img
                             src={photo.image}
                             alt={photo.caption}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                             loading="lazy"
                             decoding="async"
                           />
@@ -2316,20 +2316,6 @@ function ReparacionPage() {
               </a>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {services.map((service, i) => (
-                <div
-                  key={i}
-                  className="group p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
-                >
-                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-500/20 transition-colors">
-                    <service.icon className="w-7 h-7 text-blue-400" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2 text-center">{service.title}</h4>
-                  <p className="text-gray-400 text-sm leading-relaxed text-center">{service.description}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </section>
       </div>
