@@ -646,6 +646,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [whatsappCityModal, setWhatsappCityModal] = useState(false)
   const [selectedStorage, setSelectedStorage] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<string>('')
+  // Track which product ID we already scrolled to top for, to avoid repeated scroll-to-top
+  const scrolledForProductId = useRef<number | null>(null)
 
   // Compute matched variant price using useMemo for instant, reliable updates on ALL devices
   const matchedVariant = useMemo(() => {
@@ -892,13 +894,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   // Navigate to product URL and select product
   // CRITICAL: If the product has no variants, fetch the full product from API to get them
   const selectProduct = useCallback((product: Product) => {
+    scrolledForProductId.current = product.id
     scrollToTop()
     setSelectedProduct(product)
     setGalleryIndex(0)
     const slug = getProductSlug(product)
     navigate(`/producto/${product.id}/${slug}`, { state: { product } })
-    // extra safety after navigation/render
-    setTimeout(scrollToTop, 50)
     // If product has no variants, fetch full data from API (variants may not be in static/cached data)
     if (!product.variants || product.variants.length === 0) {
       fetch(`${API_URL}/api/products/${product.id}`)
@@ -915,6 +916,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
   // Clear product selection and go back to home
   const clearProduct = useCallback(() => {
+    scrolledForProductId.current = null
     setSelectedProduct(null)
     setGalleryIndex(0)
     setZoomOpen(false)
@@ -936,6 +938,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     const pid = productId || null
     const pslug = productSlug || null
 
+    // Only scroll to top if we haven't already scrolled for this product
+    const shouldScroll = (id: number) => {
+      if (scrolledForProductId.current === id) return false
+      scrolledForProductId.current = id
+      return true
+    }
+
     // Always fetch the full product from the API to ensure variants are included
     const fetchFullProduct = async () => {
       try {
@@ -948,7 +957,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           const product = buildProductFromApi(data)
           setSelectedProduct(product)
           setGalleryIndex(0)
-          scrollToTop()
+          if (shouldScroll(product.id)) scrollToTop()
         }
       } catch {
         // API failed — try to use local data as fallback
@@ -970,7 +979,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       if (!selectedProduct || String(selectedProduct.id) !== String(found.id) || (selectedProduct.variants || []).length === 0) {
         setSelectedProduct(found)
         setGalleryIndex(0)
-        scrollToTop()
+        if (shouldScroll(found.id)) scrollToTop()
       }
       return
     }
