@@ -654,18 +654,32 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     if (variants.length === 0) return null
     const selStorageLower = (selectedStorage || '').toLowerCase().trim()
     const selColorLower = (selectedColor || '').toLowerCase().trim()
+    // Helper: check if storage values match (exact OR one contains the other)
+    const storageMatch = (variantStorage: string, selectedStor: string): boolean => {
+      if (!variantStorage && !selectedStor) return true
+      if (!variantStorage || !selectedStor) return false
+      const vs = variantStorage.toLowerCase().trim()
+      const ss = selectedStor.toLowerCase().trim()
+      return vs === ss || vs.includes(ss) || ss.includes(vs)
+    }
+    // Helper: check if color values match (case-insensitive)
+    const colorMatch = (variantColor: string, selectedCol: string): boolean => {
+      if (!variantColor && !selectedCol) return true
+      if (!variantColor || !selectedCol) return false
+      return variantColor.toLowerCase().trim() === selectedCol.toLowerCase().trim()
+    }
     // Try exact match (both storage + color)
     return variants.find(v =>
-      ((!v.storage && !selectedStorage) || (v.storage || '').toLowerCase().trim() === selStorageLower) &&
-      ((!v.color && !selectedColor) || (v.color || '').toLowerCase().trim() === selColorLower)
+      storageMatch(v.storage || '', selStorageLower) &&
+      colorMatch(v.color || '', selColorLower)
     ) ||
     // Fallback: match storage only (variant has no color)
     variants.find(v =>
-      (v.storage || '').toLowerCase().trim() === selStorageLower && !v.color
+      storageMatch(v.storage || '', selStorageLower) && !v.color
     ) ||
     // Fallback: match color only (variant has no storage)
     variants.find(v =>
-      (v.color || '').toLowerCase().trim() === selColorLower && !v.storage
+      colorMatch(v.color || '', selColorLower) && !v.storage
     ) || null
   }, [selectedProduct, selectedStorage, selectedColor])
 
@@ -688,8 +702,15 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         const parsePrice = (p: string) => parseInt((p || '0').replace(/\./g, '').replace(/[^\d]/g, ''), 10) || 0
         const cheapest = [...variants].filter(v => v.active && v.price).sort((a, b) => parsePrice(a.price) - parsePrice(b.price))[0]
         if (cheapest) {
-           const matchedStorage = selectedProduct.storageOptions.find(s => s.toLowerCase().trim() === (cheapest.storage || '').toLowerCase().trim()) || cheapest.storage || selectedProduct.storageOptions[0] || ''
-          const matchedColor = selectedProduct.colors.find(c => c.toLowerCase().trim() === (cheapest.color || '').toLowerCase().trim()) || cheapest.color || selectedProduct.colors[0] || ''
+          const cStorage = (cheapest.storage || '').toLowerCase().trim()
+          const cColor = (cheapest.color || '').toLowerCase().trim()
+          // Use contains matching for storage (e.g. variant "256GB" matches product "8 GB RAM 256GB")
+          const matchedStorage = selectedProduct.storageOptions.find(s => {
+            const sl = s.toLowerCase().trim()
+            return sl === cStorage || sl.includes(cStorage) || cStorage.includes(sl)
+          }) || cheapest.storage || selectedProduct.storageOptions[0] || ''
+          // Use case-insensitive matching for color
+          const matchedColor = selectedProduct.colors.find(c => c.toLowerCase().trim() === cColor) || cheapest.color || selectedProduct.colors[0] || ''
           setSelectedStorage(matchedStorage)
           setSelectedColor(matchedColor)
         } else {
