@@ -2150,6 +2150,8 @@ function ReparacionPage() {
   const city = 'duitama' as City
   const socials = CITY_SOCIALS[city]
   const [services, setServices] = useState(repairServices)
+  const [galleryPhotos, setGalleryPhotos] = useState<{ id: number; image: string; caption: string }[]>([])
+  const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
@@ -2171,6 +2173,25 @@ function ReparacionPage() {
       } catch { /* use static fallback */ }
     }
     loadServices()
+  }, [])
+
+  useEffect(() => {
+    const loadGallery = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/repair-gallery`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.photos) {
+            setGalleryPhotos(data.photos.map((p: Record<string, unknown>) => ({
+              id: p.id as number,
+              image: resolveImageUrl(p.image as string),
+              caption: (p.caption as string) || '',
+            })))
+          }
+        }
+      } catch { /* silently fail */ }
+    }
+    loadGallery()
   }, [])
 
   return (
@@ -2234,9 +2255,71 @@ function ReparacionPage() {
                 </div>
               ))}
             </div>
+
+            {/* Galeria de Trabajos */}
+            {galleryPhotos.length > 0 && (
+              <div className="mt-20">
+                <div className="text-center mb-10">
+                  <h3 className="text-3xl md:text-5xl font-bold mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                    GALERIA DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TRABAJOS</span>
+                  </h3>
+                  <p className="text-gray-400 text-base max-w-xl mx-auto">
+                    Nuestro tecnico en accion — reparaciones reales con calidad garantizada
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {galleryPhotos.map((photo) => (
+                    <button
+                      key={photo.id}
+                      onClick={() => setLightboxPhoto(photo)}
+                      className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
+                    >
+                      <img
+                        src={photo.image}
+                        alt={photo.caption}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {photo.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <p className="text-white text-sm font-medium">{photo.caption}</p>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </div>
+
+      {/* Lightbox Modal */}
+      {lightboxPhoto && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <button
+            onClick={() => setLightboxPhoto(null)}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+          <div className="max-w-4xl max-h-[85vh] w-full" onClick={e => e.stopPropagation()}>
+            <img
+              src={lightboxPhoto.image}
+              alt={lightboxPhoto.caption}
+              className="w-full h-full object-contain rounded-xl"
+            />
+            {lightboxPhoto.caption && (
+              <p className="text-white text-center mt-4 text-lg">{lightboxPhoto.caption}</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

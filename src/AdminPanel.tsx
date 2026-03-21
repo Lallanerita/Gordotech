@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin, Star, MessageSquare } from 'lucide-react'
+import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin, Star, MessageSquare, Camera } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -132,7 +132,15 @@ type Review = {
   created_at: string | null
 }
 
-type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'slideshow' | 'marquee' | 'settings' | 'sucursales' | 'resenas'
+type GalleryPhoto = {
+  id: number
+  image: string
+  caption: string
+  sort_order: number
+  active: boolean
+}
+
+type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'gallery' | 'slideshow' | 'marquee' | 'settings' | 'sucursales' | 'resenas'
 
 const TAB_PATHS: Record<string, Tab> = {
   '/': 'dashboard',
@@ -141,6 +149,7 @@ const TAB_PATHS: Record<string, Tab> = {
   '/categorias': 'categories',
   '/burbujas': 'bubbles',
   '/servicios': 'services',
+  '/galeria-reparacion': 'gallery',
   '/slideshow': 'slideshow',
   '/marquee': 'marquee',
   '/config': 'settings',
@@ -154,6 +163,7 @@ const TAB_TO_PATH: Record<Tab, string> = {
   categories: '/categorias',
   bubbles: '/burbujas',
   services: '/servicios',
+  gallery: '/galeria-reparacion',
   slideshow: '/slideshow',
   marquee: '/marquee',
   settings: '/config',
@@ -1152,6 +1162,12 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [reviewForm, setReviewForm] = useState({ sucursal_slug: 'duitama', customer_name: '', rating: 5, text: '', sort_order: 0, active: true })
   const [savingReview, setSavingReview] = useState(false)
 
+  // Repair Gallery
+  const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>([])
+  const [editingGalleryPhoto, setEditingGalleryPhoto] = useState<GalleryPhoto | null | 'new'>(null)
+  const [galleryForm, setGalleryForm] = useState({ image: '', caption: '', sort_order: 0, active: true })
+  const [savingGallery, setSavingGallery] = useState(false)
+
   // Password change
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -1257,6 +1273,16 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const loadGalleryPhotos = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiGet('/api/admin/repair-gallery', token)
+      setGalleryPhotos(data.photos || [])
+    } catch {
+      // not critical
+    }
+  }, [token])
+
   // Sync tab with browser back/forward
   useEffect(() => {
     const onPopState = () => setActiveTabRaw(getTabFromPath())
@@ -1275,8 +1301,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       loadMarqueeTexts()
       loadSucursales()
       loadReviews()
+      loadGalleryPhotos()
     }
-  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts, loadSucursales, loadReviews])
+  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts, loadSucursales, loadReviews, loadGalleryPhotos])
 
   const handleDelete = async () => {
     if (!deleteConfirm || !token) return
@@ -1289,6 +1316,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'marquee') await apiDelete(`/api/admin/marquee-texts/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'sucursal') await apiDelete(`/api/admin/sucursales/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'review') await apiDelete(`/api/admin/resenas/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'gallery') await apiDelete(`/api/admin/repair-gallery/${deleteConfirm.id}`, token)
       setDeleteConfirm(null)
       loadStats()
       if (deleteConfirm.type === 'product') loadProducts()
@@ -1299,6 +1327,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'marquee') loadMarqueeTexts()
       if (deleteConfirm.type === 'sucursal') loadSucursales()
       if (deleteConfirm.type === 'review') loadReviews()
+      if (deleteConfirm.type === 'gallery') loadGalleryPhotos()
     } catch {
       alert('Error eliminando')
     }
@@ -1335,6 +1364,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     { id: 'categories', label: 'Categorias', icon: <FolderOpen className="w-4 h-4" /> },
     { id: 'bubbles', label: 'Burbujas', icon: <Circle className="w-4 h-4" /> },
     { id: 'services', label: 'Servicios', icon: <Wrench className="w-4 h-4" /> },
+    { id: 'gallery', label: 'Galeria Reparacion', icon: <Camera className="w-4 h-4" /> },
     { id: 'slideshow', label: 'Slideshow', icon: <Image className="w-4 h-4" /> },
     { id: 'marquee', label: 'Marquee', icon: <Type className="w-4 h-4" /> },
     { id: 'sucursales', label: 'Sucursales', icon: <MapPin className="w-4 h-4" /> },
@@ -1627,6 +1657,116 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* GALLERY REPARACION TAB */}
+        {activeTab === 'gallery' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>GALERIA DE REPARACION ({galleryPhotos.length})</h2>
+              <button onClick={() => { setEditingGalleryPhoto('new'); setGalleryForm({ image: '', caption: '', sort_order: galleryPhotos.length, active: true }) }} className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors">
+                <Plus className="w-4 h-4" /> Nueva Foto
+              </button>
+            </div>
+
+            {galleryPhotos.length === 0 && (
+              <div className="bg-gray-900/50 border border-white/10 rounded-2xl p-8 text-center">
+                <Camera className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-400">No hay fotos en la galeria de reparacion</p>
+                <p className="text-gray-500 text-sm mt-1">Agrega fotos del tecnico trabajando para mostrar en la pagina de reparacion</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {galleryPhotos.map(photo => (
+                <div key={photo.id} className={`bg-gray-900/50 border rounded-2xl overflow-hidden transition-all ${photo.active ? 'border-white/10 hover:border-blue-500/30' : 'border-white/5 opacity-60'}`}>
+                  <div className="relative aspect-square bg-gray-800">
+                    {photo.image ? (
+                      <img src={photo.image} alt={photo.caption} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=Sin+imagen' }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center"><Camera className="w-8 h-8 text-gray-600" /></div>
+                    )}
+                    {!photo.active && (
+                      <div className="absolute top-2 left-2 px-2 py-0.5 bg-red-500/80 rounded text-[10px] text-white font-bold">INACTIVA</div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-white text-sm font-medium truncate">{photo.caption || '(Sin descripcion)'}</p>
+                    <p className="text-gray-500 text-xs mt-1">Orden: {photo.sort_order}</p>
+                    <div className="flex gap-1 mt-2">
+                      <button onClick={() => { setEditingGalleryPhoto(photo); setGalleryForm({ image: photo.image, caption: photo.caption, sort_order: photo.sort_order, active: photo.active }) }} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => setDeleteConfirm({ type: 'gallery', id: photo.id, name: photo.caption || 'Foto' })} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-red-400">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Gallery Photo Form Modal */}
+            {editingGalleryPhoto !== null && (
+              <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+                <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between p-5 border-b border-white/10">
+                    <h3 className="text-lg font-bold text-white">{editingGalleryPhoto === 'new' ? 'Nueva Foto' : 'Editar Foto'}</h3>
+                    <button onClick={() => setEditingGalleryPhoto(null)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-gray-400" /></button>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Imagen *</label>
+                      <ImageUploader
+                        currentImage={galleryForm.image}
+                        onUpload={(url: string) => setGalleryForm(f => ({...f, image: url}))}
+                        token={token}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Descripcion / Caption</label>
+                      <input value={galleryForm.caption} onChange={e => setGalleryForm(f => ({...f, caption: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="Ej: Cambio de pantalla iPhone 15" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Orden</label>
+                        <input type="number" value={galleryForm.sort_order} onChange={e => setGalleryForm(f => ({...f, sort_order: parseInt(e.target.value) || 0}))}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" />
+                      </div>
+                      <div className="flex items-end pb-1">
+                        <div className="flex items-center gap-3">
+                          <label className="text-gray-400 text-sm">Activa</label>
+                          <button onClick={() => setGalleryForm(f => ({...f, active: !f.active}))} className="p-1">
+                            {galleryForm.active ? <ToggleRight className="w-6 h-6 text-green-400" /> : <ToggleLeft className="w-6 h-6 text-gray-500" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-5 border-t border-white/10">
+                    <button onClick={() => setEditingGalleryPhoto(null)} className="flex-1 py-2.5 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors text-sm">Cancelar</button>
+                    <button onClick={async () => {
+                      if (!galleryForm.image) return
+                      setSavingGallery(true)
+                      try {
+                        if (editingGalleryPhoto === 'new') {
+                          await apiPost('/api/admin/repair-gallery', galleryForm, token)
+                        } else {
+                          await apiPut(`/api/admin/repair-gallery/${editingGalleryPhoto.id}`, galleryForm, token)
+                        }
+                        setEditingGalleryPhoto(null)
+                        loadGalleryPhotos()
+                      } catch { alert('Error guardando foto') } finally { setSavingGallery(false) }
+                    }} disabled={savingGallery || !galleryForm.image} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                      <Save className="w-4 h-4" />
+                      {savingGallery ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

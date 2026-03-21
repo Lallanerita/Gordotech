@@ -197,6 +197,18 @@ async def init_db():
         )
     """)
 
+    # Repair gallery table (photos of technician working)
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS repair_gallery (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            image TEXT NOT NULL DEFAULT '',
+            caption TEXT NOT NULL DEFAULT '',
+            sort_order INTEGER DEFAULT 0,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     # Product variants table (storage + color + price combinations)
     await db.execute("""
         CREATE TABLE IF NOT EXISTS product_variants (

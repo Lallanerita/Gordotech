@@ -201,6 +201,18 @@ class ReviewUpdate(BaseModel):
     sort_order: Optional[int] = None
     active: Optional[bool] = None
 
+class RepairGalleryCreate(BaseModel):
+    image: str = ""
+    caption: str = ""
+    sort_order: int = 0
+    active: bool = True
+
+class RepairGalleryUpdate(BaseModel):
+    image: Optional[str] = None
+    caption: Optional[str] = None
+    sort_order: Optional[int] = None
+    active: Optional[bool] = None
+
 class VariantCreate(BaseModel):
     storage: str = ""
     color: str = ""
@@ -395,6 +407,15 @@ def row_to_service(row):
         "price": row["price"],
         "icon": row["icon"],
         "sort_order": row["sort_order"],
+    }
+
+def row_to_gallery_photo(row):
+    return {
+        "id": row["id"],
+        "image": row["image"],
+        "caption": row["caption"],
+        "sort_order": row["sort_order"],
+        "active": bool(row["active"]),
     }
 
 def row_to_sucursal(row):
@@ -951,6 +972,86 @@ async def admin_delete_service(service_id: int, username: str = Depends(get_curr
         await db.execute("DELETE FROM repair_services WHERE id = ?", (service_id,))
         await db.commit()
         return {"message": "Servicio eliminado"}
+    finally:
+        await db.close()
+
+# ==================== REPAIR GALLERY (PUBLIC) ====================
+
+@app.get("/api/repair-gallery")
+async def get_repair_gallery():
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM repair_gallery WHERE active = 1 ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"photos": [row_to_gallery_photo(r) for r in rows]}
+    finally:
+        await db.close()
+
+# ==================== ADMIN REPAIR GALLERY CRUD ====================
+
+@app.get("/api/admin/repair-gallery")
+async def admin_get_gallery(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM repair_gallery ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"photos": [row_to_gallery_photo(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/repair-gallery")
+async def admin_create_gallery_photo(photo: RepairGalleryCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "INSERT INTO repair_gallery (image, caption, sort_order, active) VALUES (?, ?, ?, ?)",
+            (photo.image, photo.caption, photo.sort_order, 1 if photo.active else 0)
+        )
+        new_id = cursor.lastrowid
+        await db.commit()
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM repair_gallery WHERE id = ?", (new_id,))
+        row = await cursor.fetchone()
+        return row_to_gallery_photo(row)
+    finally:
+        await db.close()
+
+@app.put("/api/admin/repair-gallery/{photo_id}")
+async def admin_update_gallery_photo(photo_id: int, photo: RepairGalleryUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM repair_gallery WHERE id = ?", (photo_id,))
+        if not await cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Foto no encontrada")
+        updates = {}
+        if photo.image is not None: updates["image"] = photo.image
+        if photo.caption is not None: updates["caption"] = photo.caption
+        if photo.sort_order is not None: updates["sort_order"] = photo.sort_order
+        if photo.active is not None: updates["active"] = 1 if photo.active else 0
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [photo_id]
+            await db.execute(f"UPDATE repair_gallery SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        cursor = await db.execute("SELECT * FROM repair_gallery WHERE id = ?", (photo_id,))
+        row = await cursor.fetchone()
+        return row_to_gallery_photo(row)
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/repair-gallery/{photo_id}")
+async def admin_delete_gallery_photo(photo_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute("SELECT id FROM repair_gallery WHERE id = ?", (photo_id,))
+        if not await cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Foto no encontrada")
+        await db.execute("DELETE FROM repair_gallery WHERE id = ?", (photo_id,))
+        await db.commit()
+        return {"message": "Foto eliminada"}
     finally:
         await db.close()
 
