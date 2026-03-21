@@ -2267,14 +2267,6 @@ function ReparacionPage() {
               const tripled = [...galleryPhotos, ...galleryPhotos, ...galleryPhotos]
               return (
                 <div className="mb-16">
-                  <div className="text-center mb-8">
-                    <h3 className="text-3xl md:text-5xl font-bold mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                      GALERIA DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TRABAJOS</span>
-                    </h3>
-                    <p className="text-gray-400 text-base max-w-xl mx-auto">
-                      Nuestro tecnico en accion — reparaciones reales con calidad garantizada
-                    </p>
-                  </div>
                   <div className="relative overflow-hidden -mx-4 sm:-mx-6">
                     <div
                       ref={galleryScrollRef}
