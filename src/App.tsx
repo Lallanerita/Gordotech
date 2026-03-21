@@ -2152,6 +2152,10 @@ function ReparacionPage() {
   const [services, setServices] = useState(repairServices)
   const [galleryPhotos, setGalleryPhotos] = useState<{ id: number; image: string; caption: string }[]>([])
   const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
+  const galleryScrollRef = useRef<HTMLDivElement>(null)
+  const galleryAnimRef = useRef<number>(0)
+  const galleryUserInteracting = useRef(false)
+  const galleryResumeTimer = useRef<ReturnType<typeof setTimeout>>(null)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
@@ -2193,6 +2197,34 @@ function ReparacionPage() {
     }
     loadGallery()
   }, [])
+
+  // Auto-scroll gallery carousel
+  useEffect(() => {
+    if (galleryPhotos.length === 0) return
+    const el = galleryScrollRef.current
+    if (!el) return
+    // Start scrolled to the middle third (so we can loop)
+    const oneThird = el.scrollWidth / 3
+    el.scrollLeft = oneThird
+    const speed = 1.2 // px per frame — fast scroll
+    const tick = () => {
+      if (!galleryUserInteracting.current && el) {
+        el.scrollLeft += speed
+        // Loop: if we've scrolled past 2/3, jump back to 1/3
+        if (el.scrollLeft >= oneThird * 2) {
+          el.scrollLeft -= oneThird
+        }
+      }
+      galleryAnimRef.current = requestAnimationFrame(tick)
+    }
+    // Small delay for DOM to be ready
+    const timer = setTimeout(() => { galleryAnimRef.current = requestAnimationFrame(tick) }, 300)
+    return () => {
+      clearTimeout(timer)
+      cancelAnimationFrame(galleryAnimRef.current)
+      if (galleryResumeTimer.current) clearTimeout(galleryResumeTimer.current)
+    }
+  }, [galleryPhotos])
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -2256,42 +2288,57 @@ function ReparacionPage() {
               ))}
             </div>
 
-            {/* Galeria de Trabajos */}
-            {galleryPhotos.length > 0 && (
-              <div className="mt-20">
-                <div className="text-center mb-10">
-                  <h3 className="text-3xl md:text-5xl font-bold mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                    GALERIA DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TRABAJOS</span>
-                  </h3>
-                  <p className="text-gray-400 text-base max-w-xl mx-auto">
-                    Nuestro tecnico en accion — reparaciones reales con calidad garantizada
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {galleryPhotos.map((photo) => (
-                    <button
-                      key={photo.id}
-                      onClick={() => setLightboxPhoto(photo)}
-                      className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
+            {/* Galeria de Trabajos - Carousel */}
+            {galleryPhotos.length > 0 && (() => {
+              const tripled = [...galleryPhotos, ...galleryPhotos, ...galleryPhotos]
+              return (
+                <div className="mt-20">
+                  <div className="text-center mb-10">
+                    <h3 className="text-3xl md:text-5xl font-bold mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                      GALERIA DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TRABAJOS</span>
+                    </h3>
+                    <p className="text-gray-400 text-base max-w-xl mx-auto">
+                      Nuestro tecnico en accion — reparaciones reales con calidad garantizada
+                    </p>
+                  </div>
+                  <div className="relative overflow-hidden -mx-4 sm:-mx-6">
+                    <div
+                      ref={galleryScrollRef}
+                      className="flex gap-4 overflow-x-auto px-4 sm:px-6 pb-4"
+                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+                      onTouchStart={() => { galleryUserInteracting.current = true; if (galleryResumeTimer.current) clearTimeout(galleryResumeTimer.current) }}
+                      onTouchEnd={() => { galleryResumeTimer.current = setTimeout(() => { galleryUserInteracting.current = false }, 1500) }}
+                      onMouseDown={() => { galleryUserInteracting.current = true; if (galleryResumeTimer.current) clearTimeout(galleryResumeTimer.current) }}
+                      onMouseUp={() => { galleryResumeTimer.current = setTimeout(() => { galleryUserInteracting.current = false }, 1500) }}
+                      onMouseLeave={() => { if (galleryUserInteracting.current) galleryResumeTimer.current = setTimeout(() => { galleryUserInteracting.current = false }, 1500) }}
                     >
-                      <img
-                        src={photo.image}
-                        alt={photo.caption}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      {photo.caption && (
-                        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                          <p className="text-white text-sm font-medium">{photo.caption}</p>
-                        </div>
-                      )}
-                    </button>
-                  ))}
+                      {tripled.map((photo, i) => (
+                        <button
+                          key={`gallery-${i}`}
+                          onClick={() => setLightboxPhoto(photo)}
+                          className="group relative flex-shrink-0 rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
+                          style={{ width: 'min(70vw, 320px)', aspectRatio: '3/4' }}
+                        >
+                          <img
+                            src={photo.image}
+                            alt={photo.caption}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          {photo.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-4">
+                              <p className="text-white text-sm font-medium drop-shadow-lg">{photo.caption}</p>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
           </div>
         </section>
       </div>
