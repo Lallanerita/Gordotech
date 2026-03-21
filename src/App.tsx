@@ -900,18 +900,27 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     setGalleryIndex(0)
     const slug = getProductSlug(product)
     navigate(`/producto/${product.id}/${slug}`, { state: { product } })
-    // If product has no variants, fetch full data from API (variants may not be in static/cached data)
-    if (!product.variants || product.variants.length === 0) {
-      fetch(`${API_URL}/api/products/${product.id}`)
-        .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          if (data && data.variants && data.variants.length > 0) {
-            const fullProduct = buildProductFromApi(data)
-            setSelectedProduct(fullProduct)
-          }
-        })
-        .catch(() => { /* API unavailable, use product as-is */ })
-    }
+    // Always fetch full product data from API to ensure we have variants + color_images
+    fetch(`${API_URL}/api/products/${product.id}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          const fullProduct = buildProductFromApi(data)
+          // Only update if the user is still viewing this same product
+          // and only if the API data has more info than what we already have
+          setSelectedProduct(prev => {
+            if (!prev || prev.id !== fullProduct.id) return prev // user navigated away
+            // Merge: keep the current product but add any missing data from API
+            const hasMoreVariants = (fullProduct.variants || []).length > (prev.variants || []).length
+            const hasMoreColorImages = Object.keys(fullProduct.color_images || {}).length > Object.keys(prev.color_images || {}).length
+            if (hasMoreVariants || hasMoreColorImages) {
+              return { ...prev, variants: fullProduct.variants || prev.variants, color_images: fullProduct.color_images || prev.color_images }
+            }
+            return prev // no new data, don't trigger re-render
+          })
+        }
+      })
+      .catch(() => { /* API unavailable, use product as-is */ })
   }, [navigate, scrollToTop, buildProductFromApi])
 
   // Clear product selection and go back to home
@@ -945,7 +954,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       return true
     }
 
-    // Always fetch the full product from the API to ensure variants are included
+    // Fetch the full product from the API to ensure variants + color_images are included
     const fetchFullProduct = async () => {
       try {
         const url = pid
@@ -955,8 +964,18 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         if (res.ok) {
           const data = await res.json()
           const product = buildProductFromApi(data)
-          setSelectedProduct(product)
-          setGalleryIndex(0)
+          // Use functional update to avoid resetting user's color/storage selection
+          setSelectedProduct(prev => {
+            if (prev && prev.id === product.id) {
+              // Product already loaded — merge API data without replacing (preserves user selections)
+              return { ...prev, ...product, color_images: { ...(prev.color_images || {}), ...(product.color_images || {}) } }
+            }
+            // First load — set the full product
+            return product
+          })
+          if (!scrolledForProductId.current || scrolledForProductId.current !== product.id) {
+            setGalleryIndex(0)
+          }
           if (shouldScroll(product.id)) scrollToTop()
         }
       } catch {
@@ -964,29 +983,31 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       }
     }
 
-    // If we already have this product selected WITH variants, no need to re-fetch
-    if (selectedProduct && pid && String(selectedProduct.id) === pid && (selectedProduct.variants || []).length > 0) {
+    // If we already have this product selected and fully loaded, no need to re-fetch.
+    // A product is "fully loaded" if its ID matches AND it came from the API (has color_images resolved or variants loaded).
+    if (selectedProduct && pid && String(selectedProduct.id) === pid) {
+      // Already have this product — don't re-fetch (prevents resetting selectedColor on every re-render)
       return
     }
 
-    // Try to find in already-loaded apiProducts (which include variants from API)
+    // Try to find in already-loaded apiProducts (which include color_images and variants from API)
     const found = pid
       ? apiProducts.find(p => String(p.id) === pid)
       : apiProducts.find(p => getProductSlug(p) === pslug)
 
-    if (found && (found.variants || []).length > 0) {
-      // Found locally WITH variants — use it
-      if (!selectedProduct || String(selectedProduct.id) !== String(found.id) || (selectedProduct.variants || []).length === 0) {
-        setSelectedProduct(found)
-        setGalleryIndex(0)
-        if (shouldScroll(found.id)) scrollToTop()
-      }
+    if (found) {
+      // Found locally — use it directly (it already has color_images + variants from the list API)
+      setSelectedProduct(found)
+      setGalleryIndex(0)
+      if (shouldScroll(found.id)) scrollToTop()
+      // Still fetch from API in background to get any extra data (e.g. model_3d)
+      fetchFullProduct()
       return
     }
 
-    // Either not found locally, or found but WITHOUT variants — always fetch from API
+    // Not found locally — fetch from API
     fetchFullProduct()
-  }, [productSlug, productId, apiProducts, selectedProduct, scrollToTop, buildProductFromApi])
+  }, [productSlug, productId, apiProducts, scrollToTop, buildProductFromApi])
 
   const cityName = 'Duitama'
 
