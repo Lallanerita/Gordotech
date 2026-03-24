@@ -1001,7 +1001,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     // If we already have this product selected and fully loaded, no need to re-fetch.
     // A product is "fully loaded" if its ID matches AND it came from the API (has color_images resolved or variants loaded).
     if (selectedProduct && pid && String(selectedProduct.id) === pid) {
-      // Already have this product — don't re-fetch (prevents resetting selectedColor on every re-render)
+      // Already have this product — but if it has NO variants, we should still fetch to get them
+      const hasVariants = (selectedProduct.variants || []).length > 0
+      if (hasVariants) return
+      // Product exists but missing variants — fetch full data from API
+      fetchFullProduct()
       return
     }
 
@@ -2962,6 +2966,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
             storageOptions: p.storage_options as string[], badge: (p.badge as string) || null,
             available: p.available as string[], price: (p.price as string) || '',
             oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
+            variants: (p.variants as Product['variants']) || [],
           })))
         }
       } catch {
