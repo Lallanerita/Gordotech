@@ -1369,19 +1369,23 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 onMouseLeave={() => setHoveredBubbleId(null)}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
-                <div className={`transition-all duration-300 p-[3px] rounded-2xl ${
+                <div className={`transition-all duration-300 p-[3px] ${
                   activeModel === model.id
-                    ? 'bg-blue-500 shadow-lg shadow-blue-500/30 scale-110'
-                    : 'bg-transparent'
+                    ? 'bg-blue-500 shadow-lg shadow-blue-500/30 scale-110 rounded-2xl'
+                    : 'bg-transparent rounded-full'
                 }`}>
-                  <div className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-xl overflow-hidden bg-gray-900">
+                  <div className={`overflow-hidden bg-gray-900 transition-all duration-300 ${
+                    activeModel === model.id
+                      ? 'w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-xl'
+                      : 'w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full'
+                  }`}>
                     <img
                       src={model.image}
                       alt={model.label}
                       loading="lazy"
                       decoding="async"
                       draggable={false}
-                      className="w-full h-full object-cover transition-all duration-300"
+                      className={`w-full h-full transition-all duration-300 ${activeModel === model.id ? 'object-contain p-1' : 'object-cover'}`}
                       onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                     />
                   </div>
