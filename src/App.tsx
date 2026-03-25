@@ -1311,7 +1311,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 </div>
                 <span className={`text-xs font-medium text-center leading-tight transition-colors ${
                   activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
-                }`}>
+                }`} style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                   {model.label}
                 </span>
               </button>
