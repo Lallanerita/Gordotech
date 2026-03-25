@@ -3046,12 +3046,12 @@ function SucursalesPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/10 dark:shadow-black/20 border-b border-gray-200 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
               Volver
             </button>
@@ -3066,13 +3066,13 @@ function SucursalesPage() {
 
       <div className="pt-20">
         <section className="py-12 md:py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/5" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 dark:from-blue-600/10 via-transparent to-purple-600/3 dark:to-purple-600/5" />
           <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="text-center mb-10">
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                 NUESTRAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">SEDES</span>
               </h3>
-              <p className="text-gray-400 text-base max-w-xl mx-auto">
+              <p className="text-gray-500 dark:text-gray-400 text-base max-w-xl mx-auto">
                 Visitanos en nuestras tiendas fisicas en Boyaca.
               </p>
             </div>
@@ -3088,7 +3088,7 @@ function SucursalesPage() {
                   const waUrl = `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(`Hola ${s.name}, quiero visitarlos`)}`
                   const reviewData = reviewsMap[s.slug]
                   return (
-                    <div key={s.id} className="rounded-2xl overflow-hidden bg-gray-900 shadow-xl group transition-transform duration-300 hover:-translate-y-1">
+                    <div key={s.id} className="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl group transition-transform duration-300 hover:-translate-y-1">
                       {/* Photo with overlay info */}
                       <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                         {bgImage ? (
@@ -3136,7 +3136,7 @@ function SucursalesPage() {
                           href={waUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
                         >
                           <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain" />
                           WhatsApp
@@ -3148,7 +3148,7 @@ function SucursalesPage() {
                             href={s.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
                           >
                             <Instagram className="w-4 h-4" />
                             Instagram
@@ -3161,7 +3161,7 @@ function SucursalesPage() {
                             href={s.tiktok}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
                           >
                             <TikTokIcon className="w-4 h-4" />
                             TikTok
@@ -3178,7 +3178,7 @@ function SucursalesPage() {
             <div className="text-center mt-10">
               <button
                 onClick={() => navigate('/')}
-                className="inline-flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors text-sm border border-white/10"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-white rounded-xl transition-colors text-sm border border-gray-300 dark:border-white/10"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Volver al inicio
