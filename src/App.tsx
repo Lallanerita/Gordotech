@@ -1915,12 +1915,14 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
       {/* Contactanos Card */}
       <ScrollReveal>
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 mb-8">
-        <Link to="/sucursales" className="block relative rounded-2xl lg:rounded-3xl overflow-hidden group cursor-pointer">
-          <img src="/images/contactanos.jpg" alt="Contactanos" loading="lazy" decoding="async" className="w-full h-48 sm:h-56 lg:h-72 xl:h-80 object-cover object-center transition-transform duration-500 group-hover:scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-center">
-            <h3 className="text-white text-2xl sm:text-3xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>CONTACTANOS</h3>
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 mb-8 flex justify-center">
+        <Link to="/sucursales" className="block relative rounded-2xl overflow-hidden group cursor-pointer w-full max-w-xs sm:max-w-sm">
+          <div className="aspect-[3/4] relative">
+            <img src="/images/contactanos.jpg" alt="Contactanos" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-5 text-center">
+              <h3 className="text-white text-xl sm:text-2xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>CONTACTANOS</h3>
+            </div>
           </div>
         </Link>
       </div>
