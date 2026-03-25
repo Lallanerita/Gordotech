@@ -1369,12 +1369,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 onMouseLeave={() => setHoveredBubbleId(null)}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
-                <div className={`transition-all duration-300 ${
-                  activeModel === model.id ? 'rounded-2xl' : 'rounded-full'
-                }`} style={{ padding: '3px', background: activeModel === model.id ? '#3b82f6' : 'transparent' }}>
-                  <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
-                    activeModel === model.id ? 'rounded-xl' : 'rounded-full'
-                  }`} style={{ backgroundColor: '#111827' }}>
+                <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
+                  activeModel === model.id ? 'rounded-xl' : 'rounded-full'
+                }`} style={{
+                  border: activeModel === model.id ? '3px solid #3b82f6' : '3px solid transparent',
+                  boxSizing: 'content-box'
+                }}>
                     <img
                       src={model.image}
                       alt={model.label}
@@ -1384,7 +1384,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       className="w-full h-full object-cover transition-all duration-300"
                       onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                     />
-                  </div>
                 </div>
                 <span className={`text-xs md:text-sm font-medium text-center leading-tight transition-colors ${
                   activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
