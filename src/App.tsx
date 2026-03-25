@@ -3106,13 +3106,13 @@ function SucursalesPage() {
                         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70" />
 
                         {/* Name + Address at TOP-left with margin */}
-                        <div className="absolute top-4 left-4 right-4">
-                          <h4 className="text-white font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                        <div className="absolute top-4 left-4 right-4" style={{ color: 'white' }}>
+                          <h4 className="font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px', color: 'white' }}>
                             {s.name.toUpperCase()}
                           </h4>
                           <div className="flex items-start gap-1.5">
                             <MapPin className="w-3.5 h-3.5 text-blue-300 mt-0.5 flex-shrink-0" />
-                            <p className="text-gray-200 text-xs leading-snug drop-shadow">{s.address}</p>
+                            <p className="text-xs leading-snug drop-shadow" style={{ color: '#e5e7eb' }}>{s.address}</p>
                           </div>
                         </div>
 
