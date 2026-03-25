@@ -469,7 +469,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   return (
     <section 
       className="relative w-full overflow-hidden bg-black"
-      style={{ height: 'clamp(220px, 56vw, 650px)' }}
+      style={{ height: 'clamp(220px, 56vw, 80vh)' }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -513,7 +513,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
                   left: '50%',
                   width: '100%',
                   height: '100%',
-                  objectFit: 'contain',
+                  objectFit: 'cover',
                   transform: 'translate(-50%, -50%)',
                 }}
               />
@@ -1212,7 +1212,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header / Navbar */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
           {/* Mobile header - logo centered */}
           <div className="flex md:hidden items-center justify-center h-16">
             <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 cursor-pointer">
@@ -1245,11 +1245,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {!selectedProduct && (
       <div className="pt-16 md:pt-20">
         <div className="bg-gray-900/80 border-b border-white/5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-between py-2 overflow-x-auto scrollbar-hide">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
+            <div className="flex items-center justify-between py-2.5 overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => navigate('/categoria/iphones')}
-                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap flex items-center justify-center gap-1"
+                className="flex-1 py-1.5 text-xs sm:text-sm lg:text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all whitespace-nowrap flex items-center justify-center gap-1.5"
               >
                 <img src="/images/apple-logo-white.png" alt="Apple" className="h-3.5 w-3.5 sm:h-4 sm:w-4 object-contain opacity-80 apple-logo-invert" />
                 Nuevos
@@ -1257,21 +1257,21 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <span className="text-gray-600 text-xs">|</span>
               <button
                 onClick={() => navigate('/semi-nuevos')}
-                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
+                className="flex-1 py-1.5 text-xs sm:text-sm lg:text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all whitespace-nowrap text-center"
               >
                 Seminuevos
               </button>
               <span className="text-gray-600 text-xs">|</span>
               <button
                 onClick={() => navigate('/plan-retoma')}
-                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
+                className="flex-1 py-1.5 text-xs sm:text-sm lg:text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all whitespace-nowrap text-center"
               >
                 Plan Retoma
               </button>
               <span className="text-gray-600 text-xs">|</span>
               <button
                 onClick={() => navigate('/reparacion')}
-                className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-center"
+                className="flex-1 py-1.5 text-xs sm:text-sm lg:text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all whitespace-nowrap text-center"
               >
                 Reparacion
               </button>
@@ -1291,9 +1291,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {/* Model Bubbles - hidden on product detail */}
       {!selectedProduct && (
       <ScrollReveal>
-      <section className="py-8 md:py-12 border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-start gap-5 md:gap-8 overflow-x-auto pb-4 pt-2 px-2 scrollbar-hide">
+      <section className="py-8 md:py-14 border-y border-white/5">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="flex items-start gap-5 md:gap-10 lg:gap-14 overflow-x-auto md:overflow-visible pb-4 pt-2 px-2 scrollbar-hide md:justify-center">
             {modelBubbles.map(model => {
               const isHovered = hoveredBubbleId === model.id
               return (
@@ -1310,14 +1310,14 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
                   hoverTimeout.current = setTimeout(() => setHoveredBubbleId(null), 1500)
                 }}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 relative"
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 md:flex-shrink relative"
               >
                 <div className={`transition-all duration-300 bg-gray-900 border-2 ${
                   isHovered
-                    ? 'w-28 h-28 md:w-32 md:h-32 rounded-2xl border-blue-500 shadow-lg shadow-blue-500/30 z-50 -translate-y-2'
+                    ? 'w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-2xl border-blue-500 shadow-lg shadow-blue-500/30 z-50 -translate-y-2'
                     : activeModel === model.id
-                      ? 'w-20 h-20 md:w-24 md:h-24 rounded-full border-blue-500 shadow-lg shadow-blue-500/30 scale-110 overflow-hidden'
-                      : 'w-20 h-20 md:w-24 md:h-24 rounded-full border-gray-600 group-hover:border-blue-400 overflow-hidden'
+                      ? 'w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-blue-500 shadow-lg shadow-blue-500/30 scale-110 overflow-hidden'
+                      : 'w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-gray-600 group-hover:border-blue-400 overflow-hidden'
                 }`}>
                   <img
                     src={model.image}
@@ -1328,7 +1328,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
-                <span className={`text-xs font-medium text-center leading-tight transition-colors ${
+                <span className={`text-xs md:text-sm font-medium text-center leading-tight transition-colors ${
                   activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
                 }`} style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                   {model.label}
@@ -1345,11 +1345,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {/* Conoce Nuestras Sucursales CTA */}
       {!selectedProduct && (
         <ScrollReveal>
-        <div className="py-6 md:py-10">
+        <div className="py-6 md:py-10 lg:py-12">
           <div className="max-w-2xl mx-auto px-4 text-center">
             <button
               onClick={() => navigate('/sucursales')}
-              className="group relative inline-flex items-center justify-center px-8 py-4 md:px-12 md:py-5 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 text-white font-bold text-base md:text-lg rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 border border-white/10"
+              className="group relative inline-flex items-center justify-center px-8 py-4 md:px-12 md:py-5 lg:px-16 lg:py-6 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 text-white font-bold text-base md:text-lg lg:text-xl rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 border border-white/10"
             >
               <span style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>Conoce Nuestras Sucursales</span>
             </button>
@@ -1363,14 +1363,14 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
       {/* Recomendado para ti */}
       {!selectedProduct && recommendedProducts.length > 0 && (
-        <section className="py-10 md:py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <section className="py-10 md:py-16 lg:py-20">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
             <ScrollReveal>
-            <div className="text-center mb-8">
-              <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>RECOMENDADO PARA TI</h3>
+            <div className="text-center mb-8 md:mb-12">
+              <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>RECOMENDADO PARA TI</h3>
             </div>
             </ScrollReveal>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
               {recommendedProducts.map((product, idx) => (
                 <ScrollReveal key={product.id} delay={idx * 0.08} animation="scale">
                                 <button onClick={() => selectProduct(product)} className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
@@ -1421,11 +1421,11 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
             {/* Tendencia Ahora - Infinite Carousel */}
       {!selectedProduct && trendingProducts.length > 0 && (
-        <section className="py-10 md:py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <section className="py-10 md:py-16 lg:py-20">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
             <ScrollReveal>
-            <div className="text-center mb-8">
-              <h3 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TENDENCIA AHORA</h3>
+            <div className="text-center mb-8 md:mb-12">
+              <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>TENDENCIA AHORA</h3>
             </div>
             </ScrollReveal>
           </div>
@@ -1438,7 +1438,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           >
             <div ref={trendingTrackRef} className="flex gap-4 md:gap-6 px-4 sm:px-6 w-max will-change-transform">
               {[...trendingProducts, ...trendingProducts].map((product, idx) => (
-                <button key={`t-${idx}`} onClick={() => { if (!trendingClickBlocked.current) selectProduct(product) }} className="w-44 md:w-56 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
+                <button key={`t-${idx}`} onClick={() => { if (!trendingClickBlocked.current) selectProduct(product) }} className="w-44 md:w-56 lg:w-64 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
                   <div className="relative aspect-square bg-gray-900/50 p-3 flex items-center justify-center img-shimmer">
                     <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" /> Trending</div>
                     <img src={product.image} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
@@ -1496,8 +1496,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         const model3DUrl = getModel3DUrl(selectedProduct)
         return (
         <section className="py-10 md:py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <button onClick={clearProduct} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
+              <button onClick={clearProduct} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm">
               <ArrowLeft className="w-4 h-4" />
               Volver a productos
             </button>
@@ -1766,8 +1766,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
             {/* Related Products */}
             <div>
-              <h3 className="text-2xl md:text-4xl font-bold mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>PRODUCTOS RELACIONADOS</h3>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-8 md:mb-12" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>PRODUCTOS RELACIONADOS</h3>
+              <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
                 {relatedProducts.map(product => (
                   <button key={product.id} onClick={() => selectProduct(product)} className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
                           <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
@@ -1820,14 +1820,14 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
       {/* Location Section - hidden on product detail */}
       {!selectedProduct && (
-      <section id="ubicacion" className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section id="ubicacion" className="py-16 md:py-24 lg:py-28">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
           <ScrollReveal>
           <div className="text-center mb-16">
-            <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+            <h3 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>
               NUESTRAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">TIENDAS</span>
             </h3>
-            <p className="text-gray-400 text-lg">Ven a conocer nuestros productos en persona</p>
+            <p className="text-gray-400 text-lg md:text-xl">Ven a conocer nuestros productos en persona</p>
           </div>
           </ScrollReveal>
 
@@ -1915,9 +1915,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
       {/* Contactanos Card */}
       <ScrollReveal>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
-        <Link to="/sucursales" className="block relative rounded-2xl overflow-hidden group cursor-pointer" style={{ maxHeight: '320px' }}>
-          <img src="/images/contactanos.jpg" alt="Contactanos" loading="lazy" decoding="async" className="w-full h-64 sm:h-80 object-cover transition-transform duration-500 group-hover:scale-105" />
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 mb-8">
+        <Link to="/sucursales" className="block relative rounded-2xl lg:rounded-3xl overflow-hidden group cursor-pointer" style={{ maxHeight: '400px' }}>
+          <img src="/images/contactanos.jpg" alt="Contactanos" loading="lazy" decoding="async" className="w-full h-64 sm:h-80 lg:h-96 object-cover transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-center">
             <h3 className="text-white text-2xl sm:text-3xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>CONTACTANOS</h3>
@@ -1929,7 +1929,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {/* Footer */}
       <ScrollReveal>
       <footer id="contacto" className="border-t border-white/5 pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
           {/* Brand top section */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -1950,7 +1950,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           </div>
 
           {/* 3-column links */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 mb-12">
             {/* Productos */}
             <div className="text-center">
               <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Productos</h5>
@@ -1977,6 +1977,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               </div>
             </div>
 
+            {/* Contacto */}
+            <div className="text-center">
+              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contacto</h5>
+              <ul className="space-y-3">
+                <li><a href={socials.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">WhatsApp Duitama</a></li>
+                <li><a href={CITY_SOCIALS.tunja.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">WhatsApp Tunja</a></li>
+                <li><a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">Instagram</a></li>
+                <li><Link to="/sucursales" className="text-gray-400 hover:text-white transition-colors text-sm">Nuestras Sucursales</Link></li>
+              </ul>
+            </div>
           </div>
 
           {/* Theme Toggle */}
@@ -3078,21 +3088,21 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
             <button onClick={() => navigate('/')} className="flex items-center gap-2">
               <ArrowLeft className="w-5 h-5 text-gray-400" />
               <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
               <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-5 hidden sm:block gordotech-logo-invert" />
             </button>
-            <h1 className="text-lg font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>{categoryLabel}</h1>
+            <h1 className="text-lg lg:text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>{categoryLabel}</h1>
             <div className="w-20" />
           </div>
         </div>
       </header>
 
       <div className="pt-20 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
           {/* Condition filter tabs - only for iPhones */}
           {slug === 'iphones' && (
           <div className="flex gap-2 mb-8 justify-center">
@@ -3128,7 +3138,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
               <button onClick={() => navigate('/')} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors">Volver al inicio</button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
               {filtered.map(product => (
                 <button
                   key={product.id}
