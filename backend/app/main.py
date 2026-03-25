@@ -418,6 +418,17 @@ def row_to_gallery_photo(row):
         "active": bool(row["active"]),
     }
 
+def row_to_review(row):
+    return {
+        "id": row["id"],
+        "sucursal_slug": row["sucursal_slug"],
+        "customer_name": row["customer_name"],
+        "rating": row["rating"],
+        "text": row["text"],
+        "sort_order": row["sort_order"],
+        "active": bool(row["active"]),
+    }
+
 def row_to_sucursal(row):
     keys = row.keys()
     return {
