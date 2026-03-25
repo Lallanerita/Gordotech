@@ -1378,6 +1378,27 @@ async def admin_delete_review(review_id: int, username: str = Depends(get_curren
     finally:
         await db.close()
 
+@app.post("/api/admin/resenas/reseed")
+async def admin_reseed_reviews(username: str = Depends(get_current_admin)):
+    """Re-seed all default reviews into the database (clears existing and inserts defaults)."""
+    from .database import seed_default_data
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("DELETE FROM resenas")
+        await db.commit()
+    finally:
+        await db.close()
+    # Re-run seed which will detect empty table and insert defaults
+    await seed_default_data()
+    # Count inserted
+    db2 = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db2.execute("SELECT COUNT(*) FROM resenas")
+        count = (await cursor.fetchone())[0]
+        return {"message": f"Resenas re-seed completado: {count} resenas insertadas"}
+    finally:
+        await db2.close()
+
 # ==================== ADMIN VARIANT CRUD ====================
 
 @app.get("/api/admin/products/{product_id}/variants")
