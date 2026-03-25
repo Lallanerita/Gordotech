@@ -32,6 +32,18 @@ function resolveImageUrl(url: string): string {
   return url
 }
 
+// Preload images in background for instant display
+const _preloadCache = new Set<string>()
+function preloadImages(urls: string[]) {
+  urls.forEach(url => {
+    if (url && !_preloadCache.has(url)) {
+      _preloadCache.add(url)
+      const img = new Image()
+      img.src = url
+    }
+  })
+}
+
 // Apple-style scroll-triggered animation hook
 function useScrollAnimation(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null)
@@ -740,7 +752,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           fetch(`${API_URL}/api/marquee-texts`).then(r => r.ok ? r.json() : null),
         ])
         if (productsRes?.products) {
-          setApiProducts(productsRes.products.map((p: Record<string, unknown>) => ({
+          const mapped = productsRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number,
             name: p.name as string,
             category: (p.category as string) || '',
@@ -756,10 +768,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             oldPrice: (p.old_price as string) || '',
             description: (p.description as string) || '',
             variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
-          })))
+          }))
+          setApiProducts(mapped)
+          preloadImages(mapped.map(p => p.image))
         }
         if (recommendedRes?.products) {
-          setRecommendedProducts(recommendedRes.products.map((p: Record<string, unknown>) => ({
+          const mapped = recommendedRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
@@ -768,10 +782,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
-          })))
+          }))
+          setRecommendedProducts(mapped)
+          preloadImages(mapped.map(p => p.image))
         }
         if (trendingRes?.products) {
-          setTrendingProducts(trendingRes.products.map((p: Record<string, unknown>) => ({
+          const mapped = trendingRes.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
@@ -780,13 +796,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             badge: (p.badge as string) || null, available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
-          })))
+          }))
+          setTrendingProducts(mapped)
+          preloadImages(mapped.map(p => p.image))
         }
         if (bubblesRes?.bubbles) {
           const apiBubbles = bubblesRes.bubbles.map((b: Record<string, unknown>) => ({
             id: b.model_id as string, label: b.label as string, image: resolveImageUrl(b.image as string),
           }))
           setModelBubbles(apiBubbles)
+          preloadImages(apiBubbles.map(b => b.image))
         }
         if (servicesRes?.services) {
           const iconMap: Record<string, typeof Smartphone> = { Smartphone, Zap, Shield, Award, Wrench }
@@ -1355,14 +1374,14 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               {recommendedProducts.map((product, idx) => (
                 <ScrollReveal key={product.id} delay={idx * 0.08} animation="scale">
                                 <button onClick={() => selectProduct(product)} className="w-full group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1">
-                                  <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
+                                  <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center img-shimmer">
                                     {product.badge && (
                                       <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
                                     )}
                                     <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                                       <Heart className="w-4 h-4 text-gray-300" />
                                     </div>
-                                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                                    <img src={product.image} alt={product.name} loading={idx < 4 ? 'eager' : 'lazy'} decoding="async" fetchPriority={idx < 4 ? 'high' : 'auto'} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                                   </div>
                                   <div className="p-3 md:p-4">
                                     <p className="text-xs text-blue-400 font-medium mb-1">{displayCondition(product.condition)}</p>
@@ -1420,9 +1439,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             <div ref={trendingTrackRef} className="flex gap-4 md:gap-6 px-4 sm:px-6 w-max will-change-transform">
               {[...trendingProducts, ...trendingProducts].map((product, idx) => (
                 <button key={`t-${idx}`} onClick={() => { if (!trendingClickBlocked.current) selectProduct(product) }} className="w-44 md:w-56 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
-                  <div className="relative aspect-square bg-gray-900/50 p-3 flex items-center justify-center">
+                  <div className="relative aspect-square bg-gray-900/50 p-3 flex items-center justify-center img-shimmer">
                     <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" /> Trending</div>
-                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                    <img src={product.image} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
                   <div className="p-3">
                     <p className={`text-[10px] font-medium mb-0.5 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
@@ -2400,14 +2419,16 @@ function SemiNuevosPage() {
         if (res.ok) {
           const data = await res.json()
           if (data?.products) {
-            setSemiProducts(data.products.filter((p: Record<string, unknown>) => p.condition === 'Semi-usado').map((p: Record<string, unknown>) => ({
+            const mapped = data.products.filter((p: Record<string, unknown>) => p.condition === 'Semi-usado').map((p: Record<string, unknown>) => ({
               id: p.id as number, name: p.name as string, category: (p.category as string) || '',
               condition: p.condition as string,
               image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl),
               colors: p.colors as string[], storageOptions: p.storage_options as string[],
               badge: (p.badge as string) || null, available: p.available as string[],
               price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
-            })))
+            }))
+            setSemiProducts(mapped)
+            preloadImages(mapped.map(p => p.image))
           }
         }
       } catch { /* fallback to static */ 
@@ -2543,15 +2564,16 @@ function SemiNuevosPage() {
                     onClick={() => { if (!semiDidDrag.current) navigate(`/producto/${product.id}/${getProductSlug(product)}`) }}
                     className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5"
                   >
-                    <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
+                    <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center img-shimmer">
                       <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">Seminuevo</div>
                       <img
                         src={product.image}
                         alt={product.name}
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                         className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
+                        onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }}
+                        onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }}
                       />
                     </div>
                     <div className="p-3 md:p-4 text-center">
@@ -3009,7 +3031,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
         const res = await fetch(`${API_URL}/api/products?city=duitama`)
         const data = await res.json()
         if (data?.products) {
-          setAllProducts(data.products.map((p: Record<string, unknown>) => ({
+          const mapped = data.products.map((p: Record<string, unknown>) => ({
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string, image: resolveImageUrl(p.image as string),
             images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
@@ -3018,7 +3040,9 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
             available: p.available as string[], price: (p.price as string) || '',
             oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as Product['variants']) || [],
-          })))
+          }))
+          setAllProducts(mapped)
+          preloadImages(mapped.map(p => p.image))
         }
       } catch {
         // fallback to static
@@ -3111,14 +3135,14 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
                   onClick={() => navigate(`/producto/${product.id}/${getProductSlug(product)}`, { state: { product } })}
                   className="group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
                 >
-                  <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center">
+                  <div className="relative aspect-square bg-gray-900/50 p-4 flex items-center justify-center img-shimmer">
                     {product.badge && (
                       <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">{product.badge}</div>
                     )}
                     <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                       <Heart className="w-4 h-4 text-gray-300" />
                     </div>
-                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                    <img src={product.image} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
                   </div>
                   <div className="p-3 md:p-4">
                     <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
