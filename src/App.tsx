@@ -1372,13 +1372,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 <div className={`transition-all duration-300 ${
                   activeModel === model.id ? 'rounded-2xl' : 'rounded-full'
                 }`} style={{
-                  padding: activeModel === model.id ? '3px' : '0px',
+                  padding: activeModel === model.id ? '2px' : '0px',
                   backgroundColor: activeModel === model.id ? '#3b82f6' : 'transparent',
                 }}>
                   <div className={`transition-all duration-300 ${
                     activeModel === model.id ? 'rounded-xl' : 'rounded-full'
                   }`} style={{
-                    padding: activeModel === model.id ? '5px' : '0px',
+                    padding: activeModel === model.id ? '3px' : '0px',
                     backgroundColor: 'transparent',
                   }}>
                     <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
