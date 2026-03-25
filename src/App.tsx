@@ -1894,6 +1894,19 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
       </main>
 
+      {/* Contactanos Card */}
+      <ScrollReveal>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
+        <Link to="/sucursales" className="block relative rounded-2xl overflow-hidden group cursor-pointer" style={{ maxHeight: '320px' }}>
+          <img src="/images/contactanos.jpg" alt="Contactanos" loading="lazy" decoding="async" className="w-full h-64 sm:h-80 object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-center">
+            <h3 className="text-white text-2xl sm:text-3xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>CONTACTANOS</h3>
+          </div>
+        </Link>
+      </div>
+      </ScrollReveal>
+
       {/* Footer */}
       <ScrollReveal>
       <footer id="contacto" className="border-t border-white/5 pt-16 pb-8">
