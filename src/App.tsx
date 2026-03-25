@@ -1815,7 +1815,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Duitama */}
             <ScrollReveal delay={0.1}>
-            <div className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20">
+            <div onClick={() => navigate('/sucursales')} className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20 cursor-pointer hover:bg-blue-500/10 hover:border-blue-500/40">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
                   <MapPin className="w-6 h-6 text-blue-400" />
@@ -1840,10 +1840,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href={CITY_SOCIALS.duitama.whatsapp} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href={CITY_SOCIALS.duitama.whatsapp} onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   WhatsApp
                 </a>
-                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href="https://www.google.com/maps/dir//Gordotech+Duitama,+Cl.+20a+%2312-32,+Solano,+Duitama,+Boyac%C3%A1/@5.8259915,-73.0301255,14z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a3fb0048fe77f:0xd1f7a4fb7101b8e8!2m2!1d-73.0317497!2d5.8320283" onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   Ver en Mapa
                 </a>
               </div>
@@ -1852,7 +1852,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 
             {/* Tunja */}
             <ScrollReveal delay={0.2}>
-            <div className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20">
+            <div onClick={() => navigate('/sucursales')} className="p-8 rounded-3xl border transition-all bg-blue-500/5 border-blue-500/20 cursor-pointer hover:bg-blue-500/10 hover:border-blue-500/40">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
                   <MapPin className="w-6 h-6 text-blue-400" />
@@ -1877,10 +1877,10 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href={CITY_SOCIALS.tunja.whatsapp} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href={CITY_SOCIALS.tunja.whatsapp} onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   WhatsApp
                 </a>
-                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href="https://www.google.com/maps/dir//Gordotech+Tunja,+Universitaria+39+%2377+UNICENTRO,+Tunja,+Boyac%C3%A1/@5.539294,-73.356241,13z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a7d74e31ea55d:0x22aa657c5e1e9dc1!2m2!1d-73.3483432!2d5.5451975" onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   Ver en Mapa
                 </a>
               </div>
