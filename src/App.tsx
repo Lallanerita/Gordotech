@@ -872,6 +872,46 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     return () => { running = false; cancelAnimationFrame(trendingAnimId.current); clearTimeout(timer) }
   }, [trendingProducts])
 
+  // Bubbles marquee refs
+  const bubblesTrackRef = useRef<HTMLDivElement>(null)
+  const bubblesOffsetRef = useRef(0)
+  const bubblesDragRef = useRef<{ active: boolean; startX: number; startOffset: number; moved: boolean }>({ active: false, startX: 0, startOffset: 0, moved: false })
+  const bubblesRafRef = useRef<number>(0)
+  const BUBBLES_SPEED = 1.5
+
+  useEffect(() => {
+    if (modelBubbles.length === 0) return
+    let running = true
+    const tick = () => {
+      if (!running) return
+      const track = bubblesTrackRef.current
+      if (track) {
+        const singleWidth = track.scrollWidth / 3
+        if (!bubblesDragRef.current.active) {
+          bubblesOffsetRef.current -= BUBBLES_SPEED
+        }
+        if (bubblesOffsetRef.current <= -singleWidth) bubblesOffsetRef.current += singleWidth
+        if (bubblesOffsetRef.current > 0) bubblesOffsetRef.current -= singleWidth
+        track.style.transform = `translateX(${bubblesOffsetRef.current}px)`
+      }
+      bubblesRafRef.current = requestAnimationFrame(tick)
+    }
+    bubblesRafRef.current = requestAnimationFrame(tick)
+    return () => { running = false; cancelAnimationFrame(bubblesRafRef.current) }
+  }, [modelBubbles])
+
+  const onBubblesPointerDown = useCallback((e: React.PointerEvent) => {
+    bubblesDragRef.current = { active: true, startX: e.clientX, startOffset: bubblesOffsetRef.current, moved: false }
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  }, [])
+  const onBubblesPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!bubblesDragRef.current.active) return
+    const dx = e.clientX - bubblesDragRef.current.startX
+    if (Math.abs(dx) > 3) bubblesDragRef.current.moved = true
+    bubblesOffsetRef.current = bubblesDragRef.current.startOffset + dx
+  }, [])
+  const onBubblesPointerUp = useCallback(() => { bubblesDragRef.current.active = false }, [])
+
   const onTrendingPointerDown = useCallback((e: React.PointerEvent) => {
     trendingDragging.current = true
     trendingClickBlocked.current = false
@@ -1300,54 +1340,33 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {/* Main Content */}
       <main>
 
-      {/* Model Bubbles - auto-scrolling marquee */}
+      {/* Model Bubbles - auto-scrolling marquee with drag */}
       {!selectedProduct && modelBubbles.length > 0 && (
       <ScrollReveal>
       <section className="py-8 md:py-14 border-y border-white/5">
         <div className="overflow-hidden">
           <div
-            className="bubbles-marquee-track"
-            style={{ '--bubbles-duration': `${modelBubbles.length * 1}s` } as React.CSSProperties}
-            onMouseDown={(e) => {
-              const track = e.currentTarget
-              track.classList.add('dragging')
-              const onMove = (ev: MouseEvent) => { ev.preventDefault() }
-              const onUp = () => {
-                track.classList.remove('dragging')
-                window.removeEventListener('mousemove', onMove)
-                window.removeEventListener('mouseup', onUp)
-              }
-              window.addEventListener('mousemove', onMove)
-              window.addEventListener('mouseup', onUp)
-            }}
-            onTouchStart={() => {
-              const track = document.querySelector('.bubbles-marquee-track') as HTMLElement
-              if (track) track.classList.add('dragging')
-            }}
-            onTouchEnd={() => {
-              setTimeout(() => {
-                const track = document.querySelector('.bubbles-marquee-track') as HTMLElement
-                if (track) track.classList.remove('dragging')
-              }, 300)
-            }}
+            ref={bubblesTrackRef}
+            className="flex items-start cursor-grab active:cursor-grabbing select-none"
+            style={{ willChange: 'transform' }}
+            onPointerDown={onBubblesPointerDown}
+            onPointerMove={onBubblesPointerMove}
+            onPointerUp={onBubblesPointerUp}
+            onPointerCancel={onBubblesPointerUp}
           >
             {[...modelBubbles, ...modelBubbles, ...modelBubbles].map((model, idx) => {
               const isHovered = hoveredBubbleId === model.id
               return (
               <button
                 key={`${model.id}-${idx}`}
-                onClick={() => {
+                onClick={(e) => {
+                  if (bubblesDragRef.current.moved) { e.preventDefault(); return }
                   setHoveredBubbleId(null)
                   navigate(`/categoria/${model.id}`)
                 }}
                 onMouseEnter={() => setHoveredBubbleId(model.id)}
                 onMouseLeave={() => setHoveredBubbleId(null)}
-                onTouchStart={() => {
-                  setHoveredBubbleId(model.id)
-                  if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
-                  hoverTimeout.current = setTimeout(() => setHoveredBubbleId(null), 1500)
-                }}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10"
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
                 <div className={`transition-all duration-300 bg-gray-900 border-2 ${
                   isHovered
@@ -1361,6 +1380,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     alt={model.label}
                     loading="lazy"
                     decoding="async"
+                    draggable={false}
                     className={`w-full h-full transition-all duration-300 ${isHovered ? 'object-contain p-1' : 'object-cover'}`}
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
