@@ -1914,7 +1914,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           {/* Brand top section */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <img src="/images/gordotech-logo.png" alt="Gordotech" loading="lazy" decoding="async" className="h-14" />
+              <img src="/images/gordotech-logo.png" alt="Gordotech" loading="lazy" decoding="async" className="h-14 gordotech-logo-invert" />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y seminuevos en Boyaca.</p>
             <div className="flex gap-3 mt-5 justify-center">
