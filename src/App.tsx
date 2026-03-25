@@ -910,7 +910,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     if (Math.abs(dx) > 3) bubblesDragRef.current.moved = true
     bubblesOffsetRef.current = bubblesDragRef.current.startOffset + dx
   }, [])
-  const onBubblesPointerUp = useCallback(() => { bubblesDragRef.current.active = false }, [])
+  const onBubblesPointerUp = useCallback(() => { bubblesDragRef.current.active = false; setTimeout(() => { bubblesDragRef.current.moved = false }, 0) }, [])
 
   const onTrendingPointerDown = useCallback((e: React.PointerEvent) => {
     trendingDragging.current = true
@@ -1363,27 +1363,38 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   if (bubblesDragRef.current.moved) { e.preventDefault(); return }
                   setHoveredBubbleId(null)
                   setActiveModel(model.id)
-                  navigate(`/categoria/${model.id}`)
+                  setTimeout(() => navigate(`/categoria/${model.id}`), 400)
                 }}
                 onMouseEnter={() => setHoveredBubbleId(model.id)}
                 onMouseLeave={() => setHoveredBubbleId(null)}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
-                <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
-                  activeModel === model.id ? 'rounded-xl' : 'rounded-full'
+                <div className={`transition-all duration-300 ${
+                  activeModel === model.id ? 'rounded-2xl' : 'rounded-full'
                 }`} style={{
-                  border: activeModel === model.id ? '3px solid #3b82f6' : '3px solid transparent',
-                  boxSizing: 'content-box'
+                  padding: activeModel === model.id ? '3px' : '0px',
+                  backgroundColor: activeModel === model.id ? '#3b82f6' : 'transparent',
                 }}>
-                    <img
-                      src={model.image}
-                      alt={model.label}
-                      loading="lazy"
-                      decoding="async"
-                      draggable={false}
-                      className="w-full h-full object-cover transition-all duration-300"
-                      onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
-                    />
+                  <div className={`transition-all duration-300 ${
+                    activeModel === model.id ? 'rounded-xl' : 'rounded-full'
+                  }`} style={{
+                    padding: activeModel === model.id ? '5px' : '0px',
+                    backgroundColor: activeModel === model.id ? '#1a1a2e' : 'transparent',
+                  }}>
+                    <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
+                      activeModel === model.id ? 'rounded-lg' : 'rounded-full'
+                    }`}>
+                      <img
+                        src={model.image}
+                        alt={model.label}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        className="w-full h-full object-cover transition-all duration-300"
+                        onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <span className={`text-xs md:text-sm font-medium text-center leading-tight transition-colors ${
                   activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
