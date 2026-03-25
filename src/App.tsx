@@ -1307,7 +1307,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         <div className="overflow-hidden">
           <div
             className="bubbles-marquee-track"
-            style={{ '--bubbles-duration': `${modelBubbles.length * 2}s` } as React.CSSProperties}
+            style={{ '--bubbles-duration': `${modelBubbles.length * 1}s` } as React.CSSProperties}
             onMouseDown={(e) => {
               const track = e.currentTarget
               track.classList.add('dragging')
@@ -1331,7 +1331,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               }, 300)
             }}
           >
-            {[...modelBubbles, ...modelBubbles].map((model, idx) => {
+            {[...modelBubbles, ...modelBubbles, ...modelBubbles].map((model, idx) => {
               const isHovered = hoveredBubbleId === model.id
               return (
               <button
