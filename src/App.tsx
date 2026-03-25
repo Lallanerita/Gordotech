@@ -1753,6 +1753,22 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                               <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-6 h-6 flex-shrink-0" />
                             </a>
                           ))}
+                          <a
+                            href={`https://wa.me/573213815465?text=${encodeURIComponent(`Hola Clínica de Celulares! Me interesa el ${selectedProduct.name} (${displayCondition(selectedProduct.condition)})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setWhatsappCityModal(false)}
+                            className="flex items-center gap-4 p-4 rounded-xl bg-green-600/10 border border-green-600/20 hover:bg-green-600 hover:border-green-600 text-green-400 hover:text-white transition-all group"
+                          >
+                            <div className="w-12 h-12 rounded-full bg-green-500/20 group-hover:bg-white/20 flex items-center justify-center flex-shrink-0">
+                              <MapPin className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-bold text-base text-white">Clínica de Celulares</p>
+                              <p className="text-xs text-gray-400 group-hover:text-green-100">San Andresito de la 18</p>
+                            </div>
+                            <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-6 h-6 flex-shrink-0" />
+                          </a>
                         </div>
                         <div className="p-4 pt-0">
                           <button onClick={() => setWhatsappCityModal(false)} className="w-full py-2.5 text-gray-400 hover:text-white text-sm transition-colors">Cancelar</button>
