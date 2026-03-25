@@ -147,7 +147,7 @@ button, a, [role="button"], input, select, textarea {
 }
 
 .animate-reviews-scroll {
-  animation: reviewsScroll 25s linear infinite;
+  animation: reviewsScroll var(--marquee-duration, 25s) linear infinite;
 }
 
 .animate-reviews-scroll:hover {

@@ -2714,13 +2714,6 @@ const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: s
       { name: 'Juanita Maria Sosa Avendano', text: 'Super recomendado, tienen todos los productos de Apple con excelentes precios y una buena atencion', rating: 5 },
       { name: 'Valentina Rodriguez Alba', text: 'Visite la tienda en Unicentro Tunja para ver algunas MacBook y me gusto mucho la experiencia. La atencion fue buena y me explicaron sobre los equipos. El lugar es organizado y tienen muy buena tecnologia. Recomendado.', rating: 5 },
       { name: 'luis alejandro rodriguez', text: 'La atencion, los precios y los equipos son los mejores. Gran axperiencia', rating: 5 },
-      { name: 'Andres Andres', text: '', rating: 5 },
-      { name: 'yecith Jerez rodriguez', text: '', rating: 5 },
-      { name: 'Milady Zamora', text: '', rating: 5 },
-      { name: 'Dixon Aguilar', text: '', rating: 5 },
-      { name: 'Oscar Eduardo Pineda', text: '', rating: 5 },
-      { name: 'David Mau Trian', text: '', rating: 5 },
-      { name: 'Gustavo Fagua', text: '', rating: 5 },
     ],
   },
   clinica: {
@@ -2750,12 +2743,6 @@ const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: s
       { name: 'Fabio Moreno', text: 'Hice la restauracion de iPhone 13 Pro Max de visor y tapa trasera y quedo a la altura 100% recomendado', rating: 5 },
       { name: 'Sarai Daniela Salcedo Daza', text: 'Me ayudaron a reparar la pantalla de mi telefono, y quedo super bien y su atencion con su explicacion tambien', rating: 5 },
       { name: 'Sergio Melendez', text: 'Buena experiencia arreglando mi S24, Rapido y buen servicio', rating: 5 },
-      { name: 'sergio campos', text: '', rating: 5 },
-      { name: 'dorely pelayo gomez', text: '', rating: 5 },
-      { name: 'Sergio', text: '', rating: 4 },
-      { name: 'Angela Sofia Cardenas Perez', text: '', rating: 5 },
-      { name: 'Anaaeiou', text: '', rating: 5 },
-      { name: 'Daniela Gaona Ruiz', text: '', rating: 5 },
     ],
   },
 }
@@ -2789,7 +2776,7 @@ function ReviewsMarquee({ reviews, googleUrl, rating, count }: { reviews: Sucurs
       </div>
       {/* Scrolling reviews */}
       <div className="relative overflow-hidden">
-        <div className="flex gap-4 animate-reviews-scroll" style={{ width: 'max-content' }}>
+        <div className="flex gap-4 animate-reviews-scroll" style={{ width: 'max-content', '--marquee-duration': `${Math.round(reviews.length * (25 / 7))}s` } as React.CSSProperties}>
           {doubled.map((r, i) => (
             <div key={i} className="flex-shrink-0 w-52 rounded-lg px-3 py-2" style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
               <div className="flex items-center gap-1.5 mb-1">
