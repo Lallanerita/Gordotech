@@ -2243,10 +2243,6 @@ function ReparacionPage() {
   const [services, setServices] = useState(repairServices)
   const [galleryPhotos, setGalleryPhotos] = useState<{ id: number; image: string; caption: string }[]>([])
   const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
-  const galleryScrollRef = useRef<HTMLDivElement>(null)
-  const galleryAnimRef = useRef<number>(0)
-  const galleryUserInteracting = useRef(false)
-  const galleryResumeTimer = useRef<ReturnType<typeof setTimeout>>(null)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
@@ -2289,33 +2285,6 @@ function ReparacionPage() {
     loadGallery()
   }, [])
 
-  // Auto-scroll gallery carousel
-  useEffect(() => {
-    if (galleryPhotos.length === 0) return
-    const el = galleryScrollRef.current
-    if (!el) return
-    // Start scrolled to the middle third (so we can loop)
-    const oneThird = el.scrollWidth / 3
-    el.scrollLeft = oneThird
-    const speed = 1.2 // px per frame — fast scroll
-    const tick = () => {
-      if (!galleryUserInteracting.current && el) {
-        el.scrollLeft += speed
-        // Loop: if we've scrolled past 2/3, jump back to 1/3
-        if (el.scrollLeft >= oneThird * 2) {
-          el.scrollLeft -= oneThird
-        }
-      }
-      galleryAnimRef.current = requestAnimationFrame(tick)
-    }
-    // Small delay for DOM to be ready
-    const timer = setTimeout(() => { galleryAnimRef.current = requestAnimationFrame(tick) }, 300)
-    return () => {
-      clearTimeout(timer)
-      cancelAnimationFrame(galleryAnimRef.current)
-      if (galleryResumeTimer.current) clearTimeout(galleryResumeTimer.current)
-    }
-  }, [galleryPhotos])
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -2341,61 +2310,15 @@ function ReparacionPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-                <span className="text-blue-400 text-sm font-medium">Servicio Tecnico</span>
-              </div>
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
-                CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACION</span>
+                CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACIONES</span>
               </h3>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                 Nuestros tecnicos certificados reparan tu iPhone con repuestos de la mas alta calidad
               </p>
             </div>
 
-            {/* Galeria de Trabajos - Carousel (right after title) */}
-            {galleryPhotos.length > 0 && (() => {
-              const tripled = [...galleryPhotos, ...galleryPhotos, ...galleryPhotos]
-              return (
-                <div className="mb-16">
-                  <div className="relative overflow-hidden -mx-4 sm:-mx-6">
-                    <div
-                      ref={galleryScrollRef}
-                      className="flex gap-4 overflow-x-auto px-4 sm:px-6 pb-4"
-                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-                      onTouchStart={() => { galleryUserInteracting.current = true; if (galleryResumeTimer.current) clearTimeout(galleryResumeTimer.current) }}
-                      onTouchEnd={() => { galleryResumeTimer.current = setTimeout(() => { galleryUserInteracting.current = false }, 1500) }}
-                      onMouseDown={() => { galleryUserInteracting.current = true; if (galleryResumeTimer.current) clearTimeout(galleryResumeTimer.current) }}
-                      onMouseUp={() => { galleryResumeTimer.current = setTimeout(() => { galleryUserInteracting.current = false }, 1500) }}
-                      onMouseLeave={() => { if (galleryUserInteracting.current) galleryResumeTimer.current = setTimeout(() => { galleryUserInteracting.current = false }, 1500) }}
-                    >
-                      {tripled.map((photo, i) => (
-                        <button
-                          key={`gallery-${i}`}
-                          onClick={() => setLightboxPhoto(photo)}
-                          className="group relative flex-shrink-0 rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
-                          style={{ width: 'min(70vw, 320px)', aspectRatio: '1/1' }}
-                        >
-                          <img
-                            src={photo.image}
-                            alt={photo.caption}
-                            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                          {photo.caption && (
-                            <div className="absolute bottom-0 left-0 right-0 p-4">
-                              <p className="text-white text-sm font-medium drop-shadow-lg">{photo.caption}</p>
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )
-            })()}
-
+            {/* Boton Agendar Reparacion - above gallery */}
             <div className="text-center mb-12">
               <a
                 href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
@@ -2406,6 +2329,36 @@ function ReparacionPage() {
                 Agendar Reparacion por WhatsApp
               </a>
             </div>
+
+            {/* Galeria de Trabajos - Vertical cards grid */}
+            {galleryPhotos.length > 0 && (
+              <div className="mb-16">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {galleryPhotos.map((photo, i) => (
+                    <button
+                      key={`gallery-${i}`}
+                      onClick={() => setLightboxPhoto(photo)}
+                      className="group relative rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
+                      style={{ aspectRatio: '3/4' }}
+                    >
+                      <img
+                        src={photo.image}
+                        alt={photo.caption}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      {photo.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                          <p className="text-white text-xs sm:text-sm font-medium drop-shadow-lg">{photo.caption}</p>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
           </div>
         </section>
