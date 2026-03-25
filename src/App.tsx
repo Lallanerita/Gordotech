@@ -1300,17 +1300,42 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {/* Main Content */}
       <main>
 
-      {/* Model Bubbles - hidden on product detail */}
-      {!selectedProduct && (
+      {/* Model Bubbles - auto-scrolling marquee */}
+      {!selectedProduct && modelBubbles.length > 0 && (
       <ScrollReveal>
       <section className="py-8 md:py-14 border-y border-white/5">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
-          <div className="flex items-start gap-5 md:gap-10 lg:gap-14 overflow-x-auto md:overflow-visible pb-4 pt-2 px-2 scrollbar-hide md:justify-center">
-            {modelBubbles.map(model => {
+        <div className="overflow-hidden">
+          <div
+            className="bubbles-marquee-track"
+            style={{ '--bubbles-duration': `${modelBubbles.length * 4}s` } as React.CSSProperties}
+            onMouseDown={(e) => {
+              const track = e.currentTarget
+              track.classList.add('dragging')
+              const onMove = (ev: MouseEvent) => { ev.preventDefault() }
+              const onUp = () => {
+                track.classList.remove('dragging')
+                window.removeEventListener('mousemove', onMove)
+                window.removeEventListener('mouseup', onUp)
+              }
+              window.addEventListener('mousemove', onMove)
+              window.addEventListener('mouseup', onUp)
+            }}
+            onTouchStart={() => {
+              const track = document.querySelector('.bubbles-marquee-track') as HTMLElement
+              if (track) track.classList.add('dragging')
+            }}
+            onTouchEnd={() => {
+              setTimeout(() => {
+                const track = document.querySelector('.bubbles-marquee-track') as HTMLElement
+                if (track) track.classList.remove('dragging')
+              }, 300)
+            }}
+          >
+            {[...modelBubbles, ...modelBubbles].map((model, idx) => {
               const isHovered = hoveredBubbleId === model.id
               return (
               <button
-                key={model.id}
+                key={`${model.id}-${idx}`}
                 onClick={() => {
                   setHoveredBubbleId(null)
                   navigate(`/categoria/${model.id}`)
@@ -1322,7 +1347,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
                   hoverTimeout.current = setTimeout(() => setHoveredBubbleId(null), 1500)
                 }}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 md:flex-shrink relative"
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10"
               >
                 <div className={`transition-all duration-300 bg-gray-900 border-2 ${
                   isHovered

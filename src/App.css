@@ -445,6 +445,26 @@ button, a, [role="button"], input, select, textarea {
   height: 14px;
 }
 
+/* Bubbles auto-scroll marquee */
+@keyframes bubblesScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.bubbles-marquee-track {
+  display: flex;
+  animation: bubblesScroll var(--bubbles-duration, 30s) linear infinite;
+  will-change: transform;
+}
+
+.bubbles-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.bubbles-marquee-track.dragging {
+  animation-play-state: paused;
+}
+
 /* Image shimmer placeholder while loading */
 @keyframes shimmer {
   0% { background-position: -400px 0; }
