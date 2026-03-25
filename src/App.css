@@ -267,6 +267,19 @@ button, a, [role="button"], input, select, textarea {
 }
 
 /* --- Category bar --- */
+.light-mode .bg-gray-900\/80 {
+  background-color: #f3f4f6 !important;
+  border-bottom-color: #e5e7eb !important;
+}
+
+.light-mode .bg-gray-900\/80 .text-gray-300 {
+  color: #374151 !important;
+}
+
+.light-mode .bg-gray-900\/80 .text-gray-600 {
+  color: #d1d5db !important;
+}
+
 .light-mode .text-gray-300.hover\:text-white:hover {
   color: #1a1a2e !important;
 }
