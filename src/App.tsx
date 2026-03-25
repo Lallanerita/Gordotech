@@ -1369,22 +1369,22 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 onMouseLeave={() => setHoveredBubbleId(null)}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
-                <div className={`transition-all duration-300 bg-gray-900 rounded-full overflow-hidden w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 ${
-                  isHovered
-                    ? 'border-[3px] border-blue-500 shadow-lg shadow-blue-500/30 scale-110 -translate-y-1'
-                    : activeModel === model.id
-                      ? 'border-[3px] border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
-                      : 'border-2 border-transparent group-hover:border-blue-400'
+                <div className={`transition-all duration-300 p-[3px] rounded-2xl ${
+                  activeModel === model.id
+                    ? 'bg-blue-500 shadow-lg shadow-blue-500/30 scale-110'
+                    : 'bg-transparent'
                 }`}>
-                  <img
-                    src={model.image}
-                    alt={model.label}
-                    loading="lazy"
-                    decoding="async"
-                    draggable={false}
-                    className="w-full h-full object-cover transition-all duration-300"
-                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
-                  />
+                  <div className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-xl overflow-hidden bg-gray-900">
+                    <img
+                      src={model.image}
+                      alt={model.label}
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                      className="w-full h-full object-cover transition-all duration-300"
+                      onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
+                    />
+                  </div>
                 </div>
                 <span className={`text-xs md:text-sm font-medium text-center leading-tight transition-colors ${
                   activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
