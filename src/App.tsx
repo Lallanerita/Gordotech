@@ -187,6 +187,18 @@ type MarqueeText = {
 }
 
 
+// Get minimum price from product variants (returns { price, hasMultiple } or null)
+function getMinVariantPrice(product: { price?: string; variants?: { price: string; active: boolean }[] }) {
+  const variants = (product.variants || []).filter(v => v.active && v.price && v.price !== '-')
+  if (variants.length === 0) return null
+  const parsePrice = (p: string) => parseInt((p || '0').replace(/\./g, '').replace(/[^\d]/g, ''), 10) || 0
+  const prices = variants.map(v => ({ raw: v.price, parsed: parsePrice(v.price) })).filter(p => p.parsed > 0)
+  if (prices.length === 0) return null
+  prices.sort((a, b) => a.parsed - b.parsed)
+  const hasMultiple = prices.length > 1 && prices[0].parsed !== prices[prices.length - 1].parsed
+  return { price: prices[0].raw, hasMultiple }
+}
+
 // Display-friendly condition label (API uses 'Semi-usado', we show 'Semi-nuevo')
 function displayCondition(condition: string): string {
   if (condition === 'Semi-usado') return 'Semi-nuevo'
@@ -1395,16 +1407,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                         <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
                       ))}
                           </div>
-                          {product.condition !== 'Semi-usado' && product.price && product.price !== '-' ? (
+                          {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
                             <div className="mb-1">
-                              {product.oldPrice && product.oldPrice !== '-' && (
+                              {!minV && product.oldPrice && product.oldPrice !== '-' && (
                                 <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
                               )}
-                              <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                              <p className="text-base md:text-lg font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
                             </div>
                           ) : product.condition !== 'Semi-usado' ? (
                             <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                          ) : null}
+                          ) : null })()}
                           <div className="flex flex-wrap gap-x-2">
                             {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
                               <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
@@ -1454,16 +1466,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                         <div key={`c${i}`} className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
                       ))}
                     </div>
-                    {product.condition !== 'Semi-usado' && product.price && product.price !== '-' ? (
+                    {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
                       <div className="mb-0.5">
-                        {product.oldPrice && product.oldPrice !== '-' && (
+                        {!minV && product.oldPrice && product.oldPrice !== '-' && (
                           <p className="text-[9px] text-red-400 line-through">$ {product.oldPrice}</p>
                         )}
-                        <p className="text-sm md:text-base font-bold text-white">$ {product.price}</p>
+                        <p className="text-sm md:text-base font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
                       </div>
                     ) : product.condition !== 'Semi-usado' ? (
                       <p className="text-[10px] text-blue-400 font-medium flex items-center gap-1 mb-0.5"><MessageCircle className="w-2.5 h-2.5" /> Consultar</p>
-                    ) : null}
+                    ) : null })()}
                     <div className="flex flex-wrap gap-x-1.5">
                       {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
                         <p key={c} className="text-[9px] text-green-400 font-medium flex items-center gap-0.5"><MapPin className="w-2 h-2" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
@@ -1807,16 +1819,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                 <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
                               ))}
                                                         </div>
-                                                        {product.condition !== 'Semi-usado' && product.price && product.price !== '-' ? (
+                                                        {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
                                                           <div className="mb-1">
-                                                            {product.oldPrice && product.oldPrice !== '-' && (
+                                                            {!minV && product.oldPrice && product.oldPrice !== '-' && (
                                                               <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
                                                             )}
-                                                            <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                                                            <p className="text-base md:text-lg font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
                                                           </div>
                             ) : product.condition !== 'Semi-usado' ? (
                               <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                            ) : null}
+                            ) : null })()}
                             <div className="flex flex-wrap gap-x-2">
                               {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
                                 <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
@@ -3193,16 +3205,16 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
                         <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
                       ))}
                     </div>
-                    {product.condition !== 'Semi-usado' && product.price && product.price !== '-' ? (
+                    {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
                       <div className="mb-1">
-                        {product.oldPrice && product.oldPrice !== '-' && (
+                        {!minV && product.oldPrice && product.oldPrice !== '-' && (
                           <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
                         )}
-                        <p className="text-base md:text-lg font-bold text-white">$ {product.price}</p>
+                        <p className="text-base md:text-lg font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
                       </div>
                     ) : product.condition !== 'Semi-usado' ? (
                       <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                    ) : null}
+                    ) : null })()}
                     <div className="flex flex-wrap gap-x-2">
                       {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
                         <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
