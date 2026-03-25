@@ -1375,25 +1375,18 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   padding: activeModel === model.id ? '3px' : '0px',
                   backgroundColor: activeModel === model.id ? '#3b82f6' : 'transparent',
                 }}>
-                  <div className={`transition-all duration-300 ${
+                  <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
                     activeModel === model.id ? 'rounded-xl' : 'rounded-full'
-                  }`} style={{
-                    padding: activeModel === model.id ? '5px' : '0px',
-                    backgroundColor: 'transparent',
-                  }}>
-                    <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
-                      activeModel === model.id ? 'rounded-lg' : 'rounded-full'
-                    }`}>
-                      <img
-                        src={model.image}
-                        alt={model.label}
-                        loading="lazy"
-                        decoding="async"
-                        draggable={false}
-                        className="w-full h-full object-cover transition-all duration-300"
-                        onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
-                      />
-                    </div>
+                  }`}>
+                    <img
+                      src={model.image}
+                      alt={model.label}
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                      className="w-full h-full object-cover transition-all duration-300"
+                      onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
+                    />
                   </div>
                 </div>
                 <span className={`text-xs md:text-sm font-medium text-center leading-tight transition-colors ${
