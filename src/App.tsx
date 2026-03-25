@@ -774,7 +774,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
             storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null,
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null),
             available: p.available as string[],
             price: (p.price as string) || '',
             oldPrice: (p.old_price as string) || '',
@@ -791,7 +791,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
             storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null, available: p.available as string[],
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
           }))
@@ -805,7 +805,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
             storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null, available: p.available as string[],
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
           }))
@@ -968,7 +968,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       id: data.id as number, name: data.name as string, slug: (data.slug as string) || '', category: (data.category as string) || '',
       condition: data.condition as string, image: resolveImageUrl(data.image as string), images: ((data.images as string[]) || []).map(resolveImageUrl),
       colors, color_images: ciResolved, storageOptions: storageOpts,
-      badge: (data.badge as string) || null, available: data.available as string[],
+      badge: (data.badge as string) || ((data.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: data.available as string[],
       price: (data.price as string) || '', oldPrice: (data.old_price as string) || '', description: (data.description as string) || '',
       model_3d: (data.model_3d as string) || '',
       variants,
@@ -1205,7 +1205,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null, available: p.available as string[],
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
           })))
         }
@@ -2527,7 +2527,7 @@ function SemiNuevosPage() {
               condition: p.condition as string,
               image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl),
               colors: p.colors as string[], storageOptions: p.storage_options as string[],
-              badge: (p.badge as string) || null, available: p.available as string[],
+              badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
               price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             }))
             setSemiProducts(mapped)
@@ -3148,7 +3148,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
             condition: p.condition as string, image: resolveImageUrl(p.image as string),
             images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
-            storageOptions: p.storage_options as string[], badge: (p.badge as string) || null,
+            storageOptions: p.storage_options as string[], badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null),
             available: p.available as string[], price: (p.price as string) || '',
             oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as Product['variants']) || [],
