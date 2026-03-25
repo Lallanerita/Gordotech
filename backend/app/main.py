@@ -1386,20 +1386,18 @@ async def admin_reseed_reviews(username: str = Depends(get_current_admin)):
     try:
         await db.execute("DELETE FROM resenas")
         await db.commit()
+    finally:
         await db.close()
-        # Re-run seed which will detect empty table and insert defaults
-        await seed_default_data()
-        # Count inserted
-        db2 = await aiosqlite.connect(DB_PATH)
-        try:
-            cursor = await db2.execute("SELECT COUNT(*) FROM resenas")
-            count = (await cursor.fetchone())[0]
-            return {"message": f"Resenas re-seed completado: {count} resenas insertadas"}
-        finally:
-            await db2.close()
-    except Exception:
-        await db.close()
-        raise
+    # Re-run seed which will detect empty table and insert defaults
+    await seed_default_data()
+    # Count inserted
+    db2 = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db2.execute("SELECT COUNT(*) FROM resenas")
+        count = (await cursor.fetchone())[0]
+        return {"message": f"Resenas re-seed completado: {count} resenas insertadas"}
+    finally:
+        await db2.close()
 
 # ==================== ADMIN VARIANT CRUD ====================
 
