@@ -2952,6 +2952,12 @@ const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: s
   },
 }
 
+const SUCURSAL_MAPS: Record<string, string> = {
+  duitama: 'https://www.google.com/maps/dir//Gordotech+Duitama,+Cl.+20a+%2312-32,+Solano,+Duitama,+Boyac%C3%A1/@5.8259915,-73.0301255,14z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a3fb0048fe77f:0xd1f7a4fb7101b8e8!2m2!1d-73.0317497!2d5.8320283',
+  tunja: 'https://www.google.com/maps/dir//Gordotech+Tunja,+Universitaria+39+%2377+UNICENTRO,+Tunja,+Boyac%C3%A1/@5.539294,-73.356241,13z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a7d74e31ea55d:0x22aa657c5e1e9dc1!2m2!1d-73.3483432!2d5.5451975',
+  clinica: 'https://www.google.com/maps/search/Clinica+de+Celulares+Gordotech+San+Andresito+de+la+18+Duitama',
+}
+
 const DEFAULT_SUCURSALES: Sucursal[] = [
   { id: 1, name: 'Gordotech Duitama', slug: 'duitama', address: 'Pasaje Comercial Solano, Local 102', city: 'Duitama', image: '', whatsapp: '573144810431', instagram: 'https://www.instagram.com/gordotechduitama', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 314 481 0431', description: 'Tu destino Apple en Duitama', sort_order: 0, active: true },
   { id: 2, name: 'Gordotech Tunja', slug: 'tunja', address: 'CC. Unicentro, Entrada 1, Isla Comercial', city: 'Tunja', image: '', whatsapp: '573219863883', instagram: 'https://www.instagram.com/gordotechtunja', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 321 986 3883', description: 'Tu destino Apple en Tunja', sort_order: 1, active: true },
@@ -3106,7 +3112,13 @@ function SucursalesPage() {
                         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70" />
 
                         {/* Name + Address at TOP-left with margin - force white text over photo */}
-                        <div className="absolute top-4 left-4 right-4" style={{ color: 'white' }}>
+                        <a
+                          href={SUCURSAL_MAPS[s.slug] || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute top-4 left-4 right-4 cursor-pointer hover:opacity-80 transition-opacity"
+                          style={{ color: 'white', textDecoration: 'none' }}
+                        >
                           <h4 className="font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px', color: 'white' }}>
                             {s.name.toUpperCase()}
                           </h4>
@@ -3114,7 +3126,7 @@ function SucursalesPage() {
                             <MapPin className="w-3.5 h-3.5 text-blue-300 mt-0.5 flex-shrink-0" />
                             <p className="text-xs leading-snug drop-shadow" style={{ color: '#e5e7eb' }}>{s.address}</p>
                           </div>
-                        </div>
+                        </a>
 
                         {/* Reviews marquee at BOTTOM inside the photo */}
                         {reviewData && (
