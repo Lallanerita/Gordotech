@@ -2641,6 +2641,15 @@ function SemiNuevosPage() {
                       <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
                       <div><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
                     </a>
+                    <a
+                      href="https://wa.me/573213815465?text=Hola%20Cl%C3%ADnica%20de%20Celulares%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+                    >
+                      <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
+                      <div><p className="text-white text-sm font-medium">Clínica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18</p></div>
+                    </a>
                   </div>
                 )}
               </div>
