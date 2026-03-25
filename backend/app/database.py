@@ -426,10 +426,16 @@ async def seed_default_data():
                 )
         await db.commit()
 
-    # Seed resenas if empty
+    # Seed resenas if empty or if count doesn't match defaults (auto-reseed)
     cursor = await db.execute("SELECT COUNT(*) as cnt FROM resenas")
     row = await cursor.fetchone()
-    if row[0] == 0:
+    current_count = row[0]
+    expected_default_count = 120  # 75 Duitama + 23 Tunja + 22 Clinica
+    if current_count == 0 or (current_count < expected_default_count and not (seed and seed.get("resenas"))):
+        # Clear old reviews if re-seeding
+        if current_count > 0:
+            await db.execute("DELETE FROM resenas")
+            await db.commit()
         if seed and seed.get("resenas"):
             for r in seed["resenas"]:
                 await db.execute(
