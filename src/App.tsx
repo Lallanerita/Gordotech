@@ -2952,6 +2952,12 @@ const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: s
   },
 }
 
+const SUCURSAL_MAPS: Record<string, string> = {
+  duitama: 'https://www.google.com/maps/dir//Gordotech+Duitama,+Cl.+20a+%2312-32,+Solano,+Duitama,+Boyac%C3%A1/@5.8259915,-73.0301255,14z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a3fb0048fe77f:0xd1f7a4fb7101b8e8!2m2!1d-73.0317497!2d5.8320283',
+  tunja: 'https://www.google.com/maps/dir//Gordotech+Tunja,+Universitaria+39+%2377+UNICENTRO,+Tunja,+Boyac%C3%A1/@5.539294,-73.356241,13z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a7d74e31ea55d:0x22aa657c5e1e9dc1!2m2!1d-73.3483432!2d5.5451975',
+  clinica: 'https://www.google.com/maps/search/Clinica+de+Celulares+Gordotech+San+Andresito+de+la+18+Duitama',
+}
+
 const DEFAULT_SUCURSALES: Sucursal[] = [
   { id: 1, name: 'Gordotech Duitama', slug: 'duitama', address: 'Pasaje Comercial Solano, Local 102', city: 'Duitama', image: '', whatsapp: '573144810431', instagram: 'https://www.instagram.com/gordotechduitama', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 314 481 0431', description: 'Tu destino Apple en Duitama', sort_order: 0, active: true },
   { id: 2, name: 'Gordotech Tunja', slug: 'tunja', address: 'CC. Unicentro, Entrada 1, Isla Comercial', city: 'Tunja', image: '', whatsapp: '573219863883', instagram: 'https://www.instagram.com/gordotechtunja', tiktok: 'https://www.tiktok.com/@gordotech1', phone: '+57 321 986 3883', description: 'Tu destino Apple en Tunja', sort_order: 1, active: true },
@@ -3105,16 +3111,22 @@ function SucursalesPage() {
                         {/* Gradient overlays - top and bottom for readability */}
                         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70" />
 
-                        {/* Name + Address at TOP-left with margin */}
-                        <div className="absolute top-4 left-4 right-4">
-                          <h4 className="text-white font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                        {/* Name + Address at TOP-left with margin - force white text over photo */}
+                        <a
+                          href={SUCURSAL_MAPS[s.slug] || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute top-4 left-4 right-4 cursor-pointer hover:opacity-80 transition-opacity"
+                          style={{ color: 'white', textDecoration: 'none' }}
+                        >
+                          <h4 className="font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px', color: 'white' }}>
                             {s.name.toUpperCase()}
                           </h4>
                           <div className="flex items-start gap-1.5">
                             <MapPin className="w-3.5 h-3.5 text-blue-300 mt-0.5 flex-shrink-0" />
-                            <p className="text-gray-200 text-xs leading-snug drop-shadow">{s.address}</p>
+                            <p className="text-xs leading-snug drop-shadow" style={{ color: '#e5e7eb' }}>{s.address}</p>
                           </div>
-                        </div>
+                        </a>
 
                         {/* Reviews marquee at BOTTOM inside the photo */}
                         {reviewData && (
@@ -3130,16 +3142,16 @@ function SucursalesPage() {
                       </div>
 
                       {/* Social links below the photo */}
-                      <div className="px-5 py-4 flex items-center justify-between gap-3">
+                      <div className="px-3 sm:px-5 py-4 flex items-center justify-between gap-2 sm:gap-3">
                         {/* WhatsApp */}
                         <a
                           href={waUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                          className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                         >
-                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain" />
-                          WhatsApp
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain flex-shrink-0" />
+                          <span className="truncate">WhatsApp</span>
                         </a>
 
                         {/* Instagram */}
@@ -3148,10 +3160,10 @@ function SucursalesPage() {
                             href={s.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                           >
-                            <Instagram className="w-4 h-4" />
-                            Instagram
+                            <Instagram className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">Instagram</span>
                           </a>
                         )}
 
@@ -3161,10 +3173,10 @@ function SucursalesPage() {
                             href={s.tiktok}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                           >
-                            <TikTokIcon className="w-4 h-4" />
-                            TikTok
+                            <TikTokIcon className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">TikTok</span>
                           </a>
                         )}
                       </div>
