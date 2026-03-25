@@ -1979,46 +1979,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             </div>
           </div>
 
-          {/* 3-column links */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 mb-12">
-            {/* Productos */}
-            <div className="text-center">
-              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Productos</h5>
-              <ul className="space-y-3">
-                <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Nuevos</a></li>
-                <li><Link to="/semi-nuevos" className="text-gray-400 hover:text-white transition-colors text-sm">iPhones Seminuevos</Link></li>
-                <li><Link to="/plan-retoma" className="text-gray-400 hover:text-white transition-colors text-sm">Plan Retoma</Link></li>
-                <li><a href="#productos" className="text-gray-400 hover:text-white transition-colors text-sm">Accesorios</a></li>
-              </ul>
-            </div>
-
-            {/* Clinica de Celulares */}
-            <div className="text-center">
-              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Clinica de Celulares</h5>
-              <ul className="space-y-3">
-                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Reparacion iPhone</Link></li>
-                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de pantalla</Link></li>
-                <li><Link to="/reparacion" className="text-gray-400 hover:text-white transition-colors text-sm">Cambio de bateria</Link></li>
-                <li><Link to="/reparacion" className="text-amber-400 hover:text-amber-300 transition-colors text-sm font-semibold">Diagnostico Gratis</Link></li>
-              </ul>
-              <div className="flex items-center justify-center gap-1.5 text-gray-500 text-xs mt-4">
-                <MapPin className="w-3 h-3 text-blue-400 flex-shrink-0" />
-                San Andresito de la 18, Local 11
-              </div>
-            </div>
-
-            {/* Contacto */}
-            <div className="text-center">
-              <h5 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contacto</h5>
-              <ul className="space-y-3">
-                <li><a href={socials.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">WhatsApp Duitama</a></li>
-                <li><a href={CITY_SOCIALS.tunja.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">WhatsApp Tunja</a></li>
-                <li><a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">Instagram</a></li>
-                <li><Link to="/sucursales" className="text-gray-400 hover:text-white transition-colors text-sm">Nuestras Sucursales</Link></li>
-              </ul>
-            </div>
-          </div>
-
           {/* Theme Toggle */}
           <div className="border-t border-white/5 pt-8 mb-6 flex items-center justify-center gap-3">
             <Sun className="w-4 h-4 text-gray-400" />
