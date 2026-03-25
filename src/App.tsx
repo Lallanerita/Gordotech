@@ -910,7 +910,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     if (Math.abs(dx) > 3) bubblesDragRef.current.moved = true
     bubblesOffsetRef.current = bubblesDragRef.current.startOffset + dx
   }, [])
-  const onBubblesPointerUp = useCallback(() => { bubblesDragRef.current.active = false }, [])
+  const onBubblesPointerUp = useCallback(() => { bubblesDragRef.current.active = false; setTimeout(() => { bubblesDragRef.current.moved = false }, 0) }, [])
 
   const onTrendingPointerDown = useCallback((e: React.PointerEvent) => {
     trendingDragging.current = true
@@ -1370,13 +1370,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
                 <div className={`transition-all duration-300 ${
-                  activeModel === model.id ? 'rounded-2xl' : 'rounded-full'
+                  activeModel === model.id || isHovered ? 'rounded-2xl' : 'rounded-full'
                 }`} style={{
-                  padding: activeModel === model.id ? '2px' : '0px',
-                  backgroundColor: activeModel === model.id ? '#3b82f6' : 'transparent',
+                  padding: (activeModel === model.id || isHovered) ? '2px' : '0px',
+                  backgroundColor: (activeModel === model.id || isHovered) ? '#3b82f6' : 'transparent',
                 }}>
                   <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
-                    activeModel === model.id ? 'rounded-xl' : 'rounded-full'
+                    activeModel === model.id || isHovered ? 'rounded-xl' : 'rounded-full'
                   }`}>
                     <img
                       src={model.image}
