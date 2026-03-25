@@ -1369,14 +1369,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 onMouseLeave={() => setHoveredBubbleId(null)}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
-                <div className={`transition-all duration-300 p-[3px] ${
-                  activeModel === model.id
-                    ? 'bg-blue-500 rounded-2xl'
-                    : 'bg-transparent rounded-full'
-                }`}>
-                  <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden bg-gray-900 transition-all duration-300 ${
+                <div className={`transition-all duration-300 ${
+                  activeModel === model.id ? 'rounded-2xl' : 'rounded-full'
+                }`} style={{ padding: '3px', background: activeModel === model.id ? '#3b82f6' : 'transparent' }}>
+                  <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
                     activeModel === model.id ? 'rounded-xl' : 'rounded-full'
-                  }`}>
+                  }`} style={{ backgroundColor: '#111827' }}>
                     <img
                       src={model.image}
                       alt={model.label}
