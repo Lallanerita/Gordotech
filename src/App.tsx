@@ -636,7 +636,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [scrolled, setScrolled] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('gordotech_theme')
-    return saved ? saved === 'dark' : true
+    return saved ? saved === 'dark' : false
   })
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null)
   const [galleryIndex, setGalleryIndex] = useState(0)
@@ -1307,7 +1307,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
         <div className="overflow-hidden">
           <div
             className="bubbles-marquee-track"
-            style={{ '--bubbles-duration': `${modelBubbles.length * 4}s` } as React.CSSProperties}
+            style={{ '--bubbles-duration': `${modelBubbles.length * 2}s` } as React.CSSProperties}
             onMouseDown={(e) => {
               const track = e.currentTarget
               track.classList.add('dragging')
