@@ -437,7 +437,7 @@ async def seed_default_data():
                     (r.get("sucursal_slug", ""), r.get("customer_name", ""), r.get("rating", 5), r.get("text", ""), r.get("sort_order", 0), 1 if r.get("active", True) else 0)
                 )
         else:
-default_resenas = [
+            default_resenas = [
                 # Duitama (75 reviews)
                 ("duitama", "Marcela Rodriguez", 5, "Muy buena atención y exelente servicio", 0, 1),
                 ("duitama", "Unplugged Banda", 5, "La mejor tienda de Boyacá", 1, 1),
