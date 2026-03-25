@@ -3105,14 +3105,14 @@ function SucursalesPage() {
                         {/* Gradient overlays - top and bottom for readability */}
                         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70" />
 
-                        {/* Name + Address at TOP-left with margin */}
-                        <div className="absolute top-4 left-4 right-4">
-                          <h4 className="text-white font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                        {/* Name + Address at TOP-left with margin - force white text over photo */}
+                        <div className="absolute top-4 left-4 right-4" style={{ color: 'white' }}>
+                          <h4 className="font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px', color: 'white' }}>
                             {s.name.toUpperCase()}
                           </h4>
                           <div className="flex items-start gap-1.5">
                             <MapPin className="w-3.5 h-3.5 text-blue-300 mt-0.5 flex-shrink-0" />
-                            <p className="text-gray-200 text-xs leading-snug drop-shadow">{s.address}</p>
+                            <p className="text-xs leading-snug drop-shadow" style={{ color: '#e5e7eb' }}>{s.address}</p>
                           </div>
                         </div>
 
@@ -3130,16 +3130,16 @@ function SucursalesPage() {
                       </div>
 
                       {/* Social links below the photo */}
-                      <div className="px-5 py-4 flex items-center justify-between gap-3">
+                      <div className="px-3 sm:px-5 py-4 flex items-center justify-between gap-2 sm:gap-3">
                         {/* WhatsApp */}
                         <a
                           href={waUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                          className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                         >
-                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain" />
-                          WhatsApp
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain flex-shrink-0" />
+                          <span className="truncate">WhatsApp</span>
                         </a>
 
                         {/* Instagram */}
@@ -3148,10 +3148,10 @@ function SucursalesPage() {
                             href={s.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                           >
-                            <Instagram className="w-4 h-4" />
-                            Instagram
+                            <Instagram className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">Instagram</span>
                           </a>
                         )}
 
@@ -3161,10 +3161,10 @@ function SucursalesPage() {
                             href={s.tiktok}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                           >
-                            <TikTokIcon className="w-4 h-4" />
-                            TikTok
+                            <TikTokIcon className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">TikTok</span>
                           </a>
                         )}
                       </div>
