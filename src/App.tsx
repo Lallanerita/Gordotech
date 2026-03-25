@@ -621,6 +621,9 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         </>
       )}
 
+      {/* Bottom fade gradient for smooth transition to next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 z-20 pointer-events-none hero-bottom-fade" style={{ background: 'linear-gradient(to bottom, transparent, #030712)' }} />
+
     </section>
   )
 }
