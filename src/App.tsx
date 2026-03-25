@@ -2422,8 +2422,8 @@ function ReparacionPage() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                           {photo.caption && (
-                            <div className="absolute bottom-0 left-0 right-0 p-3">
-                              <p className="text-white text-xs font-medium drop-shadow-lg">{photo.caption}</p>
+                            <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-center">
+                              <p className="text-sm font-bold text-center drop-shadow-lg" style={{ color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{photo.caption}</p>
                             </div>
                           )}
                         </button>
@@ -2457,8 +2457,8 @@ function ReparacionPage() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                           {photo.caption && (
-                            <div className="absolute bottom-0 left-0 right-0 p-3">
-                              <p className="text-white text-xs font-medium drop-shadow-lg">{photo.caption}</p>
+                            <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-center">
+                              <p className="text-sm font-bold text-center drop-shadow-lg" style={{ color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{photo.caption}</p>
                             </div>
                           )}
                         </button>
