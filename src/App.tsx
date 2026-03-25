@@ -877,7 +877,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const bubblesOffsetRef = useRef(0)
   const bubblesDragRef = useRef<{ active: boolean; startX: number; startOffset: number; moved: boolean }>({ active: false, startX: 0, startOffset: 0, moved: false })
   const bubblesRafRef = useRef<number>(0)
-  const BUBBLES_SPEED = 1.5
+  const BUBBLES_SPEED = 1.2
 
   useEffect(() => {
     if (modelBubbles.length === 0) return
@@ -2250,6 +2250,21 @@ function ReparacionPage() {
   const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
+  // Theme management - read from localStorage (same as Store)
+  const [isDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('gordotech_theme')
+    return saved ? saved === 'dark' : false
+  })
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (isDarkMode) {
+      root.classList.remove('light-mode')
+    } else {
+      root.classList.add('light-mode')
+    }
+  }, [isDarkMode])
+
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -2290,9 +2305,52 @@ function ReparacionPage() {
     loadGallery()
   }, [])
 
+  // Gallery marquee refs - two rows scrolling in opposite directions
+  const galleryRow1Ref = useRef<HTMLDivElement>(null)
+  const galleryRow2Ref = useRef<HTMLDivElement>(null)
+  const galleryOffset1Ref = useRef(0)
+  const galleryOffset2Ref = useRef(0)
+  const GALLERY_SPEED = 0.5
+
+  useEffect(() => {
+    if (galleryPhotos.length === 0) return
+    let running = true
+    const tick = () => {
+      if (!running) return
+      const row1 = galleryRow1Ref.current
+      const row2 = galleryRow2Ref.current
+      if (row1) {
+        const singleWidth = row1.scrollWidth / 3
+        galleryOffset1Ref.current -= GALLERY_SPEED
+        if (galleryOffset1Ref.current <= -singleWidth) galleryOffset1Ref.current += singleWidth
+        row1.style.transform = `translateX(${galleryOffset1Ref.current}px)`
+      }
+      if (row2) {
+        const singleWidth = row2.scrollWidth / 3
+        galleryOffset2Ref.current += GALLERY_SPEED
+        if (galleryOffset2Ref.current >= 0) galleryOffset2Ref.current -= singleWidth
+        row2.style.transform = `translateX(${galleryOffset2Ref.current}px)`
+      }
+      requestAnimationFrame(tick)
+    }
+    // Initialize row2 offset to -singleWidth so it starts at a shifted position
+    const initTimer = setTimeout(() => {
+      if (galleryRow2Ref.current) {
+        const singleWidth = galleryRow2Ref.current.scrollWidth / 3
+        galleryOffset2Ref.current = -singleWidth
+      }
+    }, 50)
+    requestAnimationFrame(tick)
+    return () => { running = false; clearTimeout(initTimer) }
+  }, [galleryPhotos])
+
+  // Split photos into two rows
+  const halfIndex = Math.ceil(galleryPhotos.length / 2)
+  const row1Photos = galleryPhotos.slice(0, halfIndex)
+  const row2Photos = galleryPhotos.slice(halfIndex)
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -2311,10 +2369,10 @@ function ReparacionPage() {
       </header>
 
       <div className="pt-20">
-        <section className="py-16 md:py-24 relative">
+        <section className="py-6 md:py-10 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            <div className="text-center mb-16">
+            <div className="text-center mb-6">
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                 CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACIONES</span>
               </h3>
@@ -2324,44 +2382,90 @@ function ReparacionPage() {
             </div>
 
             {/* Boton Agendar Reparacion - above gallery */}
-            <div className="text-center mb-12">
+            <div className="text-center mb-6">
               <a
                 href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl transition-all hover:scale-105 hover:shadow-lg font-semibold"
+                style={{ backgroundColor: '#34C759', color: '#ffffff' }}
               >
                 Agendar Reparacion por WhatsApp
               </a>
             </div>
 
-            {/* Galeria de Trabajos - Vertical cards grid */}
+            {/* Galeria de Trabajos - Two auto-scrolling rows in opposite directions */}
             {galleryPhotos.length > 0 && (
-              <div className="mb-16">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {galleryPhotos.map((photo, i) => (
-                    <button
-                      key={`gallery-${i}`}
-                      onClick={() => setLightboxPhoto(photo)}
-                      className="group relative rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
-                      style={{ aspectRatio: '3/4' }}
+              <div className="mb-16 space-y-4">
+                {/* Row 1 - scrolls right to left */}
+                {row1Photos.length > 0 && (
+                  <div className="overflow-hidden">
+                    <div
+                      ref={galleryRow1Ref}
+                      className="flex gap-4"
+                      style={{ willChange: 'transform' }}
                     >
-                      <img
-                        src={photo.image}
-                        alt={photo.caption}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      {photo.caption && (
-                        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-                          <p className="text-white text-xs sm:text-sm font-medium drop-shadow-lg">{photo.caption}</p>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
+                      {[...row1Photos, ...row1Photos, ...row1Photos].map((photo, i) => (
+                        <button
+                          key={`row1-${i}`}
+                          onClick={() => setLightboxPhoto(photo)}
+                          className="group relative rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer flex-shrink-0"
+                          style={{ width: '200px', height: '267px' }}
+                        >
+                          <img
+                            src={photo.image}
+                            alt={photo.caption}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                            decoding="async"
+                            draggable={false}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          {photo.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-3">
+                              <p className="text-white text-xs font-medium drop-shadow-lg">{photo.caption}</p>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Row 2 - scrolls left to right */}
+                {row2Photos.length > 0 && (
+                  <div className="overflow-hidden">
+                    <div
+                      ref={galleryRow2Ref}
+                      className="flex gap-4"
+                      style={{ willChange: 'transform' }}
+                    >
+                      {[...row2Photos, ...row2Photos, ...row2Photos].map((photo, i) => (
+                        <button
+                          key={`row2-${i}`}
+                          onClick={() => setLightboxPhoto(photo)}
+                          className="group relative rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer flex-shrink-0"
+                          style={{ width: '200px', height: '267px' }}
+                        >
+                          <img
+                            src={photo.image}
+                            alt={photo.caption}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                            decoding="async"
+                            draggable={false}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          {photo.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-3">
+                              <p className="text-white text-xs font-medium drop-shadow-lg">{photo.caption}</p>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
