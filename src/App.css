@@ -311,6 +311,11 @@ button, a, [role="button"], input, select, textarea {
   background-color: #ffffff !important;
 }
 
+/* --- Hero bottom fade adapts to light mode background --- */
+.light-mode .hero-bottom-fade {
+  background: linear-gradient(to bottom, transparent, #ffffff) !important;
+}
+
 /* --- Gradient overlays on hero --- */
 .light-mode .from-black\/20 {
   --tw-gradient-from: rgba(0, 0, 0, 0.1) !important;
