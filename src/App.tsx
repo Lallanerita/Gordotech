@@ -1362,18 +1362,19 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 onClick={(e) => {
                   if (bubblesDragRef.current.moved) { e.preventDefault(); return }
                   setHoveredBubbleId(null)
+                  setActiveModel(model.id)
                   navigate(`/categoria/${model.id}`)
                 }}
                 onMouseEnter={() => setHoveredBubbleId(model.id)}
                 onMouseLeave={() => setHoveredBubbleId(null)}
                 className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
-                <div className={`transition-all duration-300 bg-gray-900 border-2 ${
+                <div className={`transition-all duration-300 bg-gray-900 rounded-full overflow-hidden w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 ${
                   isHovered
-                    ? 'w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-2xl border-blue-500 shadow-lg shadow-blue-500/30 z-50 -translate-y-2'
+                    ? 'border-[3px] border-blue-500 shadow-lg shadow-blue-500/30 scale-110 -translate-y-1'
                     : activeModel === model.id
-                      ? 'w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-blue-500 shadow-lg shadow-blue-500/30 scale-110 overflow-hidden'
-                      : 'w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-gray-600 group-hover:border-blue-400 overflow-hidden'
+                      ? 'border-[3px] border-blue-500 shadow-lg shadow-blue-500/30 scale-110'
+                      : 'border-2 border-transparent group-hover:border-blue-400'
                 }`}>
                   <img
                     src={model.image}
@@ -1381,7 +1382,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     loading="lazy"
                     decoding="async"
                     draggable={false}
-                    className={`w-full h-full transition-all duration-300 ${isHovered ? 'object-contain p-1' : 'object-cover'}`}
+                    className="w-full h-full object-cover transition-all duration-300"
                     onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
                   />
                 </div>
