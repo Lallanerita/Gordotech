@@ -1197,20 +1197,20 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
           {/* Mobile header - logo centered */}
           <div className="flex md:hidden items-center justify-center h-16">
             <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-2 cursor-pointer">
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-7" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-10 gordotech-logo-invert" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-7 gordotech-logo-invert" />
             </button>
           </div>
 
           {/* Desktop header */}
           <div className="hidden md:flex items-center justify-between h-20">
             <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-3 cursor-pointer">
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-12" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-8" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-12 gordotech-logo-invert" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
             </button>
 
             <nav className="flex items-center gap-8">
-              <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80" />Productos</a>
+              <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80 apple-logo-invert" />Productos</a>
               <Link to="/reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</Link>
               <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
               <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
@@ -1232,7 +1232,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 onClick={() => navigate('/categoria/iphones')}
                 className="flex-1 py-1.5 text-xs sm:text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap flex items-center justify-center gap-1"
               >
-                <img src="/images/apple-logo-white.png" alt="Apple" className="h-3.5 w-3.5 sm:h-4 sm:w-4 object-contain opacity-80" />
+                <img src="/images/apple-logo-white.png" alt="Apple" className="h-3.5 w-3.5 sm:h-4 sm:w-4 object-contain opacity-80 apple-logo-invert" />
                 Nuevos
               </button>
               <span className="text-gray-600 text-xs">|</span>
@@ -2054,8 +2054,8 @@ function PlanRetomaPage() {
               Volver
             </button>
             <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6 gordotech-logo-invert" />
             </button>
             <div className="w-16" />
           </div>
@@ -2269,8 +2269,8 @@ function ReparacionPage() {
               Volver
             </button>
             <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6 gordotech-logo-invert" />
             </button>
             <div className="w-16" />
           </div>
@@ -2504,8 +2504,8 @@ function SemiNuevosPage() {
               Volver
             </button>
             <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6 gordotech-logo-invert" />
             </button>
             <div className="w-16" />
           </div>
@@ -2813,8 +2813,8 @@ function SucursalesPage() {
               Volver
             </button>
             <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-6 gordotech-logo-invert" />
             </button>
             <div className="w-16" />
           </div>
@@ -3020,8 +3020,8 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
           <div className="flex items-center justify-between h-16">
             <button onClick={() => navigate('/')} className="flex items-center gap-2">
               <ArrowLeft className="w-5 h-5 text-gray-400" />
-              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8" />
-              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-5 hidden sm:block" />
+              <img src="/images/gordotech-icon-white.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
+              <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-5 hidden sm:block gordotech-logo-invert" />
             </button>
             <h1 className="text-lg font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>{categoryLabel}</h1>
             <div className="w-20" />
