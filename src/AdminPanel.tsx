@@ -140,7 +140,16 @@ type GalleryPhoto = {
   active: boolean
 }
 
-type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'gallery' | 'slideshow' | 'marquee' | 'settings' | 'sucursales' | 'resenas'
+type Popup = {
+  id: number
+  image: string
+  title: string
+  link: string
+  active: boolean
+  sort_order: number
+}
+
+type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'gallery' | 'slideshow' | 'marquee' | 'settings' | 'sucursales' | 'resenas' | 'popups'
 
 const TAB_PATHS: Record<string, Tab> = {
   '/': 'dashboard',
@@ -155,6 +164,7 @@ const TAB_PATHS: Record<string, Tab> = {
   '/config': 'settings',
   '/sucursales': 'sucursales',
   '/resenas': 'resenas',
+  '/popups': 'popups',
 }
 
 const TAB_TO_PATH: Record<Tab, string> = {
@@ -169,6 +179,7 @@ const TAB_TO_PATH: Record<Tab, string> = {
   settings: '/config',
   sucursales: '/sucursales',
   resenas: '/resenas',
+  popups: '/popups',
 }
 
 function getTabFromPath(): Tab {
@@ -1168,6 +1179,12 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [galleryForm, setGalleryForm] = useState({ image: '', caption: '', sort_order: 0, active: true })
   const [savingGallery, setSavingGallery] = useState(false)
 
+  // Popups
+  const [popups, setPopups] = useState<Popup[]>([])
+  const [editingPopup, setEditingPopup] = useState<Popup | null | 'new'>(null)
+  const [popupForm, setPopupForm] = useState({ image: '', title: '', link: '', sort_order: 0, active: true })
+  const [savingPopup, setSavingPopup] = useState(false)
+
   // Password change
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -1283,6 +1300,16 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const loadPopups = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiGet('/api/admin/popups', token)
+      setPopups(data.popups || [])
+    } catch {
+      // not critical
+    }
+  }, [token])
+
   // Sync tab with browser back/forward
   useEffect(() => {
     const onPopState = () => setActiveTabRaw(getTabFromPath())
@@ -1302,8 +1329,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       loadSucursales()
       loadReviews()
       loadGalleryPhotos()
+      loadPopups()
     }
-  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts, loadSucursales, loadReviews, loadGalleryPhotos])
+  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts, loadSucursales, loadReviews, loadGalleryPhotos, loadPopups])
 
   const handleDelete = async () => {
     if (!deleteConfirm || !token) return
@@ -1317,6 +1345,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'sucursal') await apiDelete(`/api/admin/sucursales/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'review') await apiDelete(`/api/admin/resenas/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'gallery') await apiDelete(`/api/admin/repair-gallery/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'popup') await apiDelete(`/api/admin/popups/${deleteConfirm.id}`, token)
       setDeleteConfirm(null)
       loadStats()
       if (deleteConfirm.type === 'product') loadProducts()
@@ -1328,6 +1357,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'sucursal') loadSucursales()
       if (deleteConfirm.type === 'review') loadReviews()
       if (deleteConfirm.type === 'gallery') loadGalleryPhotos()
+      if (deleteConfirm.type === 'popup') loadPopups()
     } catch {
       alert('Error eliminando')
     }
@@ -1369,6 +1399,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     { id: 'marquee', label: 'Marquee', icon: <Type className="w-5 h-5" /> },
     { id: 'sucursales', label: 'Sucursales', icon: <MapPin className="w-5 h-5" /> },
     { id: 'resenas', label: 'Resenas', icon: <MessageSquare className="w-5 h-5" /> },
+    { id: 'popups', label: 'Pop Up', icon: <Image className="w-5 h-5" /> },
     { id: 'settings', label: 'Config', icon: <Lock className="w-5 h-5" /> },
   ]
 
@@ -2278,6 +2309,126 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     }} disabled={savingReview || !reviewForm.customer_name || !reviewForm.text} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
                       <Save className="w-4 h-4" />
                       {savingReview ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* POPUPS TAB */}
+        {activeTab === 'popups' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>POP UP</h2>
+              <button onClick={() => { setEditingPopup('new'); setPopupForm({ image: '', title: '', link: '', sort_order: 0, active: true }) }}
+                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl transition-colors text-sm md:text-base font-medium">
+                <Plus className="w-5 h-5" /> Nuevo Pop Up
+              </button>
+            </div>
+
+            {popups.length === 0 ? (
+              <div className="text-center py-16 text-gray-400">
+                <Image className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">No hay pop ups configurados</p>
+                <p className="text-sm mt-1">Agrega un pop up para que aparezca al abrir la pagina</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {popups.map(popup => (
+                  <div key={popup.id} className="bg-gray-900/50 border border-white/10 rounded-2xl overflow-hidden">
+                    {popup.image && (
+                      <div className="aspect-[4/5] bg-gray-800 overflow-hidden">
+                        <img src={popup.image} alt={popup.title || 'Pop Up'} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-medium truncate">{popup.title || `Pop Up #${popup.id}`}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${popup.active ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
+                          {popup.active ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </div>
+                      {popup.link && <p className="text-gray-400 text-xs truncate">{popup.link}</p>}
+                      <div className="flex gap-2">
+                        <button onClick={async () => {
+                          try { await apiPost(`/api/admin/popups/${popup.id}/toggle`, {}, token); loadPopups() } catch { alert('Error') }
+                        }} className="flex-1 py-2 border border-white/10 text-gray-300 rounded-lg hover:bg-white/5 transition-colors text-sm flex items-center justify-center gap-1">
+                          {popup.active ? <ToggleRight className="w-4 h-4 text-green-400" /> : <ToggleLeft className="w-4 h-4" />}
+                          {popup.active ? 'Desactivar' : 'Activar'}
+                        </button>
+                        <button onClick={() => { setEditingPopup(popup); setPopupForm({ image: popup.image, title: popup.title, link: popup.link, sort_order: popup.sort_order, active: popup.active }) }}
+                          className="p-2 border border-white/10 text-gray-300 rounded-lg hover:bg-white/5 transition-colors">
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => setDeleteConfirm({ type: 'popup', id: popup.id, name: popup.title || `Pop Up #${popup.id}` })}
+                          className="p-2 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/10 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Popup Form Modal */}
+            {editingPopup !== null && (
+              <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+                <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg">
+                  <div className="flex items-center justify-between p-5 md:p-6 border-b border-white/10">
+                    <h3 className="text-xl md:text-2xl font-bold text-white">{editingPopup === 'new' ? 'Nuevo Pop Up' : 'Editar Pop Up'}</h3>
+                    <button onClick={() => setEditingPopup(null)} className="text-gray-400 hover:text-white"><X className="w-6 h-6" /></button>
+                  </div>
+                  <div className="p-5 md:p-6 space-y-5">
+                    <div>
+                      <label className="block text-gray-400 text-sm md:text-base mb-1.5">Imagen *</label>
+                      <ImageUploader token={token} currentImage={popupForm.image} onUpload={url => setPopupForm(f => ({...f, image: url}))} />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm md:text-base mb-1.5">Titulo (opcional)</label>
+                      <input value={popupForm.title} onChange={e => setPopupForm(f => ({...f, title: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" placeholder="ej: Plan Retoma" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm md:text-base mb-1.5">Link (opcional, al hacer clic en la imagen)</label>
+                      <input value={popupForm.link} onChange={e => setPopupForm(f => ({...f, link: e.target.value}))}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" placeholder="https://gordotech.co/plan-retoma" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm md:text-base mb-1.5">Orden</label>
+                        <input type="number" value={popupForm.sort_order} onChange={e => setPopupForm(f => ({...f, sort_order: parseInt(e.target.value) || 0}))}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" />
+                      </div>
+                      <div className="flex items-end pb-1">
+                        <div className="flex items-center gap-3">
+                          <label className="text-gray-400 text-sm md:text-base">Activo</label>
+                          <button onClick={() => setPopupForm(f => ({...f, active: !f.active}))} className="p-1">
+                            {popupForm.active ? <ToggleRight className="w-7 h-7 text-green-400" /> : <ToggleLeft className="w-7 h-7 text-gray-500" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-5 md:p-6 border-t border-white/10">
+                    <button onClick={() => setEditingPopup(null)} className="flex-1 py-3 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors text-sm md:text-base">Cancelar</button>
+                    <button onClick={async () => {
+                      if (!popupForm.image) return
+                      setSavingPopup(true)
+                      try {
+                        if (editingPopup === 'new') {
+                          await apiPost('/api/admin/popups', popupForm, token)
+                        } else {
+                          await apiPut(`/api/admin/popups/${editingPopup.id}`, popupForm, token)
+                        }
+                        setEditingPopup(null)
+                        loadPopups()
+                      } catch { alert('Error guardando popup') } finally { setSavingPopup(false) }
+                    }} disabled={savingPopup || !popupForm.image} className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm md:text-base font-medium flex items-center justify-center gap-2">
+                      <Save className="w-5 h-5" />
+                      {savingPopup ? 'Guardando...' : 'Guardar'}
                     </button>
                   </div>
                 </div>

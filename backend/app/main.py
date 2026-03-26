@@ -227,6 +227,20 @@ class VariantUpdate(BaseModel):
     sort_order: Optional[int] = None
     active: Optional[bool] = None
 
+class PopupCreate(BaseModel):
+    image: str = ""
+    title: str = ""
+    link: str = ""
+    active: bool = True
+    sort_order: int = 0
+
+class PopupUpdate(BaseModel):
+    image: Optional[str] = None
+    title: Optional[str] = None
+    link: Optional[str] = None
+    active: Optional[bool] = None
+    sort_order: Optional[int] = None
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
@@ -445,6 +459,16 @@ def row_to_sucursal(row):
         "description": row["description"] if "description" in keys else "",
         "sort_order": row["sort_order"],
         "active": bool(row["active"]) if "active" in keys else True,
+    }
+
+def row_to_popup(row):
+    return {
+        "id": row["id"],
+        "image": row["image"],
+        "title": row["title"],
+        "link": row["link"],
+        "active": bool(row["active"]),
+        "sort_order": row["sort_order"],
     }
 
 # ==================== HEALTH ====================
@@ -1578,5 +1602,91 @@ async def admin_stats(username: str = Depends(get_current_admin)):
             "hero_slides": slides_count,
             "reviews": reviews_count,
         }
+    finally:
+        await db.close()
+
+# ==================== POPUPS (PUBLIC) ====================
+
+@app.get("/api/popups")
+async def get_popups():
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM popups WHERE active = 1 ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"popups": [row_to_popup(r) for r in rows]}
+    finally:
+        await db.close()
+
+# ==================== ADMIN POPUPS CRUD ====================
+
+@app.get("/api/admin/popups")
+async def admin_get_popups(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM popups ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"popups": [row_to_popup(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/popups")
+async def admin_create_popup(popup: PopupCreate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute(
+            "INSERT INTO popups (image, title, link, active, sort_order) VALUES (?, ?, ?, ?, ?)",
+            (popup.image, popup.title, popup.link, 1 if popup.active else 0, popup.sort_order)
+        )
+        await db.commit()
+        popup_id = cursor.lastrowid
+        return {"message": "Popup creado", "id": popup_id}
+    finally:
+        await db.close()
+
+@app.put("/api/admin/popups/{popup_id}")
+async def admin_update_popup(popup_id: int, popup: PopupUpdate, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM popups WHERE id = ?", (popup_id,))
+        if not await cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Popup no encontrado")
+        updates = {}
+        if popup.image is not None: updates["image"] = popup.image
+        if popup.title is not None: updates["title"] = popup.title
+        if popup.link is not None: updates["link"] = popup.link
+        if popup.active is not None: updates["active"] = 1 if popup.active else 0
+        if popup.sort_order is not None: updates["sort_order"] = popup.sort_order
+        if updates:
+            set_clause = ", ".join(f"{k} = ?" for k in updates)
+            values = list(updates.values()) + [popup_id]
+            await db.execute(f"UPDATE popups SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+        return {"message": "Popup actualizado"}
+    finally:
+        await db.close()
+
+@app.delete("/api/admin/popups/{popup_id}")
+async def admin_delete_popup(popup_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        cursor = await db.execute("SELECT id FROM popups WHERE id = ?", (popup_id,))
+        if not await cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Popup no encontrado")
+        await db.execute("DELETE FROM popups WHERE id = ?", (popup_id,))
+        await db.commit()
+        return {"message": "Popup eliminado"}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/popups/{popup_id}/toggle")
+async def admin_toggle_popup(popup_id: int, username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    try:
+        await db.execute("UPDATE popups SET active = CASE WHEN active = 1 THEN 0 ELSE 1 END WHERE id = ?", (popup_id,))
+        await db.commit()
+        return {"message": "Popup actualizado"}
     finally:
         await db.close()

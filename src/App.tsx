@@ -911,7 +911,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const bubblesOffsetRef = useRef(0)
   const bubblesDragRef = useRef<{ active: boolean; startX: number; startOffset: number; moved: boolean }>({ active: false, startX: 0, startOffset: 0, moved: false })
   const bubblesRafRef = useRef<number>(0)
-  const BUBBLES_SPEED = 1.2
+  const BUBBLES_SPEED = 1.02
 
   useEffect(() => {
     if (modelBubbles.length === 0) return
@@ -3415,6 +3415,87 @@ function ProductPageWrapperLegacy({ onAdminClick }: { onAdminClick: () => void }
   return <Store onAdminClick={onAdminClick} productSlug={slug} />
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://app-dskimxia.fly.dev'
+
+function PopupOverlay() {
+  const [popups, setPopups] = useState<{ id: number; image: string; title: string; link: string }[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [dismissed, setDismissed] = useState(false)
+
+  useEffect(() => {
+    const alreadyDismissed = sessionStorage.getItem('gordotech_popup_dismissed')
+    if (alreadyDismissed) {
+      setDismissed(true)
+      return
+    }
+    fetch(`${API_URL}/api/popups`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.popups && data.popups.length > 0) {
+          setPopups(data.popups)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const handleClose = () => {
+    setDismissed(true)
+    sessionStorage.setItem('gordotech_popup_dismissed', '1')
+  }
+
+  if (dismissed || popups.length === 0) return null
+
+  const popup = popups[currentIndex]
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={handleClose}
+    >
+      <div
+        className="relative max-w-lg w-full max-h-[90vh] animate-in fade-in zoom-in"
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          onClick={handleClose}
+          className="absolute -top-3 -right-3 z-10 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors"
+          aria-label="Cerrar"
+        >
+          <X className="w-5 h-5 text-gray-800" />
+        </button>
+
+        {popup.link ? (
+          <a href={popup.link} target="_blank" rel="noopener noreferrer" onClick={handleClose}>
+            <img
+              src={popup.image}
+              alt={popup.title || 'Promocion'}
+              className="w-full h-auto rounded-2xl shadow-2xl object-contain max-h-[85vh]"
+            />
+          </a>
+        ) : (
+          <img
+            src={popup.image}
+            alt={popup.title || 'Promocion'}
+            className="w-full h-auto rounded-2xl shadow-2xl object-contain max-h-[85vh]"
+          />
+        )}
+
+        {popups.length > 1 && (
+          <div className="flex justify-center gap-2 mt-3">
+            {popups.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`w-2.5 h-2.5 rounded-full transition-colors ${i === currentIndex ? 'bg-white' : 'bg-white/40'}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [showAdmin, setShowAdmin] = useState(false)
 
@@ -3442,16 +3523,19 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/plan-retoma" element={<PlanRetomaPage />} />
-      <Route path="/reparacion" element={<ReparacionPage />} />
-      <Route path="/semi-nuevos" element={<SemiNuevosPage />} />
-      <Route path="/sucursales" element={<SucursalesPage />} />
-      <Route path="/categoria/:slug" element={<CategoryPage onAdminClick={() => setShowAdmin(true)} />} />
-      <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
-      <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
-      <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
-    </Routes>
+    <>
+      <PopupOverlay />
+      <Routes>
+        <Route path="/plan-retoma" element={<PlanRetomaPage />} />
+        <Route path="/reparacion" element={<ReparacionPage />} />
+        <Route path="/semi-nuevos" element={<SemiNuevosPage />} />
+        <Route path="/sucursales" element={<SucursalesPage />} />
+        <Route path="/categoria/:slug" element={<CategoryPage onAdminClick={() => setShowAdmin(true)} />} />
+        <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
+        <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
+        <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
+      </Routes>
+    </>
   )
 }
 
