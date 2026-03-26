@@ -2051,17 +2051,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
               <img src="/images/gordotech-logo.png" alt="Gordotech" loading="lazy" decoding="async" className="h-14 gordotech-logo-invert" />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y seminuevos en Boyaca.</p>
-            <div className="flex gap-3 mt-5 justify-center">
-              <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
-                <Instagram className="w-5 h-5 text-gray-400" />
-              </a>
-              <a href={socials.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
-                <TikTokIcon className="w-5 h-5 text-gray-400" />
-              </a>
-              <a href={socials.whatsapp} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
-                <MessageCircle className="w-5 h-5 text-gray-400" />
-              </a>
-            </div>
           </div>
 
           {/* Theme Toggle */}
