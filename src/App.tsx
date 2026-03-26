@@ -3415,8 +3415,6 @@ function ProductPageWrapperLegacy({ onAdminClick }: { onAdminClick: () => void }
   return <Store onAdminClick={onAdminClick} productSlug={slug} />
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://app-dskimxia.fly.dev'
-
 function PopupOverlay() {
   const [popups, setPopups] = useState<{ id: number; image: string; title: string; link: string }[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
