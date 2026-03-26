@@ -1640,7 +1640,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                   </div>
                 ) : (
                 <>
-                <div className="relative aspect-square bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-3xl overflow-hidden flex items-center justify-center p-10 group">
+                <div className="relative aspect-square rounded-3xl overflow-hidden flex items-center justify-center p-10 group">
                   {selectedProduct.badge && (
                     <div className="absolute top-6 right-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500 text-white">{selectedProduct.badge}</div>
                   )}
