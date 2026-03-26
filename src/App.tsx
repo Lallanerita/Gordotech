@@ -712,49 +712,36 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     ) || null
   }, [selectedProduct, selectedStorage, selectedColor])
 
-  // Compute which storages/colors are available based on current selection
-  const availableStorages = useMemo(() => {
-    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return new Set<string>()
+  // Compute which colors are available for the selected storage
+  const colorsForSelectedStorage = useMemo(() => {
+    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return [] as string[]
     const variants = (selectedProduct.variants || []).filter(v => v.active && v.price)
-    if (variants.length === 0) return new Set<string>()
-    const selColorLower = (selectedColor || '').toLowerCase().trim()
-    const storages = new Set<string>()
-    for (const v of variants) {
-      if (!selColorLower || !v.color || v.color.toLowerCase().trim() === selColorLower) {
-        const vs = (v.storage || '').toLowerCase().trim()
-        if (vs) {
-          // Find matching display storage from storageOptions
-          const match = selectedProduct.storageOptions.find(s => {
-            const sl = s.toLowerCase().trim()
-            return sl === vs || sl.includes(vs) || vs.includes(sl)
-          })
-          if (match) storages.add(match)
-        }
-      }
-    }
-    return storages
-  }, [selectedProduct, selectedColor])
-
-  const availableColors = useMemo(() => {
-    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return new Set<string>()
-    const variants = (selectedProduct.variants || []).filter(v => v.active && v.price)
-    if (variants.length === 0) return new Set<string>()
+    if (variants.length === 0) return selectedProduct.colors
     const selStorageLower = (selectedStorage || '').toLowerCase().trim()
-    const colors = new Set<string>()
+    if (!selStorageLower) return selectedProduct.colors
+    const colors: string[] = []
     for (const v of variants) {
-      if (!selStorageLower || !v.storage || (() => {
-        const vs = v.storage.toLowerCase().trim()
-        return vs === selStorageLower || vs.includes(selStorageLower) || selStorageLower.includes(vs)
-      })()) {
-        const vc = (v.color || '').toLowerCase().trim()
-        if (vc) {
-          const match = selectedProduct.colors.find(c => c.toLowerCase().trim() === vc)
-          if (match) colors.add(match)
-        }
+      if (!v.storage) continue
+      const vs = v.storage.toLowerCase().trim()
+      const storageMatches = vs === selStorageLower || vs.includes(selStorageLower) || selStorageLower.includes(vs)
+      if (storageMatches && v.color) {
+        const vc = v.color.toLowerCase().trim()
+        const match = selectedProduct.colors.find(c => c.toLowerCase().trim() === vc)
+        if (match && !colors.includes(match)) colors.push(match)
       }
     }
-    return colors
+    return colors.length > 0 ? colors : selectedProduct.colors
   }, [selectedProduct, selectedStorage])
+
+  // Auto-select first available color when storage changes and current color isn't available
+  useEffect(() => {
+    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return
+    const variants = (selectedProduct.variants || []).filter(v => v.active && v.price)
+    if (variants.length === 0 || colorsForSelectedStorage.length === 0) return
+    if (selectedColor && !colorsForSelectedStorage.includes(selectedColor)) {
+      setSelectedColor(colorsForSelectedStorage[0])
+    }
+  }, [colorsForSelectedStorage, selectedColor, selectedProduct])
 
   // Trending carousel refs
   const trendingTrackRef = useRef<HTMLDivElement>(null)
@@ -1762,39 +1749,28 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     <div>
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
-                        {selectedProduct.storageOptions.map((storage, i) => {
-                          const hasVariants = (selectedProduct.variants || []).filter(v => v.active && v.price).length > 0
-                          const isUnavailable = hasVariants && selectedColor && availableStorages.size > 0 && !availableStorages.has(storage)
-                          return (
-                            <button key={i} onClick={() => { if (!isUnavailable) setSelectedStorage(storage) }} onPointerDown={(e) => { if (!isUnavailable) e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-200 ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400 cursor-pointer' : isUnavailable ? 'bg-white/5 border-white/10 text-gray-600 cursor-not-allowed opacity-40' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50 cursor-pointer'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }} disabled={isUnavailable}>{storage}</button>
-                          )
-                        })}
+                        {selectedProduct.storageOptions.map((storage, i) => (
+                          <button key={i} onClick={() => { setSelectedStorage(storage) }} onPointerDown={(e) => { e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium cursor-pointer transition-all duration-200 ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{storage}</button>
+                        ))}
                       </div>
                     </div>
-                    {selectedProduct.colors.length > 0 && (
+                    {colorsForSelectedStorage.length > 0 && (
                       <div>
                         <p className="text-gray-400 text-sm mb-2">Colores</p>
                         <div className="flex items-center gap-2">
-                          {selectedProduct.colors.map((color, i) => {
-                            const hasVariants = (selectedProduct.variants || []).filter(v => v.active && v.price).length > 0
-                            const isUnavailable = hasVariants && selectedStorage && availableColors.size > 0 && !availableColors.has(color)
-                            return (
-                              <button
-                                key={i}
-                                onClick={() => {
-                                  if (!isUnavailable) {
-                                    setSelectedColor(color)
-                                    setGalleryIndex(0)
-                                  }
-                                }}
-                                onPointerDown={(e) => { if (!isUnavailable) e.currentTarget.click() }}
-                                className={`color-btn w-8 h-8 rounded-full border-2 transition-all duration-200 ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30 cursor-pointer' : isUnavailable ? 'border-white/20 opacity-30 cursor-not-allowed' : 'border-white/20 hover:border-blue-400 cursor-pointer'}`}
-                                style={{ backgroundColor: resolveColor(color), WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
-                                title={isUnavailable ? `${color} (no disponible)` : color}
-                                disabled={isUnavailable}
-                              />
-                            )
-                          })}
+                          {colorsForSelectedStorage.map((color, i) => (
+                            <button
+                              key={i}
+                              onClick={() => {
+                                setSelectedColor(color)
+                                setGalleryIndex(0)
+                              }}
+                              onPointerDown={(e) => { e.currentTarget.click() }}
+                              className={`color-btn w-8 h-8 rounded-full border-2 cursor-pointer transition-all duration-200 ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
+                              style={{ backgroundColor: resolveColor(color), WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+                              title={color}
+                            />
+                          ))}
                         </div>
                       </div>
                     )}
@@ -1816,16 +1792,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                         </div>
                       )
                     } else {
-                      // Check if the current selection is an unavailable combination
-                      const hasActiveVariants = variants.filter(v => v.active && v.price).length > 0
-                      const isUnavailableCombo = hasActiveVariants && selectedStorage && selectedColor && !matchedVariant
                       return (
                         <div className="mb-6">
-                          {isUnavailableCombo ? (
-                            <p className="text-base font-bold text-red-500 uppercase tracking-wide">NO DISPONIBLE ACTUALMENTE</p>
-                          ) : (
-                            <p className="text-sm text-gray-400 italic">Selecciona almacenamiento y color para ver el precio</p>
-                          )}
+                          <p className="text-sm text-gray-400 italic">Selecciona almacenamiento y color para ver el precio</p>
                         </div>
                       )
                     }
