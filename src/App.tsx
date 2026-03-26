@@ -1766,7 +1766,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                           const hasVariants = (selectedProduct.variants || []).filter(v => v.active && v.price).length > 0
                           const isUnavailable = hasVariants && selectedColor && availableStorages.size > 0 && !availableStorages.has(storage)
                           return (
-                            <button key={i} onClick={() => { setSelectedStorage(storage) }} onPointerDown={(e) => { e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium cursor-pointer transition-all duration-200 ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : isUnavailable ? 'bg-white/5 border-dashed border-white/10 text-gray-500/60' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{storage}</button>
+                            <button key={i} onClick={() => { if (!isUnavailable) setSelectedStorage(storage) }} onPointerDown={(e) => { if (!isUnavailable) e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-200 ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400 cursor-pointer' : isUnavailable ? 'bg-white/5 border-white/10 text-gray-600 cursor-not-allowed opacity-40' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50 cursor-pointer'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }} disabled={isUnavailable}>{storage}</button>
                           )
                         })}
                       </div>
@@ -1782,13 +1782,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                               <button
                                 key={i}
                                 onClick={() => {
-                                  setSelectedColor(color)
-                                  setGalleryIndex(0)
+                                  if (!isUnavailable) {
+                                    setSelectedColor(color)
+                                    setGalleryIndex(0)
+                                  }
                                 }}
-                                onPointerDown={(e) => { e.currentTarget.click() }}
-                                className={`color-btn w-8 h-8 rounded-full border-2 cursor-pointer transition-all duration-200 ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : isUnavailable ? 'border-white/20 opacity-40 scale-75' : 'border-white/20 hover:border-blue-400'}`}
+                                onPointerDown={(e) => { if (!isUnavailable) e.currentTarget.click() }}
+                                className={`color-btn w-8 h-8 rounded-full border-2 transition-all duration-200 ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30 cursor-pointer' : isUnavailable ? 'border-white/20 opacity-30 cursor-not-allowed' : 'border-white/20 hover:border-blue-400 cursor-pointer'}`}
                                 style={{ backgroundColor: resolveColor(color), WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
                                 title={isUnavailable ? `${color} (no disponible)` : color}
+                                disabled={isUnavailable}
                               />
                             )
                           })}
@@ -1813,9 +1816,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                         </div>
                       )
                     } else {
+                      // Check if the current selection is an unavailable combination
+                      const hasActiveVariants = variants.filter(v => v.active && v.price).length > 0
+                      const isUnavailableCombo = hasActiveVariants && selectedStorage && selectedColor && !matchedVariant
                       return (
                         <div className="mb-6">
-                          <p className="text-sm text-gray-400 italic">Selecciona almacenamiento y color para ver el precio</p>
+                          {isUnavailableCombo ? (
+                            <p className="text-base font-bold text-red-500 uppercase tracking-wide">NO DISPONIBLE ACTUALMENTE</p>
+                          ) : (
+                            <p className="text-sm text-gray-400 italic">Selecciona almacenamiento y color para ver el precio</p>
+                          )}
                         </div>
                       )
                     }
