@@ -712,6 +712,50 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     ) || null
   }, [selectedProduct, selectedStorage, selectedColor])
 
+  // Compute which storages/colors are available based on current selection
+  const availableStorages = useMemo(() => {
+    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return new Set<string>()
+    const variants = (selectedProduct.variants || []).filter(v => v.active && v.price)
+    if (variants.length === 0) return new Set<string>()
+    const selColorLower = (selectedColor || '').toLowerCase().trim()
+    const storages = new Set<string>()
+    for (const v of variants) {
+      if (!selColorLower || !v.color || v.color.toLowerCase().trim() === selColorLower) {
+        const vs = (v.storage || '').toLowerCase().trim()
+        if (vs) {
+          // Find matching display storage from storageOptions
+          const match = selectedProduct.storageOptions.find(s => {
+            const sl = s.toLowerCase().trim()
+            return sl === vs || sl.includes(vs) || vs.includes(sl)
+          })
+          if (match) storages.add(match)
+        }
+      }
+    }
+    return storages
+  }, [selectedProduct, selectedColor])
+
+  const availableColors = useMemo(() => {
+    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return new Set<string>()
+    const variants = (selectedProduct.variants || []).filter(v => v.active && v.price)
+    if (variants.length === 0) return new Set<string>()
+    const selStorageLower = (selectedStorage || '').toLowerCase().trim()
+    const colors = new Set<string>()
+    for (const v of variants) {
+      if (!selStorageLower || !v.storage || (() => {
+        const vs = v.storage.toLowerCase().trim()
+        return vs === selStorageLower || vs.includes(selStorageLower) || selStorageLower.includes(vs)
+      })()) {
+        const vc = (v.color || '').toLowerCase().trim()
+        if (vc) {
+          const match = selectedProduct.colors.find(c => c.toLowerCase().trim() === vc)
+          if (match) colors.add(match)
+        }
+      }
+    }
+    return colors
+  }, [selectedProduct, selectedStorage])
+
   // Trending carousel refs
   const trendingTrackRef = useRef<HTMLDivElement>(null)
   const trendingAnimId = useRef<number>(0)
@@ -1718,28 +1762,42 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                     <div>
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
-                        {selectedProduct.storageOptions.map((storage, i) => (
-                          <button key={i} onClick={() => { setSelectedStorage(storage) }} onPointerDown={(e) => { e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{storage}</button>
-                        ))}
+                        {selectedProduct.storageOptions.map((storage, i) => {
+                          const hasVariants = (selectedProduct.variants || []).filter(v => v.active && v.price).length > 0
+                          const isUnavailable = hasVariants && selectedColor && availableStorages.size > 0 && !availableStorages.has(storage)
+                          return (
+                            <button key={i} onClick={() => { setSelectedStorage(storage) }} onPointerDown={(e) => { e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : isUnavailable ? 'bg-white/5 border-white/10 text-gray-500 opacity-50' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', textDecoration: isUnavailable ? 'line-through' : 'none' }}>{storage}</button>
+                          )
+                        })}
                       </div>
                     </div>
                     {selectedProduct.colors.length > 0 && (
                       <div>
                         <p className="text-gray-400 text-sm mb-2">Colores</p>
                         <div className="flex items-center gap-2">
-                          {selectedProduct.colors.map((color, i) => (
-                            <button
-                              key={i}
-                              onClick={() => {
-                                setSelectedColor(color)
-                                setGalleryIndex(0)
-                              }}
-                              onPointerDown={(e) => { e.currentTarget.click() }}
-                              className={`color-btn w-8 h-8 rounded-full border-2 cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
-                              style={{ backgroundColor: resolveColor(color), WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
-                              title={color}
-                            />
-                          ))}
+                          {selectedProduct.colors.map((color, i) => {
+                            const hasVariants = (selectedProduct.variants || []).filter(v => v.active && v.price).length > 0
+                            const isUnavailable = hasVariants && selectedStorage && availableColors.size > 0 && !availableColors.has(color)
+                            return (
+                              <button
+                                key={i}
+                                onClick={() => {
+                                  setSelectedColor(color)
+                                  setGalleryIndex(0)
+                                }}
+                                onPointerDown={(e) => { e.currentTarget.click() }}
+                                className={`color-btn w-8 h-8 rounded-full border-2 cursor-pointer relative ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : isUnavailable ? 'border-white/20 opacity-50' : 'border-white/20 hover:border-blue-400'}`}
+                                style={{ backgroundColor: resolveColor(color), WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+                                title={isUnavailable ? `${color} (no disponible)` : color}
+                              >
+                                {isUnavailable && (
+                                  <span className="absolute inset-0 flex items-center justify-center">
+                                    <span className="block w-full h-0.5 bg-red-500 rotate-45 rounded-full" />
+                                  </span>
+                                )}
+                              </button>
+                            )
+                          })}
                         </div>
                       </div>
                     )}
