@@ -268,7 +268,7 @@ button, a, [role="button"], input, select, textarea {
 
 /* --- Category bar --- */
 .light-mode .bg-gray-900\/80 {
-  background-color: #f3f4f6 !important;
+  background-color: #ffffff !important;
   border-bottom-color: #e5e7eb !important;
 }
 
@@ -309,6 +309,11 @@ button, a, [role="button"], input, select, textarea {
 /* --- Modals --- */
 .light-mode .bg-gray-900.border {
   background-color: #ffffff !important;
+}
+
+/* --- Hero bottom fade adapts to light mode background --- */
+.light-mode .hero-bottom-fade {
+  background: linear-gradient(to bottom, transparent, #ffffff) !important;
 }
 
 /* --- Gradient overlays on hero --- */
@@ -444,6 +449,7 @@ button, a, [role="button"], input, select, textarea {
   width: 14px;
   height: 14px;
 }
+
 
 /* Image shimmer placeholder while loading */
 @keyframes shimmer {

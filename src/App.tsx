@@ -621,6 +621,9 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         </>
       )}
 
+      {/* Bottom fade gradient for smooth transition to next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 z-20 pointer-events-none hero-bottom-fade" style={{ background: 'linear-gradient(to bottom, transparent, #030712)' }} />
+
     </section>
   )
 }
@@ -636,7 +639,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [scrolled, setScrolled] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('gordotech_theme')
-    return saved ? saved === 'dark' : true
+    return saved ? saved === 'dark' : false
   })
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null)
   const [galleryIndex, setGalleryIndex] = useState(0)
@@ -709,6 +712,37 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     ) || null
   }, [selectedProduct, selectedStorage, selectedColor])
 
+  // Compute which colors are available for the selected storage
+  const colorsForSelectedStorage = useMemo(() => {
+    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return [] as string[]
+    const variants = (selectedProduct.variants || []).filter(v => v.active && v.price)
+    if (variants.length === 0) return selectedProduct.colors
+    const selStorageLower = (selectedStorage || '').toLowerCase().trim()
+    if (!selStorageLower) return selectedProduct.colors
+    const colors: string[] = []
+    for (const v of variants) {
+      if (!v.storage) continue
+      const vs = v.storage.toLowerCase().trim()
+      const storageMatches = vs === selStorageLower || vs.includes(selStorageLower) || selStorageLower.includes(vs)
+      if (storageMatches && v.color) {
+        const vc = v.color.toLowerCase().trim()
+        const match = selectedProduct.colors.find(c => c.toLowerCase().trim() === vc)
+        if (match && !colors.includes(match)) colors.push(match)
+      }
+    }
+    return colors.length > 0 ? colors : selectedProduct.colors
+  }, [selectedProduct, selectedStorage])
+
+  // Auto-select first available color when storage changes and current color isn't available
+  useEffect(() => {
+    if (!selectedProduct || selectedProduct.condition === 'Semi-usado') return
+    const variants = (selectedProduct.variants || []).filter(v => v.active && v.price)
+    if (variants.length === 0 || colorsForSelectedStorage.length === 0) return
+    if (selectedColor && !colorsForSelectedStorage.includes(selectedColor)) {
+      setSelectedColor(colorsForSelectedStorage[0])
+    }
+  }, [colorsForSelectedStorage, selectedColor, selectedProduct])
+
   // Trending carousel refs
   const trendingTrackRef = useRef<HTMLDivElement>(null)
   const trendingAnimId = useRef<number>(0)
@@ -774,7 +808,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
             storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null,
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null),
             available: p.available as string[],
             price: (p.price as string) || '',
             oldPrice: (p.old_price as string) || '',
@@ -791,7 +825,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
             storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null, available: p.available as string[],
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
           }))
@@ -805,7 +839,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
             storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null, available: p.available as string[],
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as { id: number; product_id: number; storage: string; color: string; price: string; sort_order: number; active: boolean }[]) || [],
           }))
@@ -872,6 +906,46 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     return () => { running = false; cancelAnimationFrame(trendingAnimId.current); clearTimeout(timer) }
   }, [trendingProducts])
 
+  // Bubbles marquee refs
+  const bubblesTrackRef = useRef<HTMLDivElement>(null)
+  const bubblesOffsetRef = useRef(0)
+  const bubblesDragRef = useRef<{ active: boolean; startX: number; startOffset: number; moved: boolean }>({ active: false, startX: 0, startOffset: 0, moved: false })
+  const bubblesRafRef = useRef<number>(0)
+  const BUBBLES_SPEED = 1.2
+
+  useEffect(() => {
+    if (modelBubbles.length === 0) return
+    let running = true
+    const tick = () => {
+      if (!running) return
+      const track = bubblesTrackRef.current
+      if (track) {
+        const singleWidth = track.scrollWidth / 3
+        if (!bubblesDragRef.current.active) {
+          bubblesOffsetRef.current -= BUBBLES_SPEED
+        }
+        if (bubblesOffsetRef.current <= -singleWidth) bubblesOffsetRef.current += singleWidth
+        if (bubblesOffsetRef.current > 0) bubblesOffsetRef.current -= singleWidth
+        track.style.transform = `translateX(${bubblesOffsetRef.current}px)`
+      }
+      bubblesRafRef.current = requestAnimationFrame(tick)
+    }
+    bubblesRafRef.current = requestAnimationFrame(tick)
+    return () => { running = false; cancelAnimationFrame(bubblesRafRef.current) }
+  }, [modelBubbles])
+
+  const onBubblesPointerDown = useCallback((e: React.PointerEvent) => {
+    bubblesDragRef.current = { active: true, startX: e.clientX, startOffset: bubblesOffsetRef.current, moved: false }
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  }, [])
+  const onBubblesPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!bubblesDragRef.current.active) return
+    const dx = e.clientX - bubblesDragRef.current.startX
+    if (Math.abs(dx) > 3) bubblesDragRef.current.moved = true
+    bubblesOffsetRef.current = bubblesDragRef.current.startOffset + dx
+  }, [])
+  const onBubblesPointerUp = useCallback(() => { bubblesDragRef.current.active = false; setTimeout(() => { bubblesDragRef.current.moved = false }, 0) }, [])
+
   const onTrendingPointerDown = useCallback((e: React.PointerEvent) => {
     trendingDragging.current = true
     trendingClickBlocked.current = false
@@ -928,7 +1002,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       id: data.id as number, name: data.name as string, slug: (data.slug as string) || '', category: (data.category as string) || '',
       condition: data.condition as string, image: resolveImageUrl(data.image as string), images: ((data.images as string[]) || []).map(resolveImageUrl),
       colors, color_images: ciResolved, storageOptions: storageOpts,
-      badge: (data.badge as string) || null, available: data.available as string[],
+      badge: (data.badge as string) || ((data.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: data.available as string[],
       price: (data.price as string) || '', oldPrice: (data.old_price as string) || '', description: (data.description as string) || '',
       model_3d: (data.model_3d as string) || '',
       variants,
@@ -1165,7 +1239,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             id: p.id as number, name: p.name as string, category: (p.category as string) || '',
             condition: p.condition as string,
             image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[], storageOptions: p.storage_options as string[],
-            badge: (p.badge as string) || null, available: p.available as string[],
+            badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
             price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
           })))
         }
@@ -1300,45 +1374,54 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
       {/* Main Content */}
       <main>
 
-      {/* Model Bubbles - hidden on product detail */}
-      {!selectedProduct && (
+      {/* Model Bubbles - auto-scrolling marquee with drag */}
+      {!selectedProduct && modelBubbles.length > 0 && (
       <ScrollReveal>
       <section className="py-8 md:py-14 border-y border-white/5">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
-          <div className="flex items-start gap-5 md:gap-10 lg:gap-14 overflow-x-auto md:overflow-visible pb-4 pt-2 px-2 scrollbar-hide md:justify-center">
-            {modelBubbles.map(model => {
+        <div className="overflow-hidden">
+          <div
+            ref={bubblesTrackRef}
+            className="flex items-start cursor-grab active:cursor-grabbing select-none"
+            style={{ willChange: 'transform' }}
+            onPointerDown={onBubblesPointerDown}
+            onPointerMove={onBubblesPointerMove}
+            onPointerUp={onBubblesPointerUp}
+            onPointerCancel={onBubblesPointerUp}
+          >
+            {[...modelBubbles, ...modelBubbles, ...modelBubbles].map((model, idx) => {
               const isHovered = hoveredBubbleId === model.id
               return (
               <button
-                key={model.id}
-                onClick={() => {
+                key={`${model.id}-${idx}`}
+                onClick={(e) => {
+                  if (bubblesDragRef.current.moved) { e.preventDefault(); return }
                   setHoveredBubbleId(null)
+                  setActiveModel(model.id)
                   navigate(`/categoria/${model.id}`)
                 }}
                 onMouseEnter={() => setHoveredBubbleId(model.id)}
                 onMouseLeave={() => setHoveredBubbleId(null)}
-                onTouchStart={() => {
-                  setHoveredBubbleId(model.id)
-                  if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
-                  hoverTimeout.current = setTimeout(() => setHoveredBubbleId(null), 1500)
-                }}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 md:flex-shrink relative"
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 mx-5 md:mx-8 lg:mx-10 touch-none"
               >
-                <div className={`transition-all duration-300 bg-gray-900 border-2 ${
-                  isHovered
-                    ? 'w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-2xl border-blue-500 shadow-lg shadow-blue-500/30 z-50 -translate-y-2'
-                    : activeModel === model.id
-                      ? 'w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-blue-500 shadow-lg shadow-blue-500/30 scale-110 overflow-hidden'
-                      : 'w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-gray-600 group-hover:border-blue-400 overflow-hidden'
-                }`}>
-                  <img
-                    src={model.image}
-                    alt={model.label}
-                    loading="lazy"
-                    decoding="async"
-                    className={`w-full h-full transition-all duration-300 ${isHovered ? 'object-contain p-1' : 'object-cover'}`}
-                    onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
-                  />
+                <div className={`transition-all duration-300 ${
+                  activeModel === model.id || isHovered ? 'rounded-2xl' : 'rounded-full'
+                }`} style={{
+                  padding: (activeModel === model.id || isHovered) ? '2px' : '0px',
+                  backgroundColor: (activeModel === model.id || isHovered) ? '#3b82f6' : 'transparent',
+                }}>
+                  <div className={`w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 overflow-hidden transition-all duration-300 ${
+                    activeModel === model.id || isHovered ? 'rounded-xl' : 'rounded-full'
+                  }`}>
+                    <img
+                      src={model.image}
+                      alt={model.label}
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                      className="w-full h-full object-cover transition-all duration-300"
+                      onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
+                    />
+                  </div>
                 </div>
                 <span className={`text-xs md:text-sm font-medium text-center leading-tight transition-colors ${
                   activeModel === model.id ? 'text-white' : 'text-gray-400 group-hover:text-white'
@@ -1668,16 +1751,16 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.storageOptions.map((storage, i) => (
-                          <button key={i} onClick={() => { setSelectedStorage(storage) }} onPointerDown={(e) => { e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium cursor-pointer ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{storage}</button>
+                          <button key={i} onClick={() => { setSelectedStorage(storage) }} onPointerDown={(e) => { e.currentTarget.click() }} className={`storage-btn px-4 py-2 rounded-xl border text-sm font-medium cursor-pointer transition-all duration-200 ${selectedStorage === storage ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-white hover:border-blue-500/50'}`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{storage}</button>
                         ))}
                       </div>
                     </div>
                     )}
-                    {selectedProduct.colors.length > 0 && (
+                    {colorsForSelectedStorage.length > 0 && (
                       <div>
                         <p className="text-gray-400 text-sm mb-2">Colores</p>
                         <div className="flex items-center gap-2">
-                          {selectedProduct.colors.map((color, i) => (
+                          {colorsForSelectedStorage.map((color, i) => (
                             <button
                               key={i}
                               onClick={() => {
@@ -1685,7 +1768,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                 setGalleryIndex(0)
                               }}
                               onPointerDown={(e) => { e.currentTarget.click() }}
-                              className={`color-btn w-8 h-8 rounded-full border-2 cursor-pointer ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
+                              className={`color-btn w-8 h-8 rounded-full border-2 cursor-pointer transition-all duration-200 ${selectedColor === color ? 'border-blue-400 ring-2 ring-blue-400/30' : 'border-white/20 hover:border-blue-400'}`}
                               style={{ backgroundColor: resolveColor(color), WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
                               title={color}
                             />
@@ -1951,7 +2034,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
             <img src="/images/contactanos.jpg" alt="Contactanos" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5 text-center">
-              <h3 className="text-white text-xl sm:text-2xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>CONTACTANOS</h3>
+              <h3 className="text-xl sm:text-2xl font-bold tracking-wider" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>CONTACTANOS</h3>
             </div>
           </div>
         </Link>
@@ -2207,6 +2290,21 @@ function ReparacionPage() {
   const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
+  // Theme management - read from localStorage (same as Store)
+  const [isDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('gordotech_theme')
+    return saved ? saved === 'dark' : false
+  })
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (isDarkMode) {
+      root.classList.remove('light-mode')
+    } else {
+      root.classList.add('light-mode')
+    }
+  }, [isDarkMode])
+
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -2247,9 +2345,52 @@ function ReparacionPage() {
     loadGallery()
   }, [])
 
+  // Gallery marquee refs - two rows scrolling in opposite directions
+  const galleryRow1Ref = useRef<HTMLDivElement>(null)
+  const galleryRow2Ref = useRef<HTMLDivElement>(null)
+  const galleryOffset1Ref = useRef(0)
+  const galleryOffset2Ref = useRef(0)
+  const GALLERY_SPEED = 0.5
+
+  useEffect(() => {
+    if (galleryPhotos.length === 0) return
+    let running = true
+    const tick = () => {
+      if (!running) return
+      const row1 = galleryRow1Ref.current
+      const row2 = galleryRow2Ref.current
+      if (row1) {
+        const singleWidth = row1.scrollWidth / 3
+        galleryOffset1Ref.current -= GALLERY_SPEED
+        if (galleryOffset1Ref.current <= -singleWidth) galleryOffset1Ref.current += singleWidth
+        row1.style.transform = `translateX(${galleryOffset1Ref.current}px)`
+      }
+      if (row2) {
+        const singleWidth = row2.scrollWidth / 3
+        galleryOffset2Ref.current += GALLERY_SPEED
+        if (galleryOffset2Ref.current >= 0) galleryOffset2Ref.current -= singleWidth
+        row2.style.transform = `translateX(${galleryOffset2Ref.current}px)`
+      }
+      requestAnimationFrame(tick)
+    }
+    // Initialize row2 offset to -singleWidth so it starts at a shifted position
+    const initTimer = setTimeout(() => {
+      if (galleryRow2Ref.current) {
+        const singleWidth = galleryRow2Ref.current.scrollWidth / 3
+        galleryOffset2Ref.current = -singleWidth
+      }
+    }, 50)
+    requestAnimationFrame(tick)
+    return () => { running = false; clearTimeout(initTimer) }
+  }, [galleryPhotos])
+
+  // Split photos into two rows
+  const halfIndex = Math.ceil(galleryPhotos.length / 2)
+  const row1Photos = galleryPhotos.slice(0, halfIndex)
+  const row2Photos = galleryPhotos.slice(halfIndex)
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -2268,10 +2409,10 @@ function ReparacionPage() {
       </header>
 
       <div className="pt-20">
-        <section className="py-16 md:py-24 relative">
+        <section className="py-6 md:py-10 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            <div className="text-center mb-16">
+            <div className="text-center mb-6">
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                 CENTRO DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">REPARACIONES</span>
               </h3>
@@ -2281,44 +2422,90 @@ function ReparacionPage() {
             </div>
 
             {/* Boton Agendar Reparacion - above gallery */}
-            <div className="text-center mb-12">
+            <div className="text-center mb-6">
               <a
                 href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl transition-all hover:scale-105 hover:shadow-lg font-semibold"
+                style={{ backgroundColor: '#34C759', color: '#ffffff' }}
               >
                 Agendar Reparacion por WhatsApp
               </a>
             </div>
 
-            {/* Galeria de Trabajos - Vertical cards grid */}
+            {/* Galeria de Trabajos - Two auto-scrolling rows in opposite directions */}
             {galleryPhotos.length > 0 && (
-              <div className="mb-16">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {galleryPhotos.map((photo, i) => (
-                    <button
-                      key={`gallery-${i}`}
-                      onClick={() => setLightboxPhoto(photo)}
-                      className="group relative rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
-                      style={{ aspectRatio: '3/4' }}
+              <div className="mb-16 space-y-4">
+                {/* Row 1 - scrolls right to left */}
+                {row1Photos.length > 0 && (
+                  <div className="overflow-hidden">
+                    <div
+                      ref={galleryRow1Ref}
+                      className="flex gap-4"
+                      style={{ willChange: 'transform' }}
                     >
-                      <img
-                        src={photo.image}
-                        alt={photo.caption}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      {photo.caption && (
-                        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-                          <p className="text-white text-xs sm:text-sm font-medium drop-shadow-lg">{photo.caption}</p>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
+                      {[...row1Photos, ...row1Photos, ...row1Photos].map((photo, i) => (
+                        <button
+                          key={`row1-${i}`}
+                          onClick={() => setLightboxPhoto(photo)}
+                          className="group relative rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer flex-shrink-0"
+                          style={{ width: '200px', height: '267px' }}
+                        >
+                          <img
+                            src={photo.image}
+                            alt={photo.caption}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                            decoding="async"
+                            draggable={false}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          {photo.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-center">
+                              <p className="text-sm font-bold text-center drop-shadow-lg" style={{ color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{photo.caption}</p>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Row 2 - scrolls left to right */}
+                {row2Photos.length > 0 && (
+                  <div className="overflow-hidden">
+                    <div
+                      ref={galleryRow2Ref}
+                      className="flex gap-4"
+                      style={{ willChange: 'transform' }}
+                    >
+                      {[...row2Photos, ...row2Photos, ...row2Photos].map((photo, i) => (
+                        <button
+                          key={`row2-${i}`}
+                          onClick={() => setLightboxPhoto(photo)}
+                          className="group relative rounded-2xl overflow-hidden bg-gray-800 border border-white/5 hover:border-blue-500/30 transition-all duration-500 cursor-pointer flex-shrink-0"
+                          style={{ width: '200px', height: '267px' }}
+                        >
+                          <img
+                            src={photo.image}
+                            alt={photo.caption}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                            decoding="async"
+                            draggable={false}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          {photo.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-center">
+                              <p className="text-sm font-bold text-center drop-shadow-lg" style={{ color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{photo.caption}</p>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -2379,7 +2566,7 @@ function SemiNuevosPage() {
               condition: p.condition as string,
               image: resolveImageUrl(p.image as string), images: ((p.images as string[]) || []).map(resolveImageUrl),
               colors: p.colors as string[], storageOptions: p.storage_options as string[],
-              badge: (p.badge as string) || null, available: p.available as string[],
+              badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null), available: p.available as string[],
               price: (p.price as string) || '', oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             }))
             setSemiProducts(mapped)
@@ -2659,17 +2846,85 @@ interface SucursalReview {
 
 const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: string; rating: number; count: number }> = {
   duitama: {
-    googleUrl: 'https://share.google/5M4QmtiUIK4RXfCQQ',
+    googleUrl: 'https://share.google/iS1BbsB9RQfmlLCbK',
     rating: 5.0,
-    count: 60,
+    count: 88,
     reviews: [
-      { name: 'Sara Corredor', text: 'Excelente servicio, los equipos en muy buen estado, siempre te reciben con la mejor actitud.', rating: 5 },
-      { name: 'Juan Morales', text: 'Excelente atencion, los dispositivos son muy confiables y muy accesibles.', rating: 5 },
-      { name: 'Erik Hernandez', text: 'Excelente servicio muy serios y buena atencion.', rating: 5 },
-      { name: 'Andres Salcedo', text: 'Excelente, equipos en buen estado, con sus garantias respectivas y en excelentes condiciones de funcionamiento.', rating: 5 },
-      { name: 'Sergio Salcedo', text: 'Excelente servicio y muy amable la muchacha que me atendio Daniela 10/10.', rating: 5 },
-      { name: 'Deisy Diaz', text: 'Tuve una experiencia muy bonita, los vendedores son muy amables y le recomiendo, los felicito.', rating: 5 },
-      { name: 'Lucyca', text: 'Excelente servicio, me senti comoda, voy a volver y a recomendar a mis amigos y conocidos.', rating: 5 },
+      { name: 'Marcela Rodriguez', text: 'Muy buena atención y exelente servicio', rating: 5 },
+      { name: 'Unplugged Banda', text: 'La mejor tienda de Boyacá', rating: 5 },
+      { name: 'Fabian Bonilla', text: 'Cool como te atienden Gracias por todo', rating: 5 },
+      { name: 'felipe archila alvarez', text: 'Excelente atención, productos de calidad y variedad.', rating: 5 },
+      { name: 'Sofia Leon', text: 'Super recomendados, 100 por ciento confiables y excelente atención', rating: 5 },
+      { name: 'Juan León', text: 'excelente servicio, equipos de calidad 100% recomendado .', rating: 5 },
+      { name: 'Héctor Niño', text: 'Compré mi celular allí en seminuevo y me ha salido super bueno, 100% garantizados', rating: 5 },
+      { name: 'Deyanira Gaitan', text: 'He comprado en Gordotech Duitama y tiene excelentes equipos con muy buenos precios y garantizados, además me asesoraron muy bien con las dudas que tenia sobre los equipos, para decidirme por el mejor según mi presupuesto.', rating: 5 },
+      { name: 'Fabian Alvarez', text: 'Ahí compré mi teléfono excelente servicio', rating: 5 },
+      { name: 'Maria Angarita', text: 'Excelentes equipos y muy buena atención', rating: 5 },
+      { name: 'Sandra Silva', text: 'El mejor lugar y super confiables de verdad que los super recomiendo', rating: 5 },
+      { name: 'Lina Becerra', text: 'Compre un iPhone en excelentes condiciones y entrega inmediata', rating: 5 },
+      { name: 'Danna Gómez', text: 'La atención es muy buena, compré mi celular allí y la calidad es increíble, el celular que quería ahí lo encontré mucho mejor que en otros lugares', rating: 5 },
+      { name: 'carol p', text: 'La mejor tienda Apple de Duitama', rating: 5 },
+      { name: 'Duvan Mesa Camacho', text: 'Buen servicio', rating: 5 },
+      { name: 'ricardo jose barbosa serrano', text: 'Excelente servicio muy profesionales', rating: 5 },
+      { name: 'Cesar Ferney Hurtado Estupiñan', text: 'Yo compre me samsung hace dos años, y super bueno ya toca es cambiarlo con descuento jajaaj', rating: 5 },
+      { name: 'danexi ardila garrido', text: 'Excelente servicio, buena atención 👍🏻👍🏻👍🏻…', rating: 5 },
+      { name: 'Johnnattan Latorre', text: 'Súper atentos y colaboradores con productos de calidad!', rating: 5 },
+      { name: 'Gustavo Casas', text: 'Compré un iPhone 16 pro. Muy buen equipo y lo mejor fue la atención. Tienen buen conocimiento u asesoran muy bien.', rating: 5 },
+      { name: 'Maryuri Tatiana Acosta Forero', text: 'Excelente atención , las chicas son muy amables y tienen muy buena disposición', rating: 5 },
+      { name: 'Yasmin Porras', text: 'Excelente atención .muy buena experiencia', rating: 5 },
+      { name: 'Felipe Acosta Cadena', text: 'Los mejores compré mi iPhone 17 pro Max mi iPad 16 y mi Pencil', rating: 5 },
+      { name: 'Sara Corredor', text: 'Excelente servicio , los equipos en muy buen estado , siempre te reciben con la mejor actitud .', rating: 5 },
+      { name: 'Juan Morales', text: 'Excelente atención, los dispositivos son muy confiables y muy accesibles', rating: 5 },
+      { name: 'Erik Hernandez', text: 'Excelente servicio muy serios y buena atención', rating: 5 },
+      { name: 'Andres salcedo', text: 'Excelente , equipos en buen estado, con sus garantías respectivas y en excelentes condiciones de funcionamiento', rating: 5 },
+      { name: 'SergioSalcedo Violin', text: 'Excelente servicio y muy amable la muchacha que me atendió Daniela 10/10 mi samsung 24', rating: 5 },
+      { name: 'Deisy Díaz', text: 'Tuve una experiencia muy bonita los vendedores son muy amables y le recomienda ñn cual es el mejor los felicito y los recomiendo', rating: 5 },
+      { name: 'Lucyca', text: 'Excelente servicio me sentí cómoda, voy a volver y a recomendar a mis amigos y conocidos.', rating: 5 },
+      { name: 'Santiago Centeno Agudelo', text: 'Gran servicio de Leo y su equipo!', rating: 5 },
+      { name: 'Martha Cecilia Diaz Cabra', text: 'Tuve una excelente experiencia comprando mi iPhone en esta tienda. Desde el primer momento la atención fue muy amable, me explicaron todo con paciencia y resolvieron todas mis dudas. El equipo es muy profesional y se nota que saben bastante sobre los productos que venden. Además, todo el proceso de compra fue rápido, seguro y confiable. Me sentí muy tranquila con la asesoría que recibí. Sin duda volvería a comprar aquí y también la recomiendo a quienes estén buscando un iPhone o accesorios de calidad. ¡Servicio 10/10! 👏📱', rating: 5 },
+      { name: 'Wem Mantilla', text: 'Un día viajamos de Sogamoso a Tunja en bus este tenía como cargar el celular y conectamos nuestro cargador en esas mi hijo se mareo y estaba malito y el bus paró en Duitama me baje con el para ver si el aire le ayudaba pero no se mejoro dejamos ir el bus cuando el se fue al rato me acordé del cargador y se nos quedó en el...para rematar..perdí lo de dos pasajes, mi hijo se enfermo y para rematar el cargador se queda..y el celular sin batería para avisar..me acordé de un comercial de gordotech y me acuerdo q decía al lado del inovo cogimos un taxi llegamos y si estaban ahí.. cómprame s el cargador original, buen precio excelente atención y al final todo no fue malo pude comunicarme y hoy en dia tengo ese cargador aún funcionando ..esto fue hace años y medio un abrazo..', rating: 5 },
+      { name: 'LEONARDO VALDERRAMA', text: 'Muy buena atención, yo cotize mi teléfono en muchos lugares y definitivamente aquí encontré el mejor precio !! Súper recomendado', rating: 5 },
+      { name: 'Juan esteban borda', text: 'Gran servicio, Gente muy amable', rating: 5 },
+      { name: 'GVK GROUP', text: 'La mejor tienda de productos Apple de Boyaca, van a la fija en calidad y garantía , súper recomendados.', rating: 5 },
+      { name: 'Leonardo Salcedo', text: 'Un excelente lugar, buena atención por parte de la niña Sarai Daniela cuando ella estaba , muy buena calidad de los celulares y muy buen stock manejando lo mejor de la gama alta tanto en android y iPhone.', rating: 5 },
+      { name: 'Carlos Mojica', text: 'Compré un iPhone 16 pro Max en gordotech Duitama, excelente servicio, trato muy amable, garantizado 100%', rating: 5 },
+      { name: 'Guillermo Quiroz Gomez', text: 'Buena atención, recomendado', rating: 5 },
+      { name: 'Nathalia Ochoa', text: 'Excelente servicio, excelentes precios la mejor tienda ❤️', rating: 5 },
+      { name: 'Melii Sandoval', text: 'Compré mi iPhone 16 pro Max excelente', rating: 5 },
+      { name: 'Julian Alberto Pedraza Estepa', text: 'He comprado accesorios para mi celular Samsung y no he tenido problemas. Elementos 1A.', rating: 5 },
+      { name: 'Carolina Lamilla', text: 'Compré dos relojes y la atención es súper genial y los relojes a un lo uso y no he tenido ningún problema con ellos Amo sus productos', rating: 5 },
+      { name: 'diego reyes', text: 'Compré un iPhone 14 Pro y di en parte de pago mi 12 pro Max, sin duda la mejor retoma del mercado', rating: 5 },
+      { name: 'luis Carlos Rodríguez', text: 'Compré mi iPhone 17 pro Max hace un mes, en la tienda gordotech, buen servicio, buena atención, oportuna y confiable, recomendada, los mejores equipos y precios los encuentras ahí!!!!!', rating: 5 },
+      { name: 'Valentina Valderrama', text: 'Súper recomendados! Yo compré un iPhone 16 rosado, y me ha salido muy bueno, la calidad y la atención de la tienda también son excelentes!', rating: 5 },
+      { name: 'Sebastian Valderrama', text: 'Excelentes productos, buenos precios y celulares garantizados.', rating: 5 },
+      { name: 'Cero Reportes SAS', text: 'El mejor lugar para encontrar los mejores productos Apple', rating: 5 },
+      { name: 'Jacob Matias', text: 'Excelente servicio , compré mi iPhone 16 pro Max súper feliz de comprar en gordotech 🤗✨🔥✅…', rating: 5 },
+      { name: 'Josue Daniel Cristiano Jacome', text: 'He tenido la oportunidad de comprar mi celular y IPad en Gordotech. 100% recomendado 💯…', rating: 5 },
+      { name: 'Francisco Carvajal Flechas', text: 'Compramos dos iPhone 15 pro Max cuando salieron y aún los tenemos nos han salido tan buenos que ya estamos pensando en cambiarnos al 17 pro Max con gordotech prontamente', rating: 5 },
+      { name: 'sara perez “saraperezr”', text: 'Compré un iphone15 pro nuevo. Y es una maravilla 10/10 🥳…', rating: 5 },
+      { name: 'Lorena Velandia Rincon', text: 'Excelente servicio , buena asesoría y espacios limpios y modernos .', rating: 5 },
+      { name: 'Karol Malaver', text: '“Sin duda, Gordotech llegó a revolucionar la tecnología en Boyacá. Es un lugar que genera confianza desde el primer momento: la atención es excelente, te asesoran durante todo el proceso y ofrecen muy buenas garantías con una relación calidad–precio increíble. Además, cuentan con sedes en las principales ciudades del departamento. ¡Me encanta! ✨”', rating: 5 },
+      { name: 'FERNANDO ROJAS', text: 'Es un lugar espectacular la atención es 10 de 10 en abril de 2025 compré un iPhone 16 pro Max de 256 nuevo excelente equipo no molesta para nada y lo mejor que con las recomendaciones que me dieron en gordotech su batería sigue estando al 100%', rating: 5 },
+      { name: 'Andrea Maryel Buritica Jacome', text: 'Mi celular me ha salido súper bueno, se los súper recomiendo, no he tenido ningún problema, he comprado dos y los dos geniales, nuevos como seminuevos', rating: 5 },
+      { name: 'Sol Yuliana Jacome Candela', text: 'Súper el lugar, compré mi iPhone 17 Pro Max, súper recomendado', rating: 5 },
+      { name: 'Olmer Ruiz', text: 'Excelente servicio Adquirí un iphone nuevo y uno seminuevo y han salido 100 de 100 ✅✅', rating: 5 },
+      { name: 'Daniel Prieto', text: 'Muy serios y excelentes precios, nunca he tenido problemas con los equipos que he comprado', rating: 5 },
+      { name: 'the black suite ph', text: 'Excelente lugar no es la primera vez que compro mis equipos aquí son lo mejor en Duitama 🔥🔥🙏🏽…', rating: 5 },
+      { name: 'Judy Alejandra Flechas Mayorga', text: 'Excelente lugar, productos totalmente garantizados a muy buenos precios, super recomendado', rating: 5 },
+      { name: 'Sarai Daniela Salcedo Daza', text: 'Su telefonía como nueva y seminuevo lo mejor de lo mejor', rating: 5 },
+      { name: 'Daniela Vargas', text: 'Celulares de calidad', rating: 5 },
+      { name: 'Valeria Perez Ochoa', text: 'En el 2025 compre con gordotech dos equipos nuevos sellados/Iphone 16 pro y Samsung A56, muy buena atencion y seguridad y confianza al comprar🫡,recomendados…', rating: 5 },
+      { name: 'Diana Carolina Diaz Cabra', text: 'Excelentes Productos y buena atención', rating: 5 },
+      { name: 'Jefferson Montaña', text: 'Compré hace unos meses un IPhone 14 Semi nuevo. El servicio y la atención fue excelente.', rating: 5 },
+      { name: 'Juan Diego Alvarado Mojica', text: 'Excelente mi celular lo tengo hace dos años y cero problemas', rating: 5 },
+      { name: 'Steveen Sanabria', text: 'Buen servicio excelente atención 10/10', rating: 5 },
+      { name: 'Daniela Mejia Consuegra', text: 'Me encantó la atención, compré mi celu y me asesoraron muy bien, todo fue transparente y rápido 🔝🔝🔝🔝Súper recomendado…', rating: 5 },
+      { name: 'José Luis Gil Sosa', text: 'Facilidades de pago, precios cómodos, atención 10 de 10, garantía, no tengo queja alguna, son muy top 🔥👌…', rating: 5 },
+      { name: 'John Agredo', text: 'Compré un IPhone 16 ProMax Seminuevo, impecable estado, el precio más de 500mil pesos más económico que en cualquier otro lugar, la atención lo mejor. 200% recomendados.', rating: 5 },
+      { name: 'Anaaeiou', text: '¡Excelente servicio! Siempre encuentro con ellos todo y a un super precio ✨', rating: 5 },
+      { name: 'Andres Mariño', text: 'Excelente atención, compré un equipo seminuevo y no ha dado lios... Recomendado.', rating: 5 },
+      { name: 'alexander quintero', text: 'La mejor tienda Apple en Boyacá 🖤🖤…', rating: 5 },
+      { name: 'Leonardo Joya', text: 'La mejor tienda Apple de Boyacá viaje desde sogamoso y conseguí todo tal cual me lo ofrecieron', rating: 5 },
     ],
   },
   tunja: {
@@ -2677,29 +2932,29 @@ const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: s
     rating: 5.0,
     count: 30,
     reviews: [
-      { name: 'Yeferson Ortiz', text: 'Exelente atencion, servicio y muy buen lugar', rating: 5 },
+      { name: 'Yeferson Ortiz', text: 'Exelente atención,servicio y muy buen lugar', rating: 5 },
       { name: 'David Reyes', text: 'Excelente precio, muy buen servicio', rating: 5 },
-      { name: 'DEIGO MESA', text: 'Excelente servicio, muy rapido y confiable, todo garantizado, buenos precios', rating: 5 },
+      { name: 'DEIGO MESA', text: 'Excelente servicio , muy rápido y confiable 👍👍👍 todo garantizado , buenos precios…', rating: 5 },
       { name: 'EDER SAMUEL MORENO PARRA', text: 'Excelentes precios y servicio', rating: 5 },
-      { name: 'Claudia Maritza Arenas Giraldo', text: 'Excelente atencion, gran variedad de productos y tenian todo lo que yo necesitaba', rating: 5 },
-      { name: 'Maria Medina', text: 'Compre mi primer iPhone aca en la sede de Tunja', rating: 5 },
+      { name: 'Claudia Maritza Arenas Giraldo', text: 'Excelente atención, gran variedad de productos y tenían todo lo que yo necesitaba', rating: 5 },
+      { name: 'Maria Medina', text: 'Compré mi primer iPhone acá en la sede de Tunja', rating: 5 },
       { name: 'Julian Alberto Pedraza Estepa', text: 'Buen local precios accesibles.', rating: 5 },
-      { name: 'Jhon Jairo Gil Hernandez', text: 'Feliz muy agradecido excelente atencion super recomendados', rating: 5 },
-      { name: 'Camilo Barrera', text: 'Excelente lugar buenos telefonos', rating: 5 },
-      { name: 'Hugo Alejandro Ramirez', text: 'Excelente servicio, calidad en productos 100% originales!!', rating: 5 },
-      { name: 'Sofia Rosas', text: 'Excelente atencion, muy amables', rating: 5 },
-      { name: 'Paula Robles Serna', text: 'Excelente servicio y muy buenos precios. Las chicas muy atentas y se enfocan en ayudarte a encontrar lo que quieres', rating: 5 },
-      { name: 'sebastian Montoya', text: 'De verdad que da gusto comprar en un sitio asi. La atencion es espectacular, el equipo es muy profesional y se nota que les importa el cliente. Me ayudaron en todo el proceso y resolvieron todas mis dudas. 10/10', rating: 5 },
-      { name: 'Claudia Rocio Pulido Moreno', text: 'Hoy pase por el local a comprar un cargador para mi celular y la atencion fue excelente, aparte cargadores y accesorios 100% originales, muy recomendado', rating: 5 },
+      { name: 'Jhon Jairo Gil Hernandez', text: 'Feliz muy agradecido excelente atención super recomendados', rating: 5 },
+      { name: 'Camilo Barrera', text: 'Excelente lugar buenos teléfonos', rating: 5 },
+      { name: 'Hugo Alejandro Ramirez', text: 'Excelente servicio , calidad en productos 100% originales!!', rating: 5 },
+      { name: 'Sofía Rosas', text: 'Excelente atención,muy amables', rating: 5 },
+      { name: 'Paula Robles Serna', text: 'Excelente servicio y muy buenos precios. Las chicas muy atentas y se enfocan en ayudarte a encontrar lo que quieres 🔝🔝…', rating: 5 },
+      { name: 'sebastian Montoya', text: 'De verdad que da gusto comprar en un sitio así. La atención es espectacular, el equipo es muy profesional y se nota que les importa el cliente. Me ayudaron en todo el proceso y resolvieron todas mis dudas. 10/10 🔥…', rating: 5 },
+      { name: 'Claudia Rocio Pulido Moreno', text: 'Hoy pasé por el local a comprar un cargador para mi celular y la atención fue excelente, aparte cargadores y accesorios 100% originales, muy recomendado 👌…', rating: 5 },
       { name: 'Leidy Pinzon', text: 'Muy amables las chicas que atienden, y los productos a muy buen precio y excelente calidad.', rating: 5 },
-      { name: 'Karen Rosas', text: 'Excelente servicio, las chicas muy atentas y eficientes! Y los productos 10/10 super recomendado', rating: 5 },
+      { name: 'Karen Rosas', text: 'Excelente servicio, las chicas muy atentas y eficientes! Y los productos 10/10 súper recomendado', rating: 5 },
       { name: 'ANA GABRIELA PEREZ TORRES', text: 'Excelente servicio', rating: 5 },
       { name: 'michael daniel garcia bernal', text: 'Compre el s26 ultra, excelente atencion y muy buen servicio total recomendacion 10/10', rating: 5 },
-      { name: 'juan fernando g c', text: 'Hoy compre un iPhone 17 pro, excelente atencion de las chicas y productos totalmente originales 10/10', rating: 5 },
-      { name: 'sol jacome', text: 'Los visite en unicentro Tunja y muy buenos los precios, adquiri con ellos mi 17 pro', rating: 5 },
-      { name: 'Juanita Maria Sosa Avendano', text: 'Super recomendado, tienen todos los productos de Apple con excelentes precios y una buena atencion', rating: 5 },
-      { name: 'Valentina Rodriguez Alba', text: 'Visite la tienda en Unicentro Tunja para ver algunas MacBook y me gusto mucho la experiencia. La atencion fue buena y me explicaron sobre los equipos. El lugar es organizado y tienen muy buena tecnologia. Recomendado.', rating: 5 },
-      { name: 'luis alejandro rodriguez', text: 'La atencion, los precios y los equipos son los mejores. Gran axperiencia', rating: 5 },
+      { name: 'juan fernando g c', text: 'Hoy compré un iPhone 17 pro, excelente atención de las chicas y productos totalmente originales 10/10', rating: 5 },
+      { name: 'sol jacome', text: 'Los visite en unicentro Tunja y muy buenos los precios, adquirí con ellos mi 17 pro', rating: 5 },
+      { name: 'Juanita Maria Sosa Avendaño', text: 'Súper recomendado, tienen todos los productos de Apple con excelentes precios y una buena atención', rating: 5 },
+      { name: 'Valentina Rodriguez Alba', text: 'Visité la tienda en Unicentro Tunja para ver algunas MacBook y me gustó mucho la experiencia. La atención fue buena y me explicaron sobre los equipos. El lugar es organizado y tienen muy buena tecnología. Recomendado.', rating: 5 },
+      { name: 'luis alejandro rodriguez', text: 'La atención, los precios y los equipos son los mejores. Gran axperiencia ✌️', rating: 5 },
     ],
   },
   clinica: {
@@ -2707,30 +2962,36 @@ const SUCURSAL_REVIEWS: Record<string, { reviews: SucursalReview[]; googleUrl: s
     rating: 4.9,
     count: 28,
     reviews: [
-      { name: 'jose david vargas mayorga', text: 'Excelente servicio, productos originales y a precios accesibles.', rating: 5 },
-      { name: 'German Adolfo Gonzalez Sanabria', text: 'Buena experiencia, productos originales y a precios accesibles.', rating: 5 },
-      { name: 'Ginita Bonita', text: 'Excelente asesoria y muy buen equipo de trabajo', rating: 5 },
-      { name: 'Sammy Rojas', text: 'Buen trabajo, increible resultado, le metio mucho amor al telefono. Muy buenos equipos y excelente equipo de trabajo', rating: 5 },
-      { name: 'Valentina Cuervo rodriguez', text: 'Un excelente servicio y la mejor atencion por parte de Daniela', rating: 5 },
-      { name: 'Juan Jose Cabra Nunez', text: 'Muy buena experiencia. Daniela me atendio super bien, fue muy amable y me asesoro perfectamente. Los AirPods funcionan excelente. Recomendado', rating: 5 },
+      { name: 'jose david vargas mayorga', text: 'Excelente servicio lo recomiendo viene con todo lo q dice', rating: 5 },
+      { name: 'German Adolfo Gonzalez Sanabria', text: 'Buena experiencia, productos originales ya precios accesibles.', rating: 5 },
+      { name: 'Ginita Bonita', text: 'Excelente asesoría y muy buen equipo de trabajo', rating: 5 },
+      { name: 'Sammy Rojas', text: 'Buen trabajo , increíble resultado, le metió mucho amor al teléfono Muy buenos equipos y excelente equipo de trabajo', rating: 5 },
+      { name: 'Valentina Cuervo rodriguez', text: 'Un excelente servicio y la mejor atención por parte de Daniela', rating: 5 },
+      { name: 'Juan José Cabra Núñez', text: 'Muy buena experiencia. Daniela me atendió súper bien, fue muy amable y me asesoró perfectamente. Los AirPods funcionan excelente. Recomendado', rating: 5 },
       { name: 'jaider santiago huerfano bautista', text: 'Excelente servicio', rating: 5 },
-      { name: 'Leonela Munoz Acevedo', text: 'Gracias por ese iPhone 17 pro y la MacBook Air totalmente nuevos y con su garantia de 1 ano. Gracias Daniela por la atencion en el momento de la compra.', rating: 5 },
-      { name: 'Sleyder A', text: 'El iPhone 17 pro Max que compre con ellos salio perfecto y su garantia de un ano lo mejora aun mas. Daniela demostro mucha responsabilidad a la hora de la venta.', rating: 5 },
-      { name: 'Victor Navarro', text: 'Compre mi iPhone en esta tienda y la experiencia fue excelente. Desde el inicio me atendieron muy bien, resolvieron todas mis dudas y me explicaron las diferencias entre los modelos sin presion para comprar. El equipo llego en perfecto estado, totalmente original y tal como lo describian. Ademas, la entrega fue rapida y bien organizada. Me dio mucha confianza la forma en que manejan todo, desde el pago hasta la garantia. Sin duda recomiendo esta tienda si estas pensando en comprar un iPhone, ya que ofrecen buen servicio, transparencia y productos de calidad. Volveria a comprar con ellos sin pensarlo.', rating: 5 },
-      { name: 'Cely Saavedra Cristian Geobanny', text: 'Exelente servicio... La atencion exelente', rating: 5 },
-      { name: 'Leonardo Salcedo', text: 'Excelente servicio, buena atencion, y excelente trabajo en el arreglo de mi equipo. Muchas gracias.', rating: 5 },
-      { name: 'Deybid Munoz', text: 'Tiene buen servicio, hice un cambio de tapa de mi 14 pro Max, quedo perfecto y la calidad buena. La atencion de Daniela fue perfecta.', rating: 5 },
-      { name: 'Jhoan Pinto', text: 'Efectivo y recomendado, super me resolvio en un momento, lo habia llevado a otro lugar y me dijeron que no tenia arreglo y lo traje aqui donde el gordotech y me lo arreglo en 10 minutos, buen despachador y tecnico, me voy feliz y satisfecha gracias!', rating: 5 },
-      { name: 'glory man', text: 'La mejor tienda de celulares que puede existir en Boyaca, y sus mejores asesores en especial Daniela', rating: 5 },
-      { name: 'yecid sanabria', text: 'Super, excelente servicio', rating: 5 },
-      { name: 'Liseth gonzalez', text: 'Muy buen servicio', rating: 4 },
-      { name: 'Lisethe Vargas', text: 'Tuve buena asesoria de parte del tecnico y la chica, fueron muy sinceros si era bueno salvar mi celular, y lleve uno mejor', rating: 5 },
+      { name: 'Leonela Muñoz Acevedo', text: 'Gracias por ese iPhone 17 pro y la MacBook Air ❤️ totalmente nuevos y con su garantía de 1 año. Gracias Daniela por la atención en el momento de la compra.', rating: 5 },
+      { name: 'Sleyder A', text: 'El iPhone 17 pro Max que compré con ellos salió perfecto y su garantía de un año lo mejora aún más. Daniela demostró mucha responsabilidad a la hora de la venta.', rating: 5 },
+      { name: 'Victor Navarro', text: 'Compré mi iPhone en esta tienda y la experiencia fue excelente. Desde el inicio me atendieron muy bien, resolvieron todas mis dudas y me explicaron las diferencias entre los modelos sin presión para comprar. El equipo llegó en perfecto estado, totalmente original y tal como lo describían. Además, la entrega fue rápida y bien organizada. Me dio mucha confianza la forma en que manejan todo, desde el pago hasta la garantía. Sin duda recomiendo esta tienda si estás pensando en comprar un iPhone, ya que ofrecen buen servicio, transparencia y productos de calidad. Volvería a comprar con ellos sin pensarlo.', rating: 5 },
+      { name: 'Cely Saavedra Cristian Geobanny', text: 'Exelente servicio... La atención exelente', rating: 5 },
+      { name: 'Leonardo Salcedo', text: 'Excelente servicio, buena atención, y excelente trabajo en el arreglo de mi equipo. Muchas gracias.', rating: 5 },
+      { name: 'Deybid Muñoz', text: 'Tiene buen servicio, hice un cambio de tapa de mi 14 pro Max, quedó perfecto y la calidad buena. La atención de Daniela fue perfecta.', rating: 5 },
+      { name: 'Jhoan Pinto', text: 'Efectivo y recomendado, súper me resolvió en un momento, lo había llevado a otro lugar y me dijeron que no tenía arreglo y lo traje aquí donde el gordotech y me lo arreglo en 10 minutos, buen despachador y técnico, me voy feliz y sastifecha gracias!', rating: 5 },
+      { name: 'glory man', text: 'La mejor tienda de celulares que puede existir en Boyaca, y sus mejores asesores en espacial Daniela', rating: 5 },
+      { name: 'yecid sanabria', text: 'Súper, excelente servicio', rating: 5 },
+      { name: 'Liseth gonzalez', text: 'Muy bien servicio', rating: 4 },
+      { name: 'Lisethe Vargas', text: 'Tuve buena asesoría de parte del técnico y a la chica, fueron muy sinceros si era bueno salvar mi celular, y lleve uno mejor 😅…', rating: 5 },
       { name: 'Brayan sanchez', text: 'Excelente servicio', rating: 4 },
-      { name: 'Fabio Moreno', text: 'Hice la restauracion de iPhone 13 Pro Max de visor y tapa trasera y quedo a la altura 100% recomendado', rating: 5 },
-      { name: 'Sarai Daniela Salcedo Daza', text: 'Me ayudaron a reparar la pantalla de mi telefono, y quedo super bien y su atencion con su explicacion tambien', rating: 5 },
+      { name: 'Fabio Moreno', text: 'Hice la restauración de iPhone 13 Pro Max de visor y tapa trasera y quedó a la altura 100%recomendado', rating: 5 },
+      { name: 'Sarai Daniela Salcedo Daza', text: 'Me ayudaron a reparar la pantalla de mi teléfono, y quedó súper bien y su atención con su explicación también', rating: 5 },
       { name: 'Sergio Melendez', text: 'Buena experiencia arreglando mi S24, Rapido y buen servicio', rating: 5 },
     ],
   },
+}
+
+const SUCURSAL_MAPS: Record<string, string> = {
+  duitama: 'https://www.google.com/maps/dir//Gordotech+Duitama,+Cl.+20a+%2312-32,+Solano,+Duitama,+Boyac%C3%A1/@5.8259915,-73.0301255,14z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a3fb0048fe77f:0xd1f7a4fb7101b8e8!2m2!1d-73.0317497!2d5.8320283',
+  tunja: 'https://www.google.com/maps/dir//Gordotech+Tunja,+Universitaria+39+%2377+UNICENTRO,+Tunja,+Boyac%C3%A1/@5.539294,-73.356241,13z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a7d74e31ea55d:0x22aa657c5e1e9dc1!2m2!1d-73.3483432!2d5.5451975',
+  clinica: 'https://www.google.com/maps/search/Clinica+de+Celulares+Gordotech+San+Andresito+de+la+18+Duitama',
 }
 
 const DEFAULT_SUCURSALES: Sucursal[] = [
@@ -2827,12 +3088,12 @@ function SucursalesPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/10 dark:shadow-black/20 border-b border-gray-200 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
               Volver
             </button>
@@ -2847,13 +3108,13 @@ function SucursalesPage() {
 
       <div className="pt-20">
         <section className="py-12 md:py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/5" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 dark:from-blue-600/10 via-transparent to-purple-600/3 dark:to-purple-600/5" />
           <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="text-center mb-10">
               <h3 className="text-4xl md:text-6xl font-bold mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
                 NUESTRAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">SEDES</span>
               </h3>
-              <p className="text-gray-400 text-base max-w-xl mx-auto">
+              <p className="text-gray-500 dark:text-gray-400 text-base max-w-xl mx-auto">
                 Visitanos en nuestras tiendas fisicas en Boyaca.
               </p>
             </div>
@@ -2863,13 +3124,13 @@ function SucursalesPage() {
                 <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12 px-4">
                 {sucursales.filter(s => s.active).map((s) => {
                   const bgImage = s.image ? resolveImageUrl(s.image) : ''
                   const waUrl = `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(`Hola ${s.name}, quiero visitarlos`)}`
                   const reviewData = reviewsMap[s.slug]
                   return (
-                    <div key={s.id} className="rounded-2xl overflow-hidden bg-gray-900 shadow-xl group transition-transform duration-300 hover:-translate-y-1">
+                    <div key={s.id} className="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl group transition-transform duration-300 hover:-translate-y-1">
                       {/* Photo with overlay info */}
                       <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                         {bgImage ? (
@@ -2886,16 +3147,22 @@ function SucursalesPage() {
                         {/* Gradient overlays - top and bottom for readability */}
                         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70" />
 
-                        {/* Name + Address at TOP-left with margin */}
-                        <div className="absolute top-4 left-4 right-4">
-                          <h4 className="text-white font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+                        {/* Name + Address at TOP-left with margin - force white text over photo */}
+                        <a
+                          href={SUCURSAL_MAPS[s.slug] || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute top-4 left-4 right-4 cursor-pointer hover:opacity-80 transition-opacity"
+                          style={{ color: 'white', textDecoration: 'none' }}
+                        >
+                          <h4 className="font-bold text-xl leading-tight mb-1 drop-shadow-lg" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px', color: 'white' }}>
                             {s.name.toUpperCase()}
                           </h4>
                           <div className="flex items-start gap-1.5">
                             <MapPin className="w-3.5 h-3.5 text-blue-300 mt-0.5 flex-shrink-0" />
-                            <p className="text-gray-200 text-xs leading-snug drop-shadow">{s.address}</p>
+                            <p className="text-xs leading-snug drop-shadow" style={{ color: '#e5e7eb' }}>{s.address}</p>
                           </div>
-                        </div>
+                        </a>
 
                         {/* Reviews marquee at BOTTOM inside the photo */}
                         {reviewData && (
@@ -2911,16 +3178,16 @@ function SucursalesPage() {
                       </div>
 
                       {/* Social links below the photo */}
-                      <div className="px-5 py-4 flex items-center justify-between gap-3">
+                      <div className="px-3 sm:px-5 py-4 flex items-center justify-between gap-2 sm:gap-3">
                         {/* WhatsApp */}
                         <a
                           href={waUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                          className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                         >
-                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain" />
-                          WhatsApp
+                          <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain flex-shrink-0" />
+                          <span className="truncate">WhatsApp</span>
                         </a>
 
                         {/* Instagram */}
@@ -2929,10 +3196,10 @@ function SucursalesPage() {
                             href={s.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                           >
-                            <Instagram className="w-4 h-4" />
-                            Instagram
+                            <Instagram className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">Instagram</span>
                           </a>
                         )}
 
@@ -2942,10 +3209,10 @@ function SucursalesPage() {
                             href={s.tiktok}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 rounded-xl transition-colors text-xs font-semibold"
+                            className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                           >
-                            <TikTokIcon className="w-4 h-4" />
-                            TikTok
+                            <TikTokIcon className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">TikTok</span>
                           </a>
                         )}
                       </div>
@@ -2959,7 +3226,7 @@ function SucursalesPage() {
             <div className="text-center mt-10">
               <button
                 onClick={() => navigate('/')}
-                className="inline-flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors text-sm border border-white/10"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-white rounded-xl transition-colors text-sm border border-gray-300 dark:border-white/10"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Volver al inicio
@@ -3000,7 +3267,7 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
             condition: p.condition as string, image: resolveImageUrl(p.image as string),
             images: ((p.images as string[]) || []).map(resolveImageUrl), colors: p.colors as string[],
             color_images: (() => { const ci = (p.color_images as Record<string, string[] | string>) || {}; const resolved: Record<string, string[]> = {}; for (const [k, v] of Object.entries(ci)) { resolved[k] = (Array.isArray(v) ? v : v ? [v] : []).map(resolveImageUrl); } return resolved; })(),
-            storageOptions: p.storage_options as string[], badge: (p.badge as string) || null,
+            storageOptions: p.storage_options as string[], badge: (p.badge as string) || ((p.condition as string) === 'Nuevo' ? 'Nuevo' : null),
             available: p.available as string[], price: (p.price as string) || '',
             oldPrice: (p.old_price as string) || '', description: (p.description as string) || '',
             variants: (p.variants as Product['variants']) || [],
