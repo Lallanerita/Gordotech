@@ -573,9 +573,9 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
               {i === current ? (
                 <div key={`content-${animKey}`} className="max-w-2xl">
                   {slide.title && (
-                    <h2 className="animate-hero-title text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-[0.95] drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '3px' }}>
+                    <h1 className="animate-hero-title text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-[0.95] drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '3px' }}>
                       {slide.title}
-                    </h2>
+                    </h1>
                   )}
                   {slide.subtitle && (
                     <p className="animate-hero-subtitle text-lg md:text-2xl text-gray-200/90 mb-8 max-w-lg font-light tracking-wide">
