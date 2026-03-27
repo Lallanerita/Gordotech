@@ -2482,7 +2482,7 @@ function ReparacionPage() {
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   usePageSEO({
-    title: 'Reparacion iPhone en Duitama y Tunja | Centro de Servicio Apple Autorizado | Gordotech',
+    title: 'Reparacion iPhone en Duitama y Tunja | Centro de Reparacion Apple Especializado | Gordotech',
     description: 'Centro de reparacion de iPhone, iPad y MacBook en Duitama y Tunja, Boyaca. Cambio de pantalla iPhone, bateria, carga y mas. Repuestos originales, garantia en todas las reparaciones. Tecnicos certificados Apple.',
     canonical: 'https://gordotech.co/reparacion',
     keywords: 'reparacion iPhone Duitama, reparacion iPhone Tunja, cambio pantalla iPhone Duitama, cambio bateria iPhone Tunja, reparar iPhone Boyaca, servicio tecnico Apple Duitama, reparacion iPad Tunja, reparacion MacBook Boyaca, pantalla iPhone rota Duitama, centro reparacion Apple Colombia, arreglar iPhone Tunja, reparacion celular Duitama',
