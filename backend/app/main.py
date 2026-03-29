@@ -860,6 +860,40 @@ async def admin_delete_bubble(bubble_id: int, username: str = Depends(get_curren
     finally:
         await db.close()
 
+BUBBLE_DEFAULT_IMAGES = {
+    "todos": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop",
+    "iphones": "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop",
+    "ipads": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop",
+    "macbook": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop",
+    "airpods": "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop",
+    "apple watch": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop",
+    "accesorios": "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=300&h=300&fit=crop",
+    "samsung": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop",
+}
+
+@app.post("/api/admin/bubbles/restore-images")
+async def admin_restore_bubble_images(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM model_bubbles ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        updated = 0
+        for row in rows:
+            model_id = row["model_id"].lower()
+            if model_id in BUBBLE_DEFAULT_IMAGES:
+                await db.execute(
+                    "UPDATE model_bubbles SET image = ? WHERE id = ?",
+                    (BUBBLE_DEFAULT_IMAGES[model_id], row["id"])
+                )
+                updated += 1
+        await db.commit()
+        cursor = await db.execute("SELECT * FROM model_bubbles ORDER BY sort_order ASC")
+        rows = await cursor.fetchall()
+        return {"message": f"{updated} burbujas actualizadas", "bubbles": [row_to_bubble(r) for r in rows]}
+    finally:
+        await db.close()
+
 # ==================== ADMIN CATEGORIES CRUD ====================
 
 @app.get("/api/admin/categories")

@@ -1240,6 +1240,17 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const restoreBubbleImages = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiPost('/api/admin/bubbles/restore-images', {}, token)
+      setBubbles(data.bubbles)
+      alert(`${data.message}`)
+    } catch {
+      alert('Error al restaurar imágenes')
+    }
+  }, [token])
+
   const loadServices = useCallback(async () => {
     if (!token) return
     try {
@@ -1626,9 +1637,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
           <div className="space-y-5 md:space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>BURBUJAS DE MODELOS ({bubbles.length})</h2>
-              <button onClick={() => setEditingBubble('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
-                <Plus className="w-5 h-5" /> Nueva Burbuja
-              </button>
+              <div className="flex gap-2">
+                <button onClick={restoreBubbleImages} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
+                  Restaurar Imágenes
+                </button>
+                <button onClick={() => setEditingBubble('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
+                  <Plus className="w-5 h-5" /> Nueva Burbuja
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
