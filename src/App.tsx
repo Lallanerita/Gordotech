@@ -32,6 +32,19 @@ function resolveImageUrl(url: string): string {
   return url
 }
 
+// Reliable fallback images for category bubbles (used when API/upload images fail)
+const BUBBLE_FALLBACK_IMAGES: Record<string, string> = {
+  'todos': 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop',
+  'iphones': 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop',
+  'ipads': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop',
+  'macbook': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop',
+  'airpods': 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop',
+  'apple watch': 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop',
+  'apple-watch': 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop',
+  'accesorios': 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=300&h=300&fit=crop',
+  'samsung': 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop',
+}
+
 // Preload images in background for instant display
 const _preloadCache = new Set<string>()
 function preloadImages(urls: string[]) {
@@ -228,26 +241,26 @@ const semiUsados = [
   { id: 115, name: 'iPhone 15 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
   { id: 116, name: 'iPhone 15 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
   // iPhone 16 Series
-  { id: 117, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 118, name: 'iPhone 16 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 119, name: 'iPhone 16 Pro', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
-  { id: 120, name: 'iPhone 16 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  { id: 117, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 118, name: 'iPhone 16 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 119, name: 'iPhone 16 Pro', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  { id: 120, name: 'iPhone 16 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
   // iPhone 17 Series
-  { id: 121, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
-  { id: 122, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
-  { id: 123, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
-  { id: 124, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 121, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 122, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 123, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 124, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
 ]
 
 // Product data - Nuevos iPhones
 const nuevos = [
   { id: 201, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#E3D0B9', '#F28B82'] },
   { id: 202, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#F28B82', '#AECBFA'] },
-  { id: 203, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 204, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
-  { id: 205, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
-  { id: 206, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
-  { id: 207, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 203, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 204, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 205, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 206, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 207, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
 ]
 
 // Product data - iPads Nuevas
@@ -275,8 +288,8 @@ const airpods = [
 
 // Product data - Apple Watch
 const appleWatches = [
-  { id: 601, name: 'Apple Watch SE2', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
-  { id: 602, name: 'Apple Watch SE3', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
+  { id: 601, name: 'Apple Watch SE2', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
+  { id: 602, name: 'Apple Watch SE3', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
   { id: 603, name: 'Apple Watch Series 10', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
   { id: 604, name: 'Apple Watch Series 11', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#4A4A4A'] },
   { id: 605, name: 'Apple Watch Ultra 2', storageOptions: ['49mm'], image: 'https://images.unsplash.com/photo-1694618432450-44056bd70e87?w=400&h=500&fit=crop&q=80', colors: ['#E8D0AA', '#1C1C1E'] },
@@ -659,13 +672,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([])
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [modelBubbles, setModelBubbles] = useState<{id: string; label: string; image: string}[]>([
-    { id: 'todos', label: 'Todos', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
-    { id: 'iphones', label: 'iPhones', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
-    { id: 'ipads', label: 'iPads', image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop' },
-    { id: 'macbook', label: 'MacBook', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop' },
-    { id: 'airpods', label: 'AirPods', image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop' },
-    { id: 'apple watch', label: 'Apple Watch', image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop' },
-    { id: 'accesorios', label: 'Accesorios', image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=300&h=300&fit=crop' },
+    { id: 'todos', label: 'Todos', image: BUBBLE_FALLBACK_IMAGES['todos'] },
+    { id: 'iphones', label: 'iPhones', image: BUBBLE_FALLBACK_IMAGES['iphones'] },
+    { id: 'ipads', label: 'iPads', image: BUBBLE_FALLBACK_IMAGES['ipads'] },
+    { id: 'macbook', label: 'MacBook', image: BUBBLE_FALLBACK_IMAGES['macbook'] },
+    { id: 'airpods', label: 'AirPods', image: BUBBLE_FALLBACK_IMAGES['airpods'] },
+    { id: 'apple watch', label: 'Apple Watch', image: BUBBLE_FALLBACK_IMAGES['apple watch'] },
+    { id: 'accesorios', label: 'Accesorios', image: BUBBLE_FALLBACK_IMAGES['accesorios'] },
   ])
   const [apiRepairServices, setApiRepairServices] = useState(repairServices)
 
@@ -1419,7 +1432,15 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       decoding="async"
                       draggable={false}
                       className="w-full h-full object-cover transition-all duration-300"
-                      onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement
+                        const fallback = BUBBLE_FALLBACK_IMAGES[model.id] || BUBBLE_FALLBACK_IMAGES[model.id.toLowerCase()]
+                        if (fallback && img.src !== fallback) {
+                          img.src = fallback
+                        } else {
+                          img.src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}`
+                        }
+                      }}
                     />
                   </div>
                 </div>
