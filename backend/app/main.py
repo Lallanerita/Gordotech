@@ -478,26 +478,7 @@ def row_to_popup(row):
 
 @app.get("/healthz")
 async def healthz():
-    import os as _os
-    from app.storage import R2_ENABLED, R2_ACCOUNT_ID, R2_PUBLIC_URL, R2_BUCKET_NAME, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
-    return {
-        "status": "ok",
-        "r2_enabled": R2_ENABLED,
-        "r2_module_vars": {
-            "account_id_set": bool(R2_ACCOUNT_ID),
-            "access_key_set": bool(R2_ACCESS_KEY_ID),
-            "secret_key_set": bool(R2_SECRET_ACCESS_KEY),
-            "public_url_set": bool(R2_PUBLIC_URL),
-            "bucket": R2_BUCKET_NAME,
-        },
-        "r2_env_vars": {
-            "R2_ACCOUNT_ID": bool(_os.environ.get("R2_ACCOUNT_ID")),
-            "R2_ACCESS_KEY_ID": bool(_os.environ.get("R2_ACCESS_KEY_ID")),
-            "R2_SECRET_ACCESS_KEY": bool(_os.environ.get("R2_SECRET_ACCESS_KEY")),
-            "R2_PUBLIC_URL": bool(_os.environ.get("R2_PUBLIC_URL")),
-            "R2_BUCKET_NAME": bool(_os.environ.get("R2_BUCKET_NAME")),
-        },
-    }
+    return {"status": "ok"}
 
 # ==================== PUBLIC API ====================
 
