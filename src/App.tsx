@@ -890,11 +890,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     loadData()
   }, [city])
 
-  // Trending carousel auto-scroll with translateX
+  // Trending carousel auto-scroll with translateX (time-based for consistent speed)
   useEffect(() => {
     const track = trendingTrackRef.current
     if (!track || trendingProducts.length === 0) return
     let running = true
+    let lastTime = 0
+    const TRENDING_PX_PER_SEC = 30 // pixels per second
     // Measure half width after render
     const measure = () => {
       if (track.scrollWidth > 0) {
@@ -904,10 +906,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     measure()
     // Re-measure after images load
     const timer = setTimeout(measure, 1000)
-    const animate = () => {
+    const animate = (now: number) => {
       if (!running) return
+      if (lastTime === 0) lastTime = now
+      const delta = (now - lastTime) / 1000
+      lastTime = now
       if (!trendingDragging.current && trendingHalfWidth.current > 0) {
-        trendingOffset.current += 0.5
+        trendingOffset.current += TRENDING_PX_PER_SEC * delta
         if (trendingOffset.current >= trendingHalfWidth.current) {
           trendingOffset.current -= trendingHalfWidth.current
         }
@@ -924,18 +929,22 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const bubblesOffsetRef = useRef(0)
   const bubblesDragRef = useRef<{ active: boolean; startX: number; startOffset: number; moved: boolean }>({ active: false, startX: 0, startOffset: 0, moved: false })
   const bubblesRafRef = useRef<number>(0)
-  const BUBBLES_SPEED = 1.02
+  const BUBBLES_PX_PER_SEC = 60 // pixels per second (time-based, consistent across all refresh rates)
 
   useEffect(() => {
     if (modelBubbles.length === 0) return
     let running = true
-    const tick = () => {
+    let lastTime = 0
+    const tick = (now: number) => {
       if (!running) return
+      if (lastTime === 0) lastTime = now
+      const delta = (now - lastTime) / 1000 // seconds since last frame
+      lastTime = now
       const track = bubblesTrackRef.current
       if (track) {
         const singleWidth = track.scrollWidth / 3
         if (!bubblesDragRef.current.active) {
-          bubblesOffsetRef.current -= BUBBLES_SPEED
+          bubblesOffsetRef.current -= BUBBLES_PX_PER_SEC * delta
         }
         if (bubblesOffsetRef.current <= -singleWidth) bubblesOffsetRef.current += singleWidth
         if (bubblesOffsetRef.current > 0) bubblesOffsetRef.current -= singleWidth
@@ -2360,24 +2369,28 @@ function ReparacionPage() {
   const galleryRow2Ref = useRef<HTMLDivElement>(null)
   const galleryOffset1Ref = useRef(0)
   const galleryOffset2Ref = useRef(0)
-  const GALLERY_SPEED = 0.5
+  const GALLERY_PX_PER_SEC = 30 // pixels per second (time-based)
 
   useEffect(() => {
     if (galleryPhotos.length === 0) return
     let running = true
-    const tick = () => {
+    let lastTime = 0
+    const tick = (now: number) => {
       if (!running) return
+      if (lastTime === 0) lastTime = now
+      const delta = (now - lastTime) / 1000
+      lastTime = now
       const row1 = galleryRow1Ref.current
       const row2 = galleryRow2Ref.current
       if (row1) {
         const singleWidth = row1.scrollWidth / 3
-        galleryOffset1Ref.current -= GALLERY_SPEED
+        galleryOffset1Ref.current -= GALLERY_PX_PER_SEC * delta
         if (galleryOffset1Ref.current <= -singleWidth) galleryOffset1Ref.current += singleWidth
         row1.style.transform = `translateX(${galleryOffset1Ref.current}px)`
       }
       if (row2) {
         const singleWidth = row2.scrollWidth / 3
-        galleryOffset2Ref.current += GALLERY_SPEED
+        galleryOffset2Ref.current += GALLERY_PX_PER_SEC * delta
         if (galleryOffset2Ref.current >= 0) galleryOffset2Ref.current -= singleWidth
         row2.style.transform = `translateX(${galleryOffset2Ref.current}px)`
       }
@@ -2611,7 +2624,7 @@ function SemiNuevosPage() {
 
   const displayProducts = shuffledProducts
 
-  // Auto-scroll: continuously scroll the container using requestAnimationFrame
+  // Auto-scroll: continuously scroll the container using requestAnimationFrame (time-based)
   // Pauses when user touches/drags, resumes 1.5s after release
   useEffect(() => {
     if (loading || displayProducts.length === 0) return
@@ -2622,10 +2635,14 @@ function SemiNuevosPage() {
       // Start from the first-third position so user can scroll backwards too
       const oneThird = el.scrollWidth / 3
       el.scrollLeft = oneThird
-      const speed = 1.25 // px per frame (~75px/sec) - 25% faster
-      const tick = () => {
+      const SEMI_PX_PER_SEC = 75 // pixels per second (time-based)
+      let lastTime = 0
+      const tick = (now: number) => {
+        if (lastTime === 0) lastTime = now
+        const delta = (now - lastTime) / 1000
+        lastTime = now
         if (!semiUserInteracting.current && el) {
-          el.scrollLeft += speed
+          el.scrollLeft += SEMI_PX_PER_SEC * delta
           // When past 2/3 of total width, jump back to 1/3 (seamless loop)
           const twoThirds = el.scrollWidth * 2 / 3
           if (el.scrollLeft >= twoThirds) {
