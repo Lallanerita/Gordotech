@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, Query, Header, Request
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -283,13 +283,14 @@ async def verify_token(token: str) -> str:
         raise HTTPException(status_code=401, detail="Token invalido o expirado")
 
 async def get_current_admin(
+    request: Request,
     token: Optional[str] = Query(None),
-    authorization: Optional[str] = Header(None),
 ):
     """Get admin from Authorization header (preferred) or query param token (legacy)."""
     jwt_token = None
-    if authorization and authorization.startswith("Bearer "):
-        jwt_token = authorization[7:]
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        jwt_token = auth_header[7:]
     elif token:
         jwt_token = token
     if not jwt_token:
