@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin, Star, MessageSquare, Camera } from 'lucide-react'
+import { resolveColor } from './lib/colors'
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gordotech-api.fly.dev'
 
@@ -7,40 +8,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://gordotech-api.fly.dev'
 function resolveUploadUrl(url: string): string {
   if (url.startsWith('http://') || url.startsWith('https://')) return url
   return `${API_URL}${url}`
-}
-
-const COLOR_MAP: Record<string, string> = {
-  negro: '#000000', blanco: '#FFFFFF', azul: '#0047AB', rojo: '#FF0000',
-  verde: '#008000', amarillo: '#FFD700', naranja: '#FF8C00', rosa: '#FF69B4',
-  morado: '#800080', gris: '#808080', plata: '#C0C0C0', oro: '#FFD700',
-  dorado: '#DAA520', celeste: '#87CEEB', turquesa: '#40E0D0', beige: '#F5F5DC',
-  crema: '#FFFDD0', coral: '#FF7F50', lavanda: '#E6E6FA', marron: '#8B4513',
-  bronce: '#CD7F32', titanio: '#878681', grafito: '#383838', medianoche: '#191970',
-  'azul ultramar': '#120A8F', 'verde menta': '#98FF98', 'rosa pastel': '#FFD1DC',
-  natural: '#D2B48C', desierto: '#EDC9AF',
-  // Apple compound color names
-  'naranja cosmico': '#FF6723', 'naranja cósmico': '#FF6723',
-  'azul oscuro': '#003366', 'azul pacifico': '#1A73E8', 'azul pacífico': '#1A73E8',
-  'azul sierra': '#69ABCE', 'azul alpino': '#394F6A',
-  'verde alpino': '#3B5323', 'verde oliva': '#556B2F',
-  'rosa chicle': '#FF6EB4', 'rosa fuerte': '#FF1493',
-  'titanio natural': '#B5A898', 'titanio negro': '#3C3C3C',
-  'titanio blanco': '#F5F5F0', 'titanio azul': '#394F6A',
-  'titanio desierto': '#C8AD8B', 'titanio arena': '#C2B280',
-  'negro espacial': '#1D1D1D', 'gris espacial': '#4A4A4A',
-  'oro rosa': '#B76E79', 'blanco estelar': '#F8F0E5', 'luz estelar': '#F8F0E5',
-  'negro medianoche': '#191970', 'rojo producto': '#FF0000',
-  teal: '#008080', ultramarina: '#120A8F', ultramarino: '#120A8F',
-}
-
-function resolveColor(color: string): string {
-  const trimmed = color.trim().toLowerCase()
-  if (COLOR_MAP[trimmed]) return COLOR_MAP[trimmed]
-  const normalized = trimmed.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  if (COLOR_MAP[normalized]) return COLOR_MAP[normalized]
-  const firstWord = trimmed.split(/\s+/)[0]
-  if (COLOR_MAP[firstWord]) return COLOR_MAP[firstWord]
-  return color
 }
 
 type Variant = {
@@ -196,17 +163,17 @@ function getTabFromPath(): Tab {
 // ==================== API HELPERS ====================
 
 async function apiGet(path: string, token: string) {
-  const sep = path.includes('?') ? '&' : '?'
-  const res = await fetch(`${API_URL}${path}${sep}token=${token}`)
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
   if (!res.ok) throw new Error(`Error ${res.status}`)
   return res.json()
 }
 
 async function apiPost(path: string, body: Record<string, unknown>, token: string) {
-  const sep = path.includes('?') ? '&' : '?'
-  const res = await fetch(`${API_URL}${path}${sep}token=${token}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Error ${res.status}`)
@@ -214,10 +181,9 @@ async function apiPost(path: string, body: Record<string, unknown>, token: strin
 }
 
 async function apiPut(path: string, body: Record<string, unknown>, token: string) {
-  const sep = path.includes('?') ? '&' : '?'
-  const res = await fetch(`${API_URL}${path}${sep}token=${token}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Error ${res.status}`)
@@ -225,8 +191,10 @@ async function apiPut(path: string, body: Record<string, unknown>, token: string
 }
 
 async function apiDelete(path: string, token: string) {
-  const sep = path.includes('?') ? '&' : '?'
-  const res = await fetch(`${API_URL}${path}${sep}token=${token}`, { method: 'DELETE' })
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
   if (!res.ok) throw new Error(`Error ${res.status}`)
   return res.json()
 }
@@ -234,8 +202,9 @@ async function apiDelete(path: string, token: string) {
 async function apiUpload(file: File, token: string) {
   const form = new FormData()
   form.append('file', file)
-  const res = await fetch(`${API_URL}/api/admin/upload?token=${token}`, {
+  const res = await fetch(`${API_URL}/api/admin/upload`, {
     method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
     body: form,
   })
   if (!res.ok) throw new Error(`Error ${res.status}`)
