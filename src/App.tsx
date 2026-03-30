@@ -2205,6 +2205,35 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
               ))}
             </div>
 
+            {/* CTA */}
+            <div className="text-center mb-10">
+              <button
+                onClick={() => setShowCitySelect(!showCitySelect)}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                Consultar Plan Retoma
+              </button>
+              {showCitySelect && (
+                <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <a href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
+                  </a>
+                  <a href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
+                  </a>
+                  <a href="https://wa.me/573213815465?text=Hola%20Clinica%20de%20Celulares%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
+                  </a>
+                </div>
+              )}
+            </div>
+
             {/* Requirements */}
             <div className="max-w-3xl mx-auto">
               <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
@@ -2247,35 +2276,6 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
                   </span>
                 </div>
               </div>
-            </div>
-
-            {/* CTA */}
-            <div className="text-center mt-10">
-              <button
-                onClick={() => setShowCitySelect(!showCitySelect)}
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-              >
-                Consultar Plan Retoma
-              </button>
-              {showCitySelect && (
-                <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
-                  <a href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
-                    <div className="text-left"><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
-                  </a>
-                  <a href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
-                    <div className="text-left"><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
-                  </a>
-                  <a href="https://wa.me/573213815465?text=Hola%20Clinica%20de%20Celulares%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
-                    <div className="text-left"><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
-                  </a>
-                </div>
-              )}
             </div>
           </div>
         </section>
