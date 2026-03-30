@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin, Star, MessageSquare, Camera } from 'lucide-react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'https://gordotech-api.fly.dev'
+
+/** Resolve upload URL: if it's already absolute (R2), use as-is; otherwise prefix API_URL */
+function resolveUploadUrl(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return `${API_URL}${url}`
+}
 
 const COLOR_MAP: Record<string, string> = {
   negro: '#000000', blanco: '#FFFFFF', azul: '#0047AB', rojo: '#FF0000',
@@ -328,7 +334,7 @@ function ImageUploader({ token, currentImage, onUpload }: { token: string; curre
     setUploading(true)
     try {
       const data = await apiUpload(file, token)
-      onUpload(`${API_URL}${data.url}`)
+      onUpload(resolveUploadUrl(data.url))
     } catch {
       alert('Error subiendo imagen')
     } finally {
@@ -372,7 +378,7 @@ function MultiImageUploader({ token, images, onChange }: { token: string; images
       const newUrls: string[] = []
       for (let i = 0; i < files.length; i++) {
         const data = await apiUpload(files[i], token)
-        newUrls.push(`${API_URL}${data.url}`)
+        newUrls.push(resolveUploadUrl(data.url))
       }
       onChange([...images, ...newUrls])
     } catch {
@@ -439,7 +445,7 @@ function ColorImageUploader({ token, color, onUpload }: { token: string; color: 
     setUploading(true)
     try {
       const data = await apiUpload(file, token)
-      onUpload(`${API_URL}${data.url}`)
+      onUpload(resolveUploadUrl(data.url))
     } catch {
       alert('Error subiendo imagen')
     } finally {
