@@ -23,7 +23,7 @@ function getModel3DUrl(product: { name: string; model_3d?: string }): string | n
   return null
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://app-dskimxia.fly.dev'
+const API_URL = import.meta.env.VITE_API_URL || 'https://gordotech-api.fly.dev'
 
 // Resolve image URLs - prefix API_URL for relative /uploads/ paths
 function resolveImageUrl(url: string): string {
