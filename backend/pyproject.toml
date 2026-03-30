@@ -15,6 +15,7 @@ python-jose = {extras = ["cryptography"], version = "^3.5.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 bcrypt = "^5.0.0"
 pillow = "^12.1.1"
+boto3 = "^1.42.79"
 
 
 [build-system]

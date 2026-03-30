@@ -15,6 +15,7 @@ from jose import jwt, JWTError
 import bcrypt as bcrypt_lib
 
 from app.database import get_db, init_db, seed_default_data, DB_PATH
+from app.storage import upload_file, is_r2_enabled, UPLOAD_DIR
 
 app = FastAPI()
 
@@ -32,11 +33,7 @@ SECRET_KEY = os.environ.get("JWT_SECRET", "gordotech-secret-key-2024-change-in-p
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 
-# Upload directory
-UPLOAD_DIR = "/data/uploads" if os.path.exists("/data") else "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# Mount uploads as static files
+# Mount uploads as static files (local fallback when R2 is not configured)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # ==================== STARTUP ====================
@@ -45,6 +42,12 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 async def startup():
     await init_db()
     await seed_default_data()
+    import logging
+    logger = logging.getLogger(__name__)
+    if is_r2_enabled():
+        logger.info("Cloudflare R2 storage is ENABLED - images will be stored in R2")
+    else:
+        logger.info("Cloudflare R2 storage is NOT configured - using local filesystem storage")
 
 # ==================== MODELS ====================
 
@@ -1588,13 +1591,10 @@ async def upload_image(file: UploadFile = File(...), username: str = Depends(get
     except Exception:
         pass  # If cropping fails, use original image
     
-    filename = f"{uuid.uuid4().hex}{ext}"
-    filepath = os.path.join(UPLOAD_DIR, filename)
+    url = upload_file(content, ext)
+    filename = url.split("/")[-1]
     
-    with open(filepath, "wb") as f:
-        f.write(content)
-    
-    return {"url": f"/uploads/{filename}", "filename": filename}
+    return {"url": url, "filename": filename}
 
 # ==================== ADMIN STATS ====================
 
