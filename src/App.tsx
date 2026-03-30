@@ -641,7 +641,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   )
 }
 
-function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
+function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const navigate = useNavigate()
   const city = 'duitama' as City
   const socials = CITY_SOCIALS[city]
@@ -650,10 +650,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('gordotech_theme')
-    return saved ? saved === 'dark' : false
-  })
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
@@ -1156,17 +1152,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   }, [productSlug, productId, apiProducts, scrollToTop, buildProductFromApi])
 
   const cityName = 'Duitama'
-
-  // Apply theme class to root element
-  useEffect(() => {
-    const root = document.documentElement
-    if (isDarkMode) {
-      root.classList.remove('light-mode')
-    } else {
-      root.classList.add('light-mode')
-    }
-    localStorage.setItem('gordotech_theme', isDarkMode ? 'dark' : 'light')
-  }, [isDarkMode])
 
   // Update page title and meta tags for SEO + Open Graph
   useEffect(() => {
@@ -2161,13 +2146,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 }
 
 // Plan Retoma - separate page
-function PlanRetomaPage() {
+function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const [showCitySelect, setShowCitySelect] = useState(false)
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -2300,7 +2285,7 @@ function PlanRetomaPage() {
 }
 
 // Reparacion - separate page
-function ReparacionPage() {
+function ReparacionPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const city = 'duitama' as City
   const socials = CITY_SOCIALS[city]
@@ -2308,21 +2293,6 @@ function ReparacionPage() {
   const [galleryPhotos, setGalleryPhotos] = useState<{ id: number; image: string; caption: string }[]>([])
   const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
   useEffect(() => { window.scrollTo(0, 0) }, [])
-
-  // Theme management - read from localStorage (same as Store)
-  const [isDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('gordotech_theme')
-    return saved ? saved === 'dark' : false
-  })
-
-  useEffect(() => {
-    const root = document.documentElement
-    if (isDarkMode) {
-      root.classList.remove('light-mode')
-    } else {
-      root.classList.add('light-mode')
-    }
-  }, [isDarkMode])
 
   useEffect(() => {
     const loadServices = async () => {
@@ -2565,7 +2535,7 @@ function ReparacionPage() {
 }
 
 // Semi Nuevos - separate page
-function SemiNuevosPage() {
+function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const [semiProducts, setSemiProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -2684,7 +2654,7 @@ function SemiNuevosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -3066,7 +3036,7 @@ function ReviewsMarquee({ reviews, googleUrl, rating, count }: { reviews: Sucurs
   )
 }
 
-function SucursalesPage() {
+function SucursalesPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const [sucursales, setSucursales] = useState<Sucursal[]>([])
   const [loading, setLoading] = useState(true)
@@ -3267,7 +3237,7 @@ function SucursalesPage() {
 }
 
 // Category page - shows all products of a specific category
-function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
+function CategoryPage({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [allProducts, setAllProducts] = useState<Product[]>(products)
@@ -3440,17 +3410,17 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
   )
 }
 
-function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
+function ProductPageWrapper({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const { id, slug } = useParams<{ id: string; slug: string }>()
   const location = useLocation()
   const initialProduct = (location.state as { product?: Product })?.product
-  return <Store onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} />
+  return <Store onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 }
 
 // Legacy slug-only wrapper for backwards compatibility
-function ProductPageWrapperLegacy({ onAdminClick }: { onAdminClick: () => void }) {
+function ProductPageWrapperLegacy({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const { slug } = useParams<{ slug: string }>()
-  return <Store onAdminClick={onAdminClick} productSlug={slug} />
+  return <Store onAdminClick={onAdminClick} productSlug={slug} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 }
 
 function PopupOverlay() {
@@ -3535,6 +3505,22 @@ function PopupOverlay() {
 function App() {
   const [showAdmin, setShowAdmin] = useState(false)
 
+  // Global theme management - persists across all pages and refreshes
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('gordotech_theme')
+    return saved ? saved === 'dark' : false
+  })
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (isDarkMode) {
+      root.classList.remove('light-mode')
+    } else {
+      root.classList.add('light-mode')
+    }
+    localStorage.setItem('gordotech_theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
+
   // Keyboard shortcut: Ctrl+Shift+A to toggle admin panel
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -3562,14 +3548,14 @@ function App() {
     <>
       <PopupOverlay />
       <Routes>
-        <Route path="/plan-retoma" element={<PlanRetomaPage />} />
-        <Route path="/reparacion" element={<ReparacionPage />} />
-        <Route path="/semi-nuevos" element={<SemiNuevosPage />} />
-        <Route path="/sucursales" element={<SucursalesPage />} />
-        <Route path="/categoria/:slug" element={<CategoryPage onAdminClick={() => setShowAdmin(true)} />} />
-        <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
-        <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
-        <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
+        <Route path="/plan-retoma" element={<PlanRetomaPage isDarkMode={isDarkMode} />} />
+        <Route path="/reparacion" element={<ReparacionPage isDarkMode={isDarkMode} />} />
+        <Route path="/semi-nuevos" element={<SemiNuevosPage isDarkMode={isDarkMode} />} />
+        <Route path="/sucursales" element={<SucursalesPage isDarkMode={isDarkMode} />} />
+        <Route path="/categoria/:slug" element={<CategoryPage onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
+        <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
+        <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
+        <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
       </Routes>
     </>
   )
