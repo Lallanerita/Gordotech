@@ -23,13 +23,26 @@ function getModel3DUrl(product: { name: string; model_3d?: string }): string | n
   return null
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://app-dskimxia.fly.dev'
+const API_URL = import.meta.env.VITE_API_URL || 'https://gordotech-api.fly.dev'
 
 // Resolve image URLs - prefix API_URL for relative /uploads/ paths
 function resolveImageUrl(url: string): string {
   if (!url) return url
   if (url.startsWith('/uploads/')) return `${API_URL}${url}`
   return url
+}
+
+// Reliable fallback images for category bubbles (used when API/upload images fail)
+const BUBBLE_FALLBACK_IMAGES: Record<string, string> = {
+  'todos': 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop',
+  'iphones': 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop',
+  'ipads': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop',
+  'macbook': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop',
+  'airpods': 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop',
+  'apple watch': 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop',
+  'apple-watch': 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop',
+  'accesorios': 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=300&h=300&fit=crop',
+  'samsung': 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop',
 }
 
 // Preload images in background for instant display
@@ -355,26 +368,26 @@ const semiUsados = [
   { id: 115, name: 'iPhone 15 Pro', storageOptions: ['128GB', '256GB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
   { id: 116, name: 'iPhone 15 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#4A4A4A'] },
   // iPhone 16 Series
-  { id: 117, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 118, name: 'iPhone 16 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 119, name: 'iPhone 16 Pro', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
-  { id: 120, name: 'iPhone 16 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  { id: 117, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 118, name: 'iPhone 16 Plus', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 119, name: 'iPhone 16 Pro', storageOptions: ['128GB', '256GB', '512GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
+  { id: 120, name: 'iPhone 16 Pro Max', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#E3D0B9', '#F5F5DC'] },
   // iPhone 17 Series
-  { id: 121, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
-  { id: 122, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
-  { id: 123, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
-  { id: 124, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 121, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 122, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 123, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB', '1TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 124, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
 ]
 
 // Product data - Nuevos iPhones
 const nuevos = [
   { id: 201, name: 'iPhone 14', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#E3D0B9', '#F28B82'] },
   { id: 202, name: 'iPhone 15', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1696446702183-cbd13d78e1e7?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#F28B82', '#AECBFA'] },
-  { id: 203, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
-  { id: 204, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
-  { id: 205, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
-  { id: 206, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
-  { id: 207, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 203, name: 'iPhone 16', storageOptions: ['128GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#000000', '#AECBFA', '#F5F5DC'] },
+  { id: 204, name: 'iPhone 17', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC'] },
+  { id: 205, name: 'iPhone Air', storageOptions: ['256GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#F5F5DC', '#87CEEB'] },
+  { id: 206, name: 'iPhone 17 Pro', storageOptions: ['256GB', '512GB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
+  { id: 207, name: 'iPhone 17 Pro Max', storageOptions: ['256GB', '512GB', '1TB', '2TB'], image: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80', colors: ['#1C1C1E', '#4A4A4A', '#F5F5DC'] },
 ]
 
 // Product data - iPads Nuevas
@@ -402,8 +415,8 @@ const airpods = [
 
 // Product data - Apple Watch
 const appleWatches = [
-  { id: 601, name: 'Apple Watch SE2', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
-  { id: 602, name: 'Apple Watch SE3', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
+  { id: 601, name: 'Apple Watch SE2', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
+  { id: 602, name: 'Apple Watch SE3', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
   { id: 603, name: 'Apple Watch Series 10', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#E8D0AA'] },
   { id: 604, name: 'Apple Watch Series 11', storageOptions: ['42mm', '46mm'], image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80', colors: ['#C0C0C0', '#1C1C1E', '#4A4A4A'] },
   { id: 605, name: 'Apple Watch Ultra 2', storageOptions: ['49mm'], image: 'https://images.unsplash.com/photo-1694618432450-44056bd70e87?w=400&h=500&fit=crop&q=80', colors: ['#E8D0AA', '#1C1C1E'] },
@@ -755,7 +768,7 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   )
 }
 
-function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product }) {
+function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; productSlug?: string; productId?: string; initialProduct?: Product; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const navigate = useNavigate()
   const city = 'duitama' as City
   const socials = CITY_SOCIALS[city]
@@ -764,10 +777,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [activeCondition, setActiveCondition] = useState<string>('todos')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('gordotech_theme')
-    return saved ? saved === 'dark' : false
-  })
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [zoomOpen, setZoomOpen] = useState(false)
@@ -786,13 +795,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([])
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [modelBubbles, setModelBubbles] = useState<{id: string; label: string; image: string}[]>([
-    { id: 'todos', label: 'Todos', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop' },
-    { id: 'iphones', label: 'iPhones', image: 'https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop' },
-    { id: 'ipads', label: 'iPads', image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop' },
-    { id: 'macbook', label: 'MacBook', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop' },
-    { id: 'airpods', label: 'AirPods', image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop' },
-    { id: 'apple watch', label: 'Apple Watch', image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop' },
-    { id: 'accesorios', label: 'Accesorios', image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=300&h=300&fit=crop' },
+    { id: 'todos', label: 'Todos', image: BUBBLE_FALLBACK_IMAGES['todos'] },
+    { id: 'iphones', label: 'iPhones', image: BUBBLE_FALLBACK_IMAGES['iphones'] },
+    { id: 'ipads', label: 'iPads', image: BUBBLE_FALLBACK_IMAGES['ipads'] },
+    { id: 'macbook', label: 'MacBook', image: BUBBLE_FALLBACK_IMAGES['macbook'] },
+    { id: 'airpods', label: 'AirPods', image: BUBBLE_FALLBACK_IMAGES['airpods'] },
+    { id: 'apple watch', label: 'Apple Watch', image: BUBBLE_FALLBACK_IMAGES['apple watch'] },
+    { id: 'accesorios', label: 'Accesorios', image: BUBBLE_FALLBACK_IMAGES['accesorios'] },
   ])
   const [apiRepairServices, setApiRepairServices] = useState(repairServices)
 
@@ -1004,11 +1013,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     loadData()
   }, [city])
 
-  // Trending carousel auto-scroll with translateX
+  // Trending carousel auto-scroll with translateX (time-based for consistent speed)
   useEffect(() => {
     const track = trendingTrackRef.current
     if (!track || trendingProducts.length === 0) return
     let running = true
+    let lastTime = 0
+    const TRENDING_PX_PER_SEC = 30 // pixels per second
     // Measure half width after render
     const measure = () => {
       if (track.scrollWidth > 0) {
@@ -1018,10 +1029,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
     measure()
     // Re-measure after images load
     const timer = setTimeout(measure, 1000)
-    const animate = () => {
+    const animate = (now: number) => {
       if (!running) return
+      if (lastTime === 0) lastTime = now
+      const delta = (now - lastTime) / 1000
+      lastTime = now
       if (!trendingDragging.current && trendingHalfWidth.current > 0) {
-        trendingOffset.current += 0.5
+        trendingOffset.current += TRENDING_PX_PER_SEC * delta
         if (trendingOffset.current >= trendingHalfWidth.current) {
           trendingOffset.current -= trendingHalfWidth.current
         }
@@ -1038,18 +1052,22 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   const bubblesOffsetRef = useRef(0)
   const bubblesDragRef = useRef<{ active: boolean; startX: number; startOffset: number; moved: boolean }>({ active: false, startX: 0, startOffset: 0, moved: false })
   const bubblesRafRef = useRef<number>(0)
-  const BUBBLES_SPEED = 1.02
+  const BUBBLES_PX_PER_SEC = 60 // pixels per second (time-based, consistent across all refresh rates)
 
   useEffect(() => {
     if (modelBubbles.length === 0) return
     let running = true
-    const tick = () => {
+    let lastTime = 0
+    const tick = (now: number) => {
       if (!running) return
+      if (lastTime === 0) lastTime = now
+      const delta = (now - lastTime) / 1000 // seconds since last frame
+      lastTime = now
       const track = bubblesTrackRef.current
       if (track) {
         const singleWidth = track.scrollWidth / 3
         if (!bubblesDragRef.current.active) {
-          bubblesOffsetRef.current -= BUBBLES_SPEED
+          bubblesOffsetRef.current -= BUBBLES_PX_PER_SEC * delta
         }
         if (bubblesOffsetRef.current <= -singleWidth) bubblesOffsetRef.current += singleWidth
         if (bubblesOffsetRef.current > 0) bubblesOffsetRef.current -= singleWidth
@@ -1261,17 +1279,6 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
   }, [productSlug, productId, apiProducts, scrollToTop, buildProductFromApi])
 
   const cityName = 'Duitama'
-
-  // Apply theme class to root element
-  useEffect(() => {
-    const root = document.documentElement
-    if (isDarkMode) {
-      root.classList.remove('light-mode')
-    } else {
-      root.classList.add('light-mode')
-    }
-    localStorage.setItem('gordotech_theme', isDarkMode ? 'dark' : 'light')
-  }, [isDarkMode])
 
   // Update page title and meta tags for SEO + Open Graph
   useEffect(() => {
@@ -1592,7 +1599,15 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                       decoding="async"
                       draggable={false}
                       className="w-full h-full object-cover transition-all duration-300"
-                      onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}` }}
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement
+                        const fallback = BUBBLE_FALLBACK_IMAGES[model.id] || BUBBLE_FALLBACK_IMAGES[model.id.toLowerCase()]
+                        if (fallback && img.src !== fallback) {
+                          img.src = fallback
+                        } else {
+                          img.src = `https://placehold.co/300x300/1a1a2e/7BA3C9/png?text=${encodeURIComponent(model.label)}`
+                        }
+                      }}
                     />
                   </div>
                 </div>
@@ -2304,7 +2319,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
 }
 
 // Plan Retoma - separate page
-function PlanRetomaPage() {
+function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const [showCitySelect, setShowCitySelect] = useState(false)
   useEffect(() => { window.scrollTo(0, 0) }, [])
@@ -2339,7 +2354,7 @@ function PlanRetomaPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -2472,7 +2487,7 @@ function PlanRetomaPage() {
 }
 
 // Reparacion - separate page
-function ReparacionPage() {
+function ReparacionPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const city = 'duitama' as City
   const socials = CITY_SOCIALS[city]
@@ -2519,22 +2534,6 @@ function ReparacionPage() {
       }
     ]
   })
-
-  // Theme management - read from localStorage (same as Store)
-  const [isDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('gordotech_theme')
-    return saved ? saved === 'dark' : false
-  })
-
-  useEffect(() => {
-    const root = document.documentElement
-    if (isDarkMode) {
-      root.classList.remove('light-mode')
-    } else {
-      root.classList.add('light-mode')
-    }
-  }, [isDarkMode])
-
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -2580,24 +2579,28 @@ function ReparacionPage() {
   const galleryRow2Ref = useRef<HTMLDivElement>(null)
   const galleryOffset1Ref = useRef(0)
   const galleryOffset2Ref = useRef(0)
-  const GALLERY_SPEED = 0.5
+  const GALLERY_PX_PER_SEC = 30 // pixels per second (time-based)
 
   useEffect(() => {
     if (galleryPhotos.length === 0) return
     let running = true
-    const tick = () => {
+    let lastTime = 0
+    const tick = (now: number) => {
       if (!running) return
+      if (lastTime === 0) lastTime = now
+      const delta = (now - lastTime) / 1000
+      lastTime = now
       const row1 = galleryRow1Ref.current
       const row2 = galleryRow2Ref.current
       if (row1) {
         const singleWidth = row1.scrollWidth / 3
-        galleryOffset1Ref.current -= GALLERY_SPEED
+        galleryOffset1Ref.current -= GALLERY_PX_PER_SEC * delta
         if (galleryOffset1Ref.current <= -singleWidth) galleryOffset1Ref.current += singleWidth
         row1.style.transform = `translateX(${galleryOffset1Ref.current}px)`
       }
       if (row2) {
         const singleWidth = row2.scrollWidth / 3
-        galleryOffset2Ref.current += GALLERY_SPEED
+        galleryOffset2Ref.current += GALLERY_PX_PER_SEC * delta
         if (galleryOffset2Ref.current >= 0) galleryOffset2Ref.current -= singleWidth
         row2.style.transform = `translateX(${galleryOffset2Ref.current}px)`
       }
@@ -2772,7 +2775,7 @@ function ReparacionPage() {
 }
 
 // Semi Nuevos - separate page
-function SemiNuevosPage() {
+function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const [semiProducts, setSemiProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -2855,7 +2858,7 @@ function SemiNuevosPage() {
 
   const displayProducts = shuffledProducts
 
-  // Auto-scroll: continuously scroll the container using requestAnimationFrame
+  // Auto-scroll: continuously scroll the container using requestAnimationFrame (time-based)
   // Pauses when user touches/drags, resumes 1.5s after release
   useEffect(() => {
     if (loading || displayProducts.length === 0) return
@@ -2866,10 +2869,14 @@ function SemiNuevosPage() {
       // Start from the first-third position so user can scroll backwards too
       const oneThird = el.scrollWidth / 3
       el.scrollLeft = oneThird
-      const speed = 1.25 // px per frame (~75px/sec) - 25% faster
-      const tick = () => {
+      const SEMI_PX_PER_SEC = 75 // pixels per second (time-based)
+      let lastTime = 0
+      const tick = (now: number) => {
+        if (lastTime === 0) lastTime = now
+        const delta = (now - lastTime) / 1000
+        lastTime = now
         if (!semiUserInteracting.current && el) {
-          el.scrollLeft += speed
+          el.scrollLeft += SEMI_PX_PER_SEC * delta
           // When past 2/3 of total width, jump back to 1/3 (seamless loop)
           const twoThirds = el.scrollWidth * 2 / 3
           if (el.scrollLeft >= twoThirds) {
@@ -2911,7 +2918,7 @@ function SemiNuevosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg shadow-lg shadow-black/20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -3293,7 +3300,7 @@ function ReviewsMarquee({ reviews, googleUrl, rating, count }: { reviews: Sucurs
   )
 }
 
-function SucursalesPage() {
+function SucursalesPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const [sucursales, setSucursales] = useState<Sucursal[]>([])
   const [loading, setLoading] = useState(true)
@@ -3532,7 +3539,7 @@ function SucursalesPage() {
 }
 
 // Category page - shows all products of a specific category
-function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
+function CategoryPage({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [allProducts, setAllProducts] = useState<Product[]>(products)
@@ -3745,17 +3752,17 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
   )
 }
 
-function ProductPageWrapper({ onAdminClick }: { onAdminClick: () => void }) {
+function ProductPageWrapper({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const { id, slug } = useParams<{ id: string; slug: string }>()
   const location = useLocation()
   const initialProduct = (location.state as { product?: Product })?.product
-  return <Store onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} />
+  return <Store onAdminClick={onAdminClick} productSlug={slug} productId={id} initialProduct={initialProduct} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 }
 
 // Legacy slug-only wrapper for backwards compatibility
-function ProductPageWrapperLegacy({ onAdminClick }: { onAdminClick: () => void }) {
+function ProductPageWrapperLegacy({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClick: () => void; isDarkMode: boolean; setIsDarkMode: (v: boolean) => void }) {
   const { slug } = useParams<{ slug: string }>()
-  return <Store onAdminClick={onAdminClick} productSlug={slug} />
+  return <Store onAdminClick={onAdminClick} productSlug={slug} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 }
 
 function PopupOverlay() {
@@ -3840,6 +3847,22 @@ function PopupOverlay() {
 function App() {
   const [showAdmin, setShowAdmin] = useState(false)
 
+  // Global theme management - persists across all pages and refreshes
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('gordotech_theme')
+    return saved ? saved === 'dark' : false
+  })
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (isDarkMode) {
+      root.classList.remove('light-mode')
+    } else {
+      root.classList.add('light-mode')
+    }
+    localStorage.setItem('gordotech_theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
+
   // Keyboard shortcut: Ctrl+Shift+A to toggle admin panel
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -3867,14 +3890,14 @@ function App() {
     <>
       <PopupOverlay />
       <Routes>
-        <Route path="/plan-retoma" element={<PlanRetomaPage />} />
-        <Route path="/reparacion" element={<ReparacionPage />} />
-        <Route path="/semi-nuevos" element={<SemiNuevosPage />} />
-        <Route path="/sucursales" element={<SucursalesPage />} />
-        <Route path="/categoria/:slug" element={<CategoryPage onAdminClick={() => setShowAdmin(true)} />} />
-        <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} />} />
-        <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} />} />
-        <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} />} />
+        <Route path="/plan-retoma" element={<PlanRetomaPage isDarkMode={isDarkMode} />} />
+        <Route path="/reparacion" element={<ReparacionPage isDarkMode={isDarkMode} />} />
+        <Route path="/semi-nuevos" element={<SemiNuevosPage isDarkMode={isDarkMode} />} />
+        <Route path="/sucursales" element={<SucursalesPage isDarkMode={isDarkMode} />} />
+        <Route path="/categoria/:slug" element={<CategoryPage onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
+        <Route path="/producto/:id/:slug" element={<ProductPageWrapper onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
+        <Route path="/producto/:slug" element={<ProductPageWrapperLegacy onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
+        <Route path="*" element={<Store onAdminClick={() => setShowAdmin(true)} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
       </Routes>
     </>
   )

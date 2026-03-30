@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Play, Film, MapPin, Star, MessageSquare, Camera } from 'lucide-react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'https://gordotech-api.fly.dev'
+
+/** Resolve upload URL: if it's already absolute (R2), use as-is; otherwise prefix API_URL */
+function resolveUploadUrl(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return `${API_URL}${url}`
+}
 
 const COLOR_MAP: Record<string, string> = {
   negro: '#000000', blanco: '#FFFFFF', azul: '#0047AB', rojo: '#FF0000',
@@ -328,7 +334,7 @@ function ImageUploader({ token, currentImage, onUpload }: { token: string; curre
     setUploading(true)
     try {
       const data = await apiUpload(file, token)
-      onUpload(`${API_URL}${data.url}`)
+      onUpload(resolveUploadUrl(data.url))
     } catch {
       alert('Error subiendo imagen')
     } finally {
@@ -372,7 +378,7 @@ function MultiImageUploader({ token, images, onChange }: { token: string; images
       const newUrls: string[] = []
       for (let i = 0; i < files.length; i++) {
         const data = await apiUpload(files[i], token)
-        newUrls.push(`${API_URL}${data.url}`)
+        newUrls.push(resolveUploadUrl(data.url))
       }
       onChange([...images, ...newUrls])
     } catch {
@@ -439,7 +445,7 @@ function ColorImageUploader({ token, color, onUpload }: { token: string; color: 
     setUploading(true)
     try {
       const data = await apiUpload(file, token)
-      onUpload(`${API_URL}${data.url}`)
+      onUpload(resolveUploadUrl(data.url))
     } catch {
       alert('Error subiendo imagen')
     } finally {
@@ -1240,6 +1246,17 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const restoreBubbleImages = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiPost('/api/admin/bubbles/restore-images', {}, token)
+      setBubbles(data.bubbles)
+      alert(`${data.message}`)
+    } catch {
+      alert('Error al restaurar imágenes')
+    }
+  }, [token])
+
   const loadServices = useCallback(async () => {
     if (!token) return
     try {
@@ -1626,9 +1643,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
           <div className="space-y-5 md:space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>BURBUJAS DE MODELOS ({bubbles.length})</h2>
-              <button onClick={() => setEditingBubble('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
-                <Plus className="w-5 h-5" /> Nueva Burbuja
-              </button>
+              <div className="flex gap-2">
+                <button onClick={restoreBubbleImages} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
+                  Restaurar Imágenes
+                </button>
+                <button onClick={() => setEditingBubble('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
+                  <Plus className="w-5 h-5" /> Nueva Burbuja
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">

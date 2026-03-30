@@ -383,7 +383,7 @@ async def seed_default_data():
         else:
             bubbles = [
                 ("todos", "Todos", "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop", 0),
-                ("iphones", "iPhones", "https://images.unsplash.com/photo-1710023038956-3dce1ef3ac38?w=300&h=300&fit=crop", 1),
+                ("iphones", "iPhones", "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop", 1),
                 ("ipads", "iPads", "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop", 2),
                 ("macbook", "MacBook", "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop", 3),
                 ("airpods", "AirPods", "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop", 4),

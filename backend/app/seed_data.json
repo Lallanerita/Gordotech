@@ -800,42 +800,42 @@
       "id": 1,
       "model_id": "iphones",
       "label": "iPhones",
-      "image": "https://app-dskimxia.fly.dev/uploads/a12d1b9b8af1428c9a0b8debc2611f56.png",
+      "image": "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop",
       "sort_order": 1
     },
     {
       "id": 2,
       "model_id": "ipads",
       "label": "iPads",
-      "image": "https://app-dskimxia.fly.dev/uploads/458d6e1f374c43058646a5f8d455cbf4.png",
+      "image": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop",
       "sort_order": 2
     },
     {
       "id": 3,
       "model_id": "macbook",
       "label": "MacBook",
-      "image": "https://app-dskimxia.fly.dev/uploads/abe7b2ae197649dc87cec843a4f93201.png",
+      "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop",
       "sort_order": 3
     },
     {
       "id": 4,
       "model_id": "airpods",
       "label": "AirPods",
-      "image": "https://app-dskimxia.fly.dev/uploads/9a27fa66c9ff40f68af4fe9f61e76948.png",
+      "image": "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&h=300&fit=crop",
       "sort_order": 4
     },
     {
       "id": 5,
       "model_id": "apple watch",
       "label": "Apple Watch",
-      "image": "https://app-dskimxia.fly.dev/uploads/75931f981126480189aa4312404d7b37.png",
+      "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=300&h=300&fit=crop",
       "sort_order": 5
     },
     {
       "id": 6,
       "model_id": "accesorios",
       "label": "Accesorios",
-      "image": "https://app-dskimxia.fly.dev/uploads/8e1f335786b444db8ae7462d2011e8b8.png",
+      "image": "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=300&h=300&fit=crop",
       "sort_order": 6
     }
   ],
