@@ -1247,9 +1247,20 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       setBubbles(data.bubbles)
       alert(`${data.message}`)
     } catch {
-      alert('Error al restaurar imágenes')
+      alert('Error al restaurar imágenes de burbujas')
     }
   }, [token])
+
+  const restoreProductImages = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiPost('/api/admin/products/restore-images', {}, token)
+      await loadProducts()
+      alert(`${data.message}`)
+    } catch {
+      alert('Error al restaurar imágenes de productos')
+    }
+  }, [token, loadProducts])
 
   const loadServices = useCallback(async () => {
     if (!token) return
@@ -1481,9 +1492,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
           <div className="space-y-5 md:space-y-6">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>PRODUCTOS ({products.length})</h2>
-              <button onClick={() => setEditingProduct('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
-                <Plus className="w-5 h-5" /> Nuevo Producto
-              </button>
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={restoreProductImages} className="flex items-center gap-2 px-4 py-2.5 md:px-5 md:py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
+                  Restaurar Imágenes
+                </button>
+                <button onClick={() => setEditingProduct('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
+                  <Plus className="w-5 h-5" /> Nuevo Producto
+                </button>
+              </div>
             </div>
 
             {/* Filters */}

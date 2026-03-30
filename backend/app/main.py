@@ -860,6 +860,16 @@ async def admin_delete_bubble(bubble_id: int, username: str = Depends(get_curren
     finally:
         await db.close()
 
+PRODUCT_DEFAULT_IMAGES = {
+    "iphones": "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80",
+    "ipads": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=500&fit=crop&q=80",
+    "macbook": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=500&fit=crop&q=80",
+    "airpods": "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=500&fit=crop&q=80",
+    "apple-watch": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80",
+    "accesorios": "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=500&fit=crop&q=80",
+    "samsung": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&h=500&fit=crop&q=80",
+}
+
 BUBBLE_DEFAULT_IMAGES = {
     "todos": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop",
     "iphones": "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=300&h=300&fit=crop",
@@ -891,6 +901,35 @@ async def admin_restore_bubble_images(username: str = Depends(get_current_admin)
         cursor = await db.execute("SELECT * FROM model_bubbles ORDER BY sort_order ASC")
         rows = await cursor.fetchall()
         return {"message": f"{updated} burbujas actualizadas", "bubbles": [row_to_bubble(r) for r in rows]}
+    finally:
+        await db.close()
+
+@app.post("/api/admin/products/restore-images")
+async def admin_restore_product_images(username: str = Depends(get_current_admin)):
+    db = await aiosqlite.connect(DB_PATH)
+    db.row_factory = aiosqlite.Row
+    try:
+        cursor = await db.execute("SELECT * FROM products")
+        rows = await cursor.fetchall()
+        updated = 0
+        for row in rows:
+            image_url = row["image"] or ""
+            is_broken = "fly.dev/uploads/" in image_url or not image_url.strip()
+            if is_broken:
+                category = (row["category"] or "").lower().strip()
+                fallback = PRODUCT_DEFAULT_IMAGES.get(category, "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=500&fit=crop&q=80")
+                await db.execute(
+                    "UPDATE products SET image = ? WHERE id = ?",
+                    (fallback, row["id"])
+                )
+                updated += 1
+        await db.commit()
+        cursor = await db.execute("SELECT * FROM products ORDER BY id ASC")
+        rows = await cursor.fetchall()
+        products_list = []
+        for r in rows:
+            products_list.append(await row_to_product(r, db))
+        return {"message": f"{updated} productos actualizados con imágenes de respaldo", "count": updated}
     finally:
         await db.close()
 

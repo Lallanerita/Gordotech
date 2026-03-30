@@ -45,6 +45,17 @@ const BUBBLE_FALLBACK_IMAGES: Record<string, string> = {
   'samsung': 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop',
 }
 
+// Reliable fallback images for product cards (used when API/upload images fail)
+const PRODUCT_FALLBACK_IMAGES: Record<string, string> = {
+  'iphones': 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400&h=500&fit=crop&q=80',
+  'ipads': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=500&fit=crop&q=80',
+  'macbook': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=500&fit=crop&q=80',
+  'airpods': 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=500&fit=crop&q=80',
+  'apple-watch': 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=500&fit=crop&q=80',
+  'accesorios': 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=500&fit=crop&q=80',
+  'samsung': 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&h=500&fit=crop&q=80',
+}
+
 // Preload images in background for instant display
 const _preloadCache = new Set<string>()
 function preloadImages(urls: string[]) {
@@ -1497,21 +1508,21 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                                     <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                                       <Heart className="w-4 h-4 text-gray-300" />
                                     </div>
-                                    <img src={product.image} alt={product.name} loading={idx < 4 ? 'eager' : 'lazy'} decoding="async" fetchPriority={idx < 4 ? 'high' : 'auto'} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
-                                  </div>
-                                  <div className="p-3 md:p-4">
-                                    <p className="text-xs text-blue-400 font-medium mb-1">{displayCondition(product.condition)}</p>
-                    <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                    <div className="flex flex-wrap items-center gap-1 mb-2">
-                      {product.storageOptions.map((s, i) => (
-                              <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
-                            ))}
-                      {product.colors.length > 0 && <span className="mx-0.5" />}
-                      {product.colors.map((color, i) => (
-                        <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
-                      ))}
-                          </div>
-                          {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
+                                    <img src={product.image} alt={product.name} loading={idx < 4 ? 'eager' : 'lazy'} decoding="async" fetchPriority={idx < 4 ? 'high' : 'auto'} className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }}                     onError={(e) => { const img = e.target as HTMLImageElement; img.parentElement?.classList.remove('img-shimmer'); const fallback = PRODUCT_FALLBACK_IMAGES[product.category || '']; if (fallback && img.src !== fallback) { img.src = fallback; } else { img.src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}`; } }} />
+                                                      </div>
+                                                      <div className="p-3 md:p-4">
+                                                        <p className="text-xs text-blue-400 font-medium mb-1">{displayCondition(product.condition)}</p>
+                                        <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                                        <div className="flex flex-wrap items-center gap-1 mb-2">
+                                          {product.storageOptions.map((s, i) => (
+                                                  <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
+                                                ))}
+                                          {product.colors.length > 0 && <span className="mx-0.5" />}
+                                          {product.colors.map((color, i) => (
+                                            <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                                          ))}
+                                              </div>
+                                              {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
                             <div className="mb-1">
                               {!minV && product.oldPrice && product.oldPrice !== '-' && (
                                 <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
@@ -1557,25 +1568,25 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                 <button key={`t-${idx}`} onClick={() => { if (!trendingClickBlocked.current) selectProduct(product) }} className="w-44 md:w-56 lg:w-64 flex-shrink-0 group text-left bg-white/5 rounded-2xl border border-white/5 overflow-hidden hover:border-amber-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5">
                   <div className="relative aspect-square bg-gray-900/50 p-3 flex items-center justify-center img-shimmer">
                     <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" /> Trending</div>
-                    <img src={product.image} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
-                  </div>
-                  <div className="p-3">
-                    <p className={`text-[10px] font-medium mb-0.5 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
-                    <h4 className="text-xs md:text-sm font-bold text-white mb-1 line-clamp-2">{product.name}</h4>
-                    <div className="flex flex-wrap items-center gap-1 mb-1.5">
-                      {product.storageOptions.slice(0, 2).map((s, i) => (
-                        <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[8px] text-gray-400">{s}</span>
-                      ))}
-                      {product.colors.slice(0, 3).map((color, i) => (
-                        <div key={`c${i}`} className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
-                      ))}
-                    </div>
-                    {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
-                      <div className="mb-0.5">
-                        {!minV && product.oldPrice && product.oldPrice !== '-' && (
-                          <p className="text-[9px] text-red-400 line-through">$ {product.oldPrice}</p>
-                        )}
-                        <p className="text-sm md:text-base font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
+                    <img src={product.image} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 pointer-events-none"                   onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { const img = e.target as HTMLImageElement; img.parentElement?.classList.remove('img-shimmer'); const fallback = PRODUCT_FALLBACK_IMAGES[product.category || '']; if (fallback && img.src !== fallback) { img.src = fallback; } else { img.src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}`; } }} />
+                                    </div>
+                                    <div className="p-3">
+                                      <p className={`text-[10px] font-medium mb-0.5 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
+                                      <h4 className="text-xs md:text-sm font-bold text-white mb-1 line-clamp-2">{product.name}</h4>
+                                      <div className="flex flex-wrap items-center gap-1 mb-1.5">
+                                        {product.storageOptions.slice(0, 2).map((s, i) => (
+                                          <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[8px] text-gray-400">{s}</span>
+                                        ))}
+                                        {product.colors.slice(0, 3).map((color, i) => (
+                                          <div key={`c${i}`} className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                                        ))}
+                                      </div>
+                                      {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
+                                        <div className="mb-0.5">
+                                          {!minV && product.oldPrice && product.oldPrice !== '-' && (
+                                            <p className="text-[9px] text-red-400 line-through">$ {product.oldPrice}</p>
+                                          )}
+                                          <p className="text-sm md:text-base font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
                       </div>
                     ) : product.condition !== 'Semi-usado' ? (
                       <p className="text-[10px] text-blue-400 font-medium flex items-center gap-1 mb-0.5"><MessageCircle className="w-2.5 h-2.5" /> Consultar</p>
@@ -1911,7 +1922,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct }: { onAdm
                             <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                               <Heart className="w-4 h-4 text-gray-300" />
                             </div>
-                            <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
+                            <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onError={(e) => { const img = e.target as HTMLImageElement; const fallback = PRODUCT_FALLBACK_IMAGES[product.category || '']; if (fallback && img.src !== fallback) { img.src = fallback; } else { img.src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}`; } }} />
                           </div>
                           <div className="p-3 md:p-4">
                             <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
@@ -3383,39 +3394,39 @@ function CategoryPage({ onAdminClick }: { onAdminClick: () => void }) {
                     <div className={`absolute ${product.badge ? 'top-12' : 'top-3'} right-3 z-10 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                       <Heart className="w-4 h-4 text-gray-300" />
                     </div>
-                    <img src={product.image} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer'); (e.target as HTMLImageElement).src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}` }} />
-                  </div>
-                  <div className="p-3 md:p-4">
-                    <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
-                    <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
-                    <div className="flex flex-wrap items-center gap-1 mb-2">
-                      {product.storageOptions.map((s, i) => (
-                        <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
-                      ))}
-                      {product.colors.length > 0 && <span className="mx-0.5" />}
-                      {product.colors.map((color, i) => (
-                        <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
-                      ))}
-                    </div>
-                    {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
-                      <div className="mb-1">
-                        {!minV && product.oldPrice && product.oldPrice !== '-' && (
-                          <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
-                        )}
-                        <p className="text-base md:text-lg font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
-                      </div>
-                    ) : product.condition !== 'Semi-usado' ? (
-                      <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
-                    ) : null })()}
-                    <div className="flex flex-wrap gap-x-2">
-                      {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
-                        <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
-                      ))}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+                                <img src={product.image} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" onLoad={(e) => { (e.target as HTMLImageElement).parentElement?.classList.remove('img-shimmer') }} onError={(e) => { const img = e.target as HTMLImageElement; img.parentElement?.classList.remove('img-shimmer'); const fallback = PRODUCT_FALLBACK_IMAGES[product.category || '']; if (fallback && img.src !== fallback) { img.src = fallback; } else { img.src = `https://placehold.co/400x400/1a1a2e/7BA3C9/png?text=${encodeURIComponent(product.name)}`; } }} />
+                              </div>
+                              <div className="p-3 md:p-4">
+                                <p className={`text-xs font-medium mb-1 ${product.condition === 'Nuevo' ? 'text-blue-400' : 'text-amber-400'}`}>{displayCondition(product.condition)}</p>
+                                <h4 className="text-sm md:text-base font-bold text-white mb-1.5 line-clamp-2">{product.name}</h4>
+                                <div className="flex flex-wrap items-center gap-1 mb-2">
+                                  {product.storageOptions.map((s, i) => (
+                                    <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-gray-400">{s}</span>
+                                  ))}
+                                  {product.colors.length > 0 && <span className="mx-0.5" />}
+                                  {product.colors.map((color, i) => (
+                                    <div key={`c${i}`} className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: resolveColor(color) }} />
+                                  ))}
+                                </div>
+                                {(() => { const minV = getMinVariantPrice(product); const displayPrice = minV ? minV.price : product.price; const showDesde = minV?.hasMultiple; return product.condition !== 'Semi-usado' && displayPrice && displayPrice !== '-' ? (
+                                  <div className="mb-1">
+                                    {!minV && product.oldPrice && product.oldPrice !== '-' && (
+                                      <p className="text-[10px] text-red-400 line-through">$ {product.oldPrice}</p>
+                                    )}
+                                    <p className="text-base md:text-lg font-bold text-white">{showDesde ? 'Desde ' : ''}$ {displayPrice}</p>
+                                  </div>
+                                ) : product.condition !== 'Semi-usado' ? (
+                                  <p className="text-xs text-blue-400 font-medium flex items-center gap-1 mb-1"><MessageCircle className="w-3 h-3" /> Consultar Precio</p>
+                                ) : null })()}
+                                <div className="flex flex-wrap gap-x-2">
+                                  {(['duitama', 'tunja'] as const).filter(c => product.available.includes(c)).map(c => (
+                                    <p key={c} className="text-[10px] text-green-400 font-medium flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {c === 'duitama' ? 'Duitama' : 'Tunja'}</p>
+                                  ))}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
           )}
         </div>
       </div>
