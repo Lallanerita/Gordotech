@@ -2119,6 +2119,13 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
     document.title = 'Plan Retoma iPhone | Gordotech - Cambia tu iPhone por uno nuevo'
     const meta = document.querySelector('meta[name="description"]')
     if (meta) meta.setAttribute('content', 'Trae tu iPhone usado y recibe descuento en uno nuevo. Plan Retoma disponible en Duitama y Tunja. Aceptamos desde iPhone 12 en adelante.')
+    // Update canonical URL for this page
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/plan-retoma')
+    // Update OG URL
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/plan-retoma')
   }, [])
 
   return (
@@ -2267,6 +2274,11 @@ function ReparacionPage({ isDarkMode }: { isDarkMode: boolean }) {
     document.title = 'Centro de Reparaciones Apple | Gordotech - Reparacion iPhone, iPad, Mac en Duitama'
     const meta = document.querySelector('meta[name="description"]')
     if (meta) meta.setAttribute('content', 'Servicio tecnico especializado Apple en Duitama. Reparacion de pantalla, bateria, Face ID para iPhone, iPad y Mac. Garantia en todas las reparaciones.')
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/reparacion')
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/reparacion')
   }, [])
 
   useEffect(() => {
@@ -2525,6 +2537,11 @@ function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
     document.title = 'iPhone Semi-Nuevos | Gordotech - iPhones usados garantizados en Duitama y Tunja'
     const meta = document.querySelector('meta[name="description"]')
     if (meta) meta.setAttribute('content', 'Compra iPhones semi-nuevos con garantia en Duitama y Tunja. Equipos verificados y probados. Precios accesibles con garantia Gordotech.')
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/semi-nuevos')
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/semi-nuevos')
   }, [])
 
   useEffect(() => {
@@ -3027,6 +3044,11 @@ function SucursalesPage({ isDarkMode }: { isDarkMode: boolean }) {
     document.title = 'Sucursales Gordotech | Tiendas Apple en Duitama, Tunja y Clinica de Celulares'
     const meta = document.querySelector('meta[name="description"]')
     if (meta) meta.setAttribute('content', 'Encuentra tu tienda Gordotech mas cercana. Sucursales en Duitama, Tunja y Clinica de Celulares. Horarios, direcciones, resenas de Google y contacto WhatsApp.')
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/sucursales')
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/sucursales')
     const load = async () => {
       try {
         const res = await fetch(`${API_URL}/api/sucursales`)
@@ -3240,6 +3262,11 @@ function CategoryPage({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClic
     document.title = `${categoryLabel} | Gordotech - Tienda Apple en Duitama y Tunja`
     const meta = document.querySelector('meta[name="description"]')
     if (meta) meta.setAttribute('content', `Compra ${categoryLabel} en Gordotech. Productos Apple nuevos y semi-nuevos con garantia en Duitama y Tunja. Los mejores precios en ${categoryLabel}.`)
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', `https://gordotech.co/categoria/${slug}`)
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', `https://gordotech.co/categoria/${slug}`)
     const loadProducts = async () => {
       try {
         const res = await fetch(`${API_URL}/api/products?city=duitama`)
