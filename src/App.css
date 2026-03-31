@@ -390,6 +390,139 @@ button, a, [role="button"], input, select, textarea {
 /* --- Badge colors stay the same (blue, green, amber) --- */
 /* These are intentionally NOT overridden so they remain vibrant */
 
+/* ============================================================
+   ADMIN PANEL - Light mode overrides
+   ============================================================ */
+
+/* Additional gray backgrounds used in admin panel */
+.light-mode .bg-gray-900\/40 {
+  background-color: rgba(248, 249, 250, 0.6) !important;
+}
+
+.light-mode .bg-gray-800 {
+  background-color: #f1f3f5 !important;
+}
+
+.light-mode .bg-gray-800\/30 {
+  background-color: rgba(241, 243, 245, 0.3) !important;
+}
+
+.light-mode .bg-gray-800\/10 {
+  background-color: rgba(241, 243, 245, 0.4) !important;
+}
+
+.light-mode .bg-gray-500\/20 {
+  background-color: rgba(156, 163, 175, 0.15) !important;
+}
+
+/* Admin form inputs & selects */
+.light-mode input.bg-gray-800\/50,
+.light-mode textarea.bg-gray-800\/50,
+.light-mode select.bg-gray-800\/50 {
+  background-color: #f9fafb !important;
+  color: #1a1a2e !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Admin toggle buttons (active state keeps color, inactive gets light bg) */
+.light-mode .bg-gray-800\/50 {
+  background-color: rgba(241, 243, 245, 0.5) !important;
+}
+
+/* Admin text colors that should adapt */
+.light-mode .text-blue-300 {
+  color: #2563eb !important;
+}
+
+.light-mode .text-green-300 {
+  color: #16a34a !important;
+}
+
+.light-mode .text-purple-300 {
+  color: #7c3aed !important;
+}
+
+.light-mode .text-red-300 {
+  color: #dc2626 !important;
+}
+
+/* Admin delete confirmation modal */
+.light-mode .bg-black\/50 {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Hover on text that goes from gray to red/blue */
+.light-mode .hover\:text-red-400:hover {
+  color: #dc2626 !important;
+}
+
+.light-mode .hover\:text-blue-400:hover {
+  color: #2563eb !important;
+}
+
+/* Admin modal overlays */
+.light-mode .bg-black\/70 {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Variant form inputs (bg-gray-900/50) */
+.light-mode input.bg-gray-900\/50,
+.light-mode select.bg-gray-900\/50 {
+  background-color: #f9fafb !important;
+  color: #1a1a2e !important;
+}
+
+/* Select option elements for readability */
+.light-mode select option {
+  background-color: #ffffff;
+  color: #1a1a2e;
+}
+
+/* Admin stat cards - keep their color tints but adapt text */
+.light-mode .text-yellow-400 {
+  color: #d97706 !important;
+}
+
+/* Image placeholder fallback backgrounds */
+.light-mode .bg-gray-800.rounded-xl,
+.light-mode .bg-gray-800.rounded-full {
+  background-color: #e5e7eb !important;
+}
+
+/* Sucursal card gradient overlay - keep dark for text readability */
+.light-mode .bg-gradient-to-t.from-black\/70 {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent) !important;
+}
+
+/* Keep white text on dark overlays */
+.light-mode .bg-gradient-to-t.from-black\/70 .text-white,
+.light-mode .bg-red-500\/80 .text-white,
+.light-mode .bg-blue-500\/80 .text-white {
+  color: #ffffff !important;
+}
+
+/* Blue button text stays white in light mode */
+.light-mode .bg-blue-500 .text-white,
+.light-mode .bg-blue-500.text-white,
+.light-mode .bg-blue-600.text-white,
+.light-mode .bg-green-600.text-white,
+.light-mode .bg-red-500.text-white,
+.light-mode .bg-purple-500.text-white,
+.light-mode button.bg-blue-500,
+.light-mode button.bg-green-600,
+.light-mode button.bg-red-500 {
+  color: #ffffff !important;
+}
+
+/* Focus border colors stay the same */
+.light-mode .focus\:border-blue-500\/50:focus {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+.light-mode .focus\:border-purple-500\/50:focus {
+  border-color: rgba(147, 51, 234, 0.5) !important;
+}
+
 /* --- Loading screen --- */
 .light-mode .min-h-screen.bg-gray-950.flex {
   background-color: #ffffff !important;
