@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, Query
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -10,6 +10,8 @@ import os
 import re
 import uuid
 import shutil
+import time
+from collections import defaultdict
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 import bcrypt as bcrypt_lib
@@ -19,19 +21,35 @@ from app.storage import upload_file, is_r2_enabled, UPLOAD_DIR
 
 app = FastAPI()
 
-# Disable CORS. Do not remove this for full-stack development.
+# CORS - restricted to known origins
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "https://gordotech.co,https://www.gordotech.co,https://admin.gordotech.co,http://localhost:5173,http://localhost:4173").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # JWT Config
-SECRET_KEY = os.environ.get("JWT_SECRET", "gordotech-secret-key-2024-change-in-production")
+_jwt_secret = os.environ.get("JWT_SECRET", "")
+if not _jwt_secret:
+    import logging as _logging
+    _logging.getLogger(__name__).warning(
+        "JWT_SECRET not set! Using insecure default. Set JWT_SECRET env var in production."
+    )
+    _jwt_secret = "gordotech-secret-key-2024-change-in-production"
+SECRET_KEY = _jwt_secret
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
+
+# Rate limiting for login
+_login_attempts: dict[str, list[float]] = defaultdict(list)
+LOGIN_MAX_ATTEMPTS = 5
+LOGIN_WINDOW_SECONDS = 900  # 15 minutes
+
+# Max upload size: 10 MB
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 
 # Mount uploads as static files (local fallback when R2 is not configured)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
@@ -264,11 +282,20 @@ async def verify_token(token: str) -> str:
     except JWTError:
         raise HTTPException(status_code=401, detail="Token invalido o expirado")
 
-async def get_current_admin(authorization: str = Query(None, alias="token")):
-    """Get admin from query param token or Authorization header"""
-    if not authorization:
+async def get_current_admin(
+    request: Request,
+    token: Optional[str] = Query(None),
+):
+    """Get admin from Authorization header (preferred) or query param token (legacy)."""
+    jwt_token = None
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        jwt_token = auth_header[7:]
+    elif token:
+        jwt_token = token
+    if not jwt_token:
         raise HTTPException(status_code=401, detail="No autorizado")
-    return await verify_token(authorization)
+    return await verify_token(jwt_token)
 
 # Helper to parse row to dict
 def generate_slug(name: str) -> str:
@@ -635,14 +662,27 @@ async def get_repair_services():
 # ==================== AUTH ENDPOINTS ====================
 
 @app.post("/api/admin/login")
-async def admin_login(req: LoginRequest):
+async def admin_login(req: LoginRequest, request: Request):
+    # Rate limiting by IP
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    # Clean old attempts
+    _login_attempts[client_ip] = [t for t in _login_attempts[client_ip] if now - t < LOGIN_WINDOW_SECONDS]
+    if len(_login_attempts[client_ip]) >= LOGIN_MAX_ATTEMPTS:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Demasiados intentos. Intenta de nuevo en {LOGIN_WINDOW_SECONDS // 60} minutos."
+        )
     db = await aiosqlite.connect(DB_PATH)
     db.row_factory = aiosqlite.Row
     try:
         cursor = await db.execute("SELECT * FROM admin_users WHERE username = ?", (req.username,))
         user = await cursor.fetchone()
         if not user or not bcrypt_lib.checkpw(req.password.encode('utf-8'), user["password_hash"].encode('utf-8')):
+            _login_attempts[client_ip].append(now)
             raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+        # Successful login - clear attempts
+        _login_attempts.pop(client_ip, None)
         token = create_token(user["username"])
         return {"token": token, "username": user["username"]}
     finally:
@@ -1564,6 +1604,8 @@ async def upload_image(file: UploadFile = File(...), username: str = Depends(get
         raise HTTPException(status_code=400, detail="Solo se permiten archivos de imagen")
     
     content = await file.read()
+    if len(content) > MAX_UPLOAD_SIZE:
+        raise HTTPException(status_code=400, detail=f"Archivo demasiado grande. Maximo {MAX_UPLOAD_SIZE // (1024*1024)}MB")
     ext = os.path.splitext(file.filename or "image.jpg")[1] or ".jpg"
     
     # Auto-crop transparent padding from PNG images

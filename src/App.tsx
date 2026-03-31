@@ -114,43 +114,8 @@ const CITY_ADDRESSES: Record<'duitama' | 'tunja', { short: string; full: string 
   tunja: { short: 'CC. Unicentro, Tunja', full: 'CC. Unicentro, Entrada 1, Isla Comercial, Tunja' },
 }
 
-// Spanish color name to CSS color mapping
-const COLOR_MAP: Record<string, string> = {
-  negro: '#000000', blanco: '#FFFFFF', azul: '#0047AB', rojo: '#FF0000',
-  verde: '#008000', amarillo: '#FFD700', naranja: '#FF8C00', rosa: '#FF69B4',
-  morado: '#800080', gris: '#808080', plata: '#C0C0C0', oro: '#FFD700',
-  dorado: '#DAA520', celeste: '#87CEEB', turquesa: '#40E0D0', beige: '#F5F5DC',
-  crema: '#FFFDD0', coral: '#FF7F50', lavanda: '#E6E6FA', marron: '#8B4513',
-  bronce: '#CD7F32', titanio: '#878681', grafito: '#383838', medianoche: '#191970',
-  'azul ultramar': '#120A8F', 'verde menta': '#98FF98', 'rosa pastel': '#FFD1DC',
-  natural: '#D2B48C', desierto: '#EDC9AF',
-  // Apple compound color names
-  'naranja cosmico': '#FF6723', 'naranja cósmico': '#FF6723',
-  'azul oscuro': '#003366', 'azul pacifico': '#1A73E8', 'azul pacífico': '#1A73E8',
-  'azul sierra': '#69ABCE', 'azul alpino': '#394F6A',
-  'verde alpino': '#3B5323', 'verde oliva': '#556B2F',
-  'rosa chicle': '#FF6EB4', 'rosa fuerte': '#FF1493',
-  'titanio natural': '#B5A898', 'titanio negro': '#3C3C3C',
-  'titanio blanco': '#F5F5F0', 'titanio azul': '#394F6A',
-  'titanio desierto': '#C8AD8B', 'titanio arena': '#C2B280',
-  'negro espacial': '#1D1D1D', 'gris espacial': '#4A4A4A',
-  'oro rosa': '#B76E79', 'blanco estelar': '#F8F0E5', 'luz estelar': '#F8F0E5',
-  'negro medianoche': '#191970', 'rojo producto': '#FF0000',
-  teal: '#008080', ultramarina: '#120A8F', ultramarino: '#120A8F',
-}
-
-function resolveColor(color: string): string {
-  const trimmed = color.trim().toLowerCase()
-  // Exact match
-  if (COLOR_MAP[trimmed]) return COLOR_MAP[trimmed]
-  // Normalized (remove accents)
-  const normalized = trimmed.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  if (COLOR_MAP[normalized]) return COLOR_MAP[normalized]
-  // Try first word as base color
-  const firstWord = trimmed.split(/\s+/)[0]
-  if (COLOR_MAP[firstWord]) return COLOR_MAP[firstWord]
-  return color
-}
+// Color map imported from shared module
+import { resolveColor } from './lib/colors'
 
 function TikTokIcon({ className }: { className?: string }) {
   return (
@@ -1310,6 +1275,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
 
       document.title = titleText
       setMeta('meta[name="description"]', 'content', descText)
+      setMeta('meta[name="keywords"]', 'content', `${selectedProduct.name} Duitama, ${selectedProduct.name} Tunja, ${selectedProduct.name} Paipa, ${selectedProduct.name} Sogamoso, ${selectedProduct.name} Boyaca, comprar ${selectedProduct.name} Duitama, comprar ${selectedProduct.name} Tunja, ${selectedProduct.name} precio Colombia, ${selectedProduct.name} semi-nuevo, ${selectedProduct.name} nuevo, ${selectedProduct.name} garantia, Gordotech`)
       // Open Graph
       setMeta('meta[property="og:title"]', 'content', titleText)
       setMeta('meta[property="og:description"]', 'content', descText)
@@ -1339,7 +1305,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
 
       document.title = defaultTitle
       setMeta('meta[name="description"]', 'content', defaultDesc)
-      setMeta('meta[name="keywords"]', 'content', 'Gordotech, iPhone Duitama, iPhone Tunja, iPad Boyaca, MacBook Duitama, AirPods Tunja, Apple Watch Boyaca, tienda Apple Duitama, tienda Apple Tunja, comprar iPhone Boyaca, reparacion iPhone Duitama, iPhone semi-nuevo Tunja, accesorios Apple Colombia, plan retoma iPhone, iPhone nuevo Duitama, iPhone usado Tunja')
+      setMeta('meta[name="keywords"]', 'content', 'iPhone Duitama, iPhone Tunja, iPhone Paipa, iPhone Sogamoso, iPhone Nobsa, iPhone Santa Rosa de Viterbo, iPhone Tibasosa, iPad Duitama, iPad Tunja, MacBook Duitama, MacBook Tunja, AirPods Duitama, AirPods Tunja, Apple Watch Duitama, Apple Watch Tunja, comprar iPhone Boyaca, tienda Apple Duitama, tienda Apple Tunja, tienda Apple Boyaca, Gordotech, celulares Duitama, celulares Tunja, celulares Paipa, celulares Sogamoso, tecnologia Boyaca')
       setMeta('meta[property="og:title"]', 'content', defaultTitle)
       setMeta('meta[property="og:description"]', 'content', defaultDesc)
       setMeta('meta[property="og:image"]', 'content', defaultImage)
@@ -2322,7 +2288,21 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
 function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
   const navigate = useNavigate()
   const [showCitySelect, setShowCitySelect] = useState(false)
-  useEffect(() => { window.scrollTo(0, 0) }, [])
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    document.title = 'Plan Retoma iPhone | Gordotech - Cambia tu iPhone por uno nuevo en Duitama, Tunja y Boyaca'
+    const meta = document.querySelector('meta[name="description"]')
+    if (meta) meta.setAttribute('content', 'Trae tu iPhone usado y recibe descuento en uno nuevo. Plan Retoma disponible en Duitama, Tunja, Paipa, Sogamoso y toda Boyaca. Aceptamos desde iPhone 12 en adelante. Gordotech tu tienda Apple de confianza.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'plan retoma iPhone Duitama, plan retoma iPhone Tunja, retoma iPhone Paipa, retoma iPhone Sogamoso, cambiar iPhone Duitama, cambiar iPhone Tunja, vender iPhone Duitama, vender iPhone Tunja, vender iPhone Paipa, vender iPhone Sogamoso, iPhone usado Duitama, iPhone usado Tunja, retoma Apple Boyaca, cambio iPhone Boyaca, Gordotech retoma, retoma iPhone Nobsa, retoma iPhone Santa Rosa de Viterbo, retoma iPhone Tibasosa')
+    // Update canonical URL for this page
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/plan-retoma')
+    // Update OG URL
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/plan-retoma')
+  }, [])
 
   usePageSEO({
     title: 'Plan Retoma iPhone en Duitama y Tunja | Cambia tu iPhone por uno Mejor | Gordotech',
@@ -2407,6 +2387,35 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
               ))}
             </div>
 
+            {/* CTA */}
+            <div className="text-center mb-10">
+              <button
+                onClick={() => setShowCitySelect(!showCitySelect)}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              >
+                Consultar Plan Retoma
+              </button>
+              {showCitySelect && (
+                <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <a href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
+                  </a>
+                  <a href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
+                  </a>
+                  <a href="https://wa.me/573213815465?text=Hola%20Clinica%20de%20Celulares%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
+                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
+                    <div className="text-left"><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
+                  </a>
+                </div>
+              )}
+            </div>
+
             {/* Requirements */}
             <div className="max-w-3xl mx-auto">
               <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
@@ -2450,35 +2459,6 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
                 </div>
               </div>
             </div>
-
-            {/* CTA */}
-            <div className="text-center mt-10">
-              <button
-                onClick={() => setShowCitySelect(!showCitySelect)}
-                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-              >
-                Consultar Plan Retoma
-              </button>
-              {showCitySelect && (
-                <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
-                  <a href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
-                    <div className="text-left"><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
-                  </a>
-                  <a href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
-                    <div className="text-left"><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
-                  </a>
-                  <a href="https://wa.me/573213815465?text=Hola%20Clinica%20de%20Celulares%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
-                    <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
-                    <div className="text-left"><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
-                  </a>
-                </div>
-              )}
-            </div>
           </div>
         </section>
       </div>
@@ -2494,7 +2474,19 @@ function ReparacionPage({ isDarkMode }: { isDarkMode: boolean }) {
   const [services, setServices] = useState(repairServices)
   const [galleryPhotos, setGalleryPhotos] = useState<{ id: number; image: string; caption: string }[]>([])
   const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
-  useEffect(() => { window.scrollTo(0, 0) }, [])
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    document.title = 'Centro de Reparaciones Apple | Gordotech - Reparacion iPhone, iPad, Mac en Duitama y Boyaca'
+    const meta = document.querySelector('meta[name="description"]')
+    if (meta) meta.setAttribute('content', 'Servicio tecnico especializado Apple en Duitama. Reparacion de pantalla, bateria, Face ID para iPhone, iPad y Mac. Atendemos clientes de Tunja, Paipa, Sogamoso, Nobsa, Santa Rosa de Viterbo y Tibasosa. Garantia en todas las reparaciones.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'reparacion iPhone Duitama, reparacion iPad Duitama, reparacion MacBook Duitama, reparacion iPhone Tunja, servicio tecnico Apple Duitama, servicio tecnico Apple Tunja, reparar iPhone Paipa, reparar iPhone Sogamoso, cambio pantalla iPhone Duitama, cambio bateria iPhone Duitama, reparacion Face ID Duitama, reparacion Apple Boyaca, arreglar iPhone Duitama, arreglar iPhone Tunja, reparar celular Duitama, reparar celular Tunja, reparar celular Paipa, reparar celular Sogamoso, Gordotech reparaciones, clinica celulares Duitama')
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/reparacion')
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/reparacion')
+  }, [])
 
   usePageSEO({
     title: 'Reparacion iPhone en Duitama y Tunja | Centro de Reparacion Apple Especializado | Gordotech',
@@ -2785,7 +2777,19 @@ function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
   const semiUserInteracting = useRef(false)
   const semiDidDrag = useRef(false)
   const semiResumeTimer = useRef<ReturnType<typeof setTimeout>>(null)
-  useEffect(() => { window.scrollTo(0, 0) }, [])
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    document.title = 'iPhone Semi-Nuevos | Gordotech - iPhones usados garantizados en Duitama, Tunja y Boyaca'
+    const meta = document.querySelector('meta[name="description"]')
+    if (meta) meta.setAttribute('content', 'Compra iPhones semi-nuevos con garantia en Duitama, Tunja, Paipa, Sogamoso y toda Boyaca. Equipos verificados y probados. Precios accesibles con garantia Gordotech. Envios a Nobsa, Santa Rosa de Viterbo y Tibasosa.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'iPhone semi-nuevo Duitama, iPhone semi-nuevo Tunja, iPhone semi-nuevo Paipa, iPhone semi-nuevo Sogamoso, iPhone usado Duitama, iPhone usado Tunja, iPhone usado Paipa, iPhone usado Sogamoso, comprar iPhone barato Duitama, comprar iPhone barato Tunja, iPhone segunda mano Boyaca, iPhone garantia Duitama, iPhone garantia Tunja, celular semi-nuevo Duitama, celular semi-nuevo Tunja, iPhone economico Boyaca, Gordotech semi-nuevos, iPhone semi-nuevo Nobsa, iPhone semi-nuevo Santa Rosa de Viterbo, iPhone semi-nuevo Tibasosa')
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/semi-nuevos')
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/semi-nuevos')
+  }, [])
 
   usePageSEO({
     title: 'iPhone Semi-nuevo en Duitama y Tunja | iPhone Usado con Garantia | Gordotech',
@@ -3346,6 +3350,16 @@ function SucursalesPage({ isDarkMode }: { isDarkMode: boolean }) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    document.title = 'Sucursales Gordotech | Tiendas Apple en Duitama, Tunja, Boyaca'
+    const meta = document.querySelector('meta[name="description"]')
+    if (meta) meta.setAttribute('content', 'Encuentra tu tienda Gordotech mas cercana. Sucursales en Duitama, Tunja y Clinica de Celulares. Atendemos clientes de Paipa, Sogamoso, Nobsa, Santa Rosa de Viterbo y Tibasosa. Horarios, direcciones y contacto WhatsApp.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'tienda Apple Duitama, tienda Apple Tunja, tienda celulares Duitama, tienda celulares Tunja, Gordotech Duitama, Gordotech Tunja, sucursales Gordotech, tienda iPhone Duitama, tienda iPhone Tunja, tienda Apple Paipa, tienda Apple Sogamoso, tienda tecnologia Duitama, tienda tecnologia Tunja, clinica celulares Duitama, Apple store Boyaca, donde comprar iPhone Duitama, donde comprar iPhone Tunja, donde comprar iPhone Paipa, donde comprar iPhone Sogamoso')
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', 'https://gordotech.co/sucursales')
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/sucursales')
     const load = async () => {
       try {
         const res = await fetch(`${API_URL}/api/sucursales`)
@@ -3556,6 +3570,16 @@ function CategoryPage({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClic
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    document.title = `${categoryLabel} | Gordotech - Tienda Apple en Duitama, Tunja y Boyaca`
+    const meta = document.querySelector('meta[name="description"]')
+    if (meta) meta.setAttribute('content', `Compra ${categoryLabel} en Gordotech. Productos Apple nuevos y semi-nuevos con garantia en Duitama, Tunja, Paipa, Sogamoso y toda Boyaca. Los mejores precios en ${categoryLabel}. Envios a Nobsa, Santa Rosa de Viterbo y Tibasosa.`)
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', `${categoryLabel} Duitama, ${categoryLabel} Tunja, ${categoryLabel} Paipa, ${categoryLabel} Sogamoso, ${categoryLabel} Boyaca, comprar ${categoryLabel} Duitama, comprar ${categoryLabel} Tunja, comprar ${categoryLabel} Paipa, comprar ${categoryLabel} Sogamoso, ${categoryLabel} precio Colombia, ${categoryLabel} nuevo, ${categoryLabel} semi-nuevo, ${categoryLabel} garantia Boyaca, Gordotech ${categoryLabel}, ${categoryLabel} Nobsa, ${categoryLabel} Santa Rosa de Viterbo, ${categoryLabel} Tibasosa`)
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
+    canonical.setAttribute('href', `https://gordotech.co/categoria/${slug}`)
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', `https://gordotech.co/categoria/${slug}`)
     const loadProducts = async () => {
       try {
         const res = await fetch(`${API_URL}/api/products?city=duitama`)
@@ -3581,7 +3605,7 @@ function CategoryPage({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClic
       }
     }
     loadProducts()
-  }, [slug])
+  }, [slug, categoryLabel])
 
   const filtered = allProducts.filter(p => {
     if (activeCondition === 'nuevos' && p.condition !== 'Nuevo') return false
