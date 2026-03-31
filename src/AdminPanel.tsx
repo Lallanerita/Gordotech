@@ -122,13 +122,13 @@ type Popup = {
   sort_order: number
 }
 
-type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'gallery' | 'slideshow' | 'marquee' | 'settings' | 'sucursales' | 'resenas' | 'popups'
+type Tab = 'dashboard' | 'products' | 'bubbles' | 'services' | 'gallery' | 'slideshow' | 'marquee' | 'settings' | 'sucursales' | 'resenas' | 'popups'
 
 const TAB_PATHS: Record<string, Tab> = {
   '/': 'dashboard',
   '/dashboard': 'dashboard',
   '/productos': 'products',
-  '/categorias': 'categories',
+  '/categorias': 'bubbles',
   '/burbujas': 'bubbles',
   '/servicios': 'services',
   '/galeria-reparacion': 'gallery',
@@ -143,8 +143,7 @@ const TAB_PATHS: Record<string, Tab> = {
 const TAB_TO_PATH: Record<Tab, string> = {
   dashboard: '/dashboard',
   products: '/productos',
-  categories: '/categorias',
-  bubbles: '/burbujas',
+  bubbles: '/categorias',
   services: '/servicios',
   gallery: '/galeria-reparacion',
   slideshow: '/slideshow',
@@ -857,9 +856,10 @@ function VariantsSection({ productId, token }: { productId: number; token: strin
 
 // ==================== BUBBLE FORM ====================
 
-function BubbleForm({ bubble, token, onSave, onCancel }: {
+function BubbleForm({ bubble, token, categories, onSave, onCancel }: {
   bubble: Bubble | null
   token: string
+  categories: Category[]
   onSave: () => void
   onCancel: () => void
 }) {
@@ -874,14 +874,28 @@ function BubbleForm({ bubble, token, onSave, onCancel }: {
   const handleSave = async () => {
     setSaving(true)
     try {
+      // Save bubble
       if (bubble) {
         await apiPut(`/api/admin/bubbles/${bubble.id}`, form, token)
       } else {
         await apiPost('/api/admin/bubbles', form, token)
       }
+      // Sync category: create or update the corresponding category
+      const slug = form.model_id.toLowerCase().replace(/\s+/g, '-')
+      const categoryData = { slug, name: form.label, image: form.image, sort_order: form.sort_order }
+      const existingCat = categories.find(c => c.slug === slug || c.slug === form.model_id)
+      try {
+        if (existingCat) {
+          await apiPut(`/api/admin/categories/${existingCat.id}`, categoryData, token)
+        } else {
+          await apiPost('/api/admin/categories', categoryData, token)
+        }
+      } catch {
+        // Category sync is best-effort
+      }
       onSave()
     } catch {
-      alert('Error guardando burbuja')
+      alert('Error guardando categoria')
     } finally {
       setSaving(false)
     }
@@ -891,20 +905,20 @@ function BubbleForm({ bubble, token, onSave, onCancel }: {
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 md:p-6">
       <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg">
         <div className="flex items-center justify-between p-5 md:p-6 border-b border-white/10">
-          <h3 className="text-xl md:text-2xl font-bold text-white">{bubble ? 'Editar Burbuja' : 'Nueva Burbuja'}</h3>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{bubble ? 'Editar Categoria' : 'Nueva Categoria'}</h3>
           <button onClick={onCancel} className="text-gray-400 hover:text-white"><X className="w-6 h-6" /></button>
         </div>
         
         <div className="p-5 md:p-6 space-y-5">
           <div>
-            <label className="block text-gray-400 text-sm md:text-base mb-1.5">ID del modelo (ej: iphone 17)</label>
-            <input value={form.model_id} onChange={e => setForm({...form, model_id: e.target.value})}
-              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" />
+            <label className="block text-gray-400 text-sm md:text-base mb-1.5">Slug / ID (ej: iphones, ipads)</label>
+            <input value={form.model_id} onChange={e => setForm({...form, model_id: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" placeholder="ej: iphones, ipads, macbook" />
           </div>
           <div>
-            <label className="block text-gray-400 text-sm md:text-base mb-1.5">Etiqueta visible</label>
+            <label className="block text-gray-400 text-sm md:text-base mb-1.5">Nombre visible</label>
             <input value={form.label} onChange={e => setForm({...form, label: e.target.value})}
-              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" />
+              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" placeholder="ej: iPhones, iPads, MacBook" />
           </div>
           <div>
             <label className="block text-gray-400 text-sm md:text-base mb-1.5">Imagen</label>
@@ -1016,80 +1030,6 @@ function ServiceForm({ service, token, onSave, onCancel }: {
   )
 }
 
-// ==================== CATEGORY FORM ====================
-
-function CategoryForm({ category, token, onSave, onCancel }: {
-  category: Category | null
-  token: string
-  onSave: () => void
-  onCancel: () => void
-}) {
-  const [form, setForm] = useState({
-    slug: category?.slug || '',
-    name: category?.name || '',
-    image: category?.image || '',
-    sort_order: category?.sort_order || 0,
-  })
-  const [saving, setSaving] = useState(false)
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      if (category) {
-        await apiPut(`/api/admin/categories/${category.id}`, form, token)
-      } else {
-        await apiPost('/api/admin/categories', form, token)
-      }
-      onSave()
-    } catch {
-      alert('Error guardando categoria')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 md:p-6">
-      <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg">
-        <div className="flex items-center justify-between p-5 md:p-6 border-b border-white/10">
-          <h3 className="text-xl md:text-2xl font-bold text-white">{category ? 'Editar Categoria' : 'Nueva Categoria'}</h3>
-          <button onClick={onCancel} className="text-gray-400 hover:text-white"><X className="w-6 h-6" /></button>
-        </div>
-        
-        <div className="p-5 md:p-6 space-y-5">
-          <div>
-            <label className="block text-gray-400 text-sm md:text-base mb-1.5">Slug (identificador unico, ej: iphones)</label>
-            <input value={form.slug} onChange={e => setForm({...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
-              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" placeholder="ej: iphones, ipads, macbook" />
-          </div>
-          <div>
-            <label className="block text-gray-400 text-sm md:text-base mb-1.5">Nombre visible</label>
-            <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" placeholder="ej: iPhones, iPads, MacBook" />
-          </div>
-          <div>
-            <label className="block text-gray-400 text-sm md:text-base mb-1.5">Imagen</label>
-            <ImageUploader token={token} currentImage={form.image} onUpload={url => setForm({...form, image: url})} />
-          </div>
-          <div>
-            <label className="block text-gray-400 text-sm md:text-base mb-1.5">Orden</label>
-            <input type="number" value={form.sort_order} onChange={e => setForm({...form, sort_order: parseInt(e.target.value) || 0})}
-              className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white text-sm md:text-base focus:outline-none focus:border-blue-500/50" />
-          </div>
-        </div>
-
-        <div className="flex gap-3 p-5 md:p-6 border-t border-white/10">
-          <button onClick={onCancel} className="flex-1 py-3 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors text-sm md:text-base">Cancelar</button>
-          <button onClick={handleSave} disabled={saving || !form.slug || !form.name} className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm md:text-base font-medium flex items-center justify-center gap-2">
-            <Save className="w-5 h-5" />
-            {saving ? 'Guardando...' : 'Guardar'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ==================== MAIN ADMIN PANEL ====================
 
 export default function AdminPanel({ onExit }: { onExit: () => void }) {
@@ -1115,7 +1055,6 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   
   // Form modals
   const [editingProduct, setEditingProduct] = useState<Product | null | 'new'>(null)
-  const [editingCategory, setEditingCategory] = useState<Category | null | 'new'>(null)
   const [editingBubble, setEditingBubble] = useState<Bubble | null | 'new'>(null)
   const [editingService, setEditingService] = useState<RepairService | null | 'new'>(null)
   const [sucursales, setSucursales] = useState<Array<{id:number,name:string,slug:string,address:string,city:string,image:string,whatsapp:string,instagram:string,tiktok:string,phone:string,description:string,sort_order:number,active:boolean}>>([])  
@@ -1319,8 +1258,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     if (!deleteConfirm || !token) return
     try {
       if (deleteConfirm.type === 'product') await apiDelete(`/api/admin/products/${deleteConfirm.id}`, token)
-      if (deleteConfirm.type === 'category') await apiDelete(`/api/admin/categories/${deleteConfirm.id}`, token)
-      if (deleteConfirm.type === 'bubble') await apiDelete(`/api/admin/bubbles/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'bubble') {
+        await apiDelete(`/api/admin/bubbles/${deleteConfirm.id}`, token)
+        // Also delete the corresponding category
+        const matchingCat = categories.find(c => c.name === deleteConfirm.name)
+        if (matchingCat) {
+          try { await apiDelete(`/api/admin/categories/${matchingCat.id}`, token) } catch { /* best-effort */ }
+        }
+      }
       if (deleteConfirm.type === 'service') await apiDelete(`/api/admin/repair-services/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'slide') await apiDelete(`/api/admin/hero-slides/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'marquee') await apiDelete(`/api/admin/marquee-texts/${deleteConfirm.id}`, token)
@@ -1331,8 +1276,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       setDeleteConfirm(null)
       loadStats()
       if (deleteConfirm.type === 'product') loadProducts()
-      if (deleteConfirm.type === 'category') loadCategories()
-      if (deleteConfirm.type === 'bubble') loadBubbles()
+      if (deleteConfirm.type === 'bubble') { loadBubbles(); loadCategories() }
       if (deleteConfirm.type === 'service') loadServices()
       if (deleteConfirm.type === 'slide') loadHeroSlides()
       if (deleteConfirm.type === 'marquee') loadMarqueeTexts()
@@ -1373,8 +1317,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 className="w-5 h-5" /> },
     { id: 'products', label: 'Productos', icon: <Package className="w-5 h-5" /> },
-    { id: 'categories', label: 'Categorias', icon: <FolderOpen className="w-5 h-5" /> },
-    { id: 'bubbles', label: 'Burbujas', icon: <Circle className="w-5 h-5" /> },
+    { id: 'bubbles', label: 'Categorias', icon: <FolderOpen className="w-5 h-5" /> },
     { id: 'services', label: 'Servicios', icon: <Wrench className="w-5 h-5" /> },
     { id: 'gallery', label: 'Galeria Reparacion', icon: <Camera className="w-5 h-5" /> },
     { id: 'slideshow', label: 'Slideshow', icon: <Image className="w-5 h-5" /> },
@@ -1436,7 +1379,6 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                 { label: 'Nuevos', value: stats.new_products, color: 'green' },
                 { label: 'Semi-usados', value: stats.used_products, color: 'amber' },
                 { label: 'Categorias', value: stats.categories, color: 'cyan' },
-                { label: 'Burbujas', value: stats.bubbles, color: 'purple' },
                 { label: 'Servicios', value: stats.repair_services, color: 'rose' },
               ].map((stat, i) => (
                 <div key={i} className={`bg-${stat.color}-500/10 border border-${stat.color}-500/20 rounded-2xl p-5 md:p-6`}>
@@ -1572,60 +1514,30 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
           </div>
         )}
 
-        {/* CATEGORIES TAB */}
-        {activeTab === 'categories' && (
-          <div className="space-y-5 md:space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>CATEGORIAS ({categories.length})</h2>
-              <button onClick={() => setEditingCategory('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
-                <Plus className="w-5 h-5" /> Nueva Categoria
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
-              {categories.map(cat => (
-                <div key={cat.id} className="bg-gray-900/50 border border-white/10 rounded-2xl p-5 md:p-6 text-center group hover:border-cyan-500/30 transition-all">
-                  <img src={cat.image} alt={cat.name} className="w-24 h-24 md:w-28 md:h-28 rounded-full mx-auto object-cover bg-gray-800 mb-4" onError={e => { (e.target as HTMLImageElement).src = `https://placehold.co/112x112/1a1a2e/7BA3C9/png?text=${encodeURIComponent(cat.name.slice(0,2))}` }} />
-                  <p className="text-white text-sm md:text-base font-medium">{cat.name}</p>
-                  <p className="text-gray-500 text-xs md:text-sm mb-1">Slug: {cat.slug}</p>
-                  <p className="text-gray-500 text-xs md:text-sm mb-3">Orden: {cat.sort_order}</p>
-                  <p className="text-cyan-400 text-xs md:text-sm mb-4">{products.filter(p => p.category === cat.slug).length} productos</p>
-                  <div className="flex gap-2 justify-center">
-                    <button onClick={() => setEditingCategory(cat)} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
-                      <Edit3 className="w-4 h-4 md:w-5 md:h-5" />
-                    </button>
-                    <button onClick={() => setDeleteConfirm({ type: 'category', id: cat.id, name: cat.name })} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-red-400">
-                      <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* BUBBLES TAB */}
+        {/* CATEGORIES TAB (unified with bubbles) */}
         {activeTab === 'bubbles' && (
           <div className="space-y-5 md:space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>BURBUJAS DE MODELOS ({bubbles.length})</h2>
+              <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}>CATEGORIAS ({bubbles.length})</h2>
               <div className="flex gap-2">
                 <button onClick={restoreBubbleImages} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
-                  Restaurar Imágenes
+                  Restaurar Imagenes
                 </button>
                 <button onClick={() => setEditingBubble('new')} className="flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm md:text-base font-medium transition-colors">
-                  <Plus className="w-5 h-5" /> Nueva Burbuja
+                  <Plus className="w-5 h-5" /> Nueva Categoria
                 </button>
               </div>
             </div>
+            <p className="text-gray-400 text-sm md:text-base">Gestiona las categorias de productos. Cada categoria se muestra como burbuja en la tienda para navegacion rapida.</p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
               {bubbles.map(bubble => (
-                <div key={bubble.id} className="bg-gray-900/50 border border-white/10 rounded-2xl p-5 md:p-6 text-center group hover:border-blue-500/30 transition-all">
+                <div key={bubble.id} className="bg-gray-900/50 border border-white/10 rounded-2xl p-5 md:p-6 text-center group hover:border-cyan-500/30 transition-all">
                   <img src={bubble.image} alt={bubble.label} className="w-24 h-24 md:w-28 md:h-28 rounded-full mx-auto object-cover bg-gray-800 mb-4" onError={e => { (e.target as HTMLImageElement).src = `https://placehold.co/112x112/1a1a2e/7BA3C9/png?text=${encodeURIComponent(bubble.label.slice(0,2))}` }} />
                   <p className="text-white text-sm md:text-base font-medium">{bubble.label}</p>
-                  <p className="text-gray-500 text-xs md:text-sm mb-3">ID: {bubble.model_id}</p>
+                  <p className="text-gray-500 text-xs md:text-sm mb-1">Slug: {bubble.model_id}</p>
                   <p className="text-gray-500 text-xs md:text-sm mb-3">Orden: {bubble.sort_order}</p>
+                  <p className="text-cyan-400 text-xs md:text-sm mb-4">{products.filter(p => p.category === bubble.model_id).length} productos</p>
                   <div className="flex gap-2 justify-center">
                     <button onClick={() => setEditingBubble(bubble)} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
                       <Edit3 className="w-4 h-4 md:w-5 md:h-5" />
@@ -2465,20 +2377,12 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
         />
       )}
 
-      {editingCategory !== null && (
-        <CategoryForm
-          category={editingCategory === 'new' ? null : editingCategory}
-          token={token}
-          onSave={() => { setEditingCategory(null); loadCategories(); loadStats() }}
-          onCancel={() => setEditingCategory(null)}
-        />
-      )}
-
       {editingBubble !== null && (
         <BubbleForm
           bubble={editingBubble === 'new' ? null : editingBubble}
           token={token}
-          onSave={() => { setEditingBubble(null); loadBubbles(); loadStats() }}
+          categories={categories}
+          onSave={() => { setEditingBubble(null); loadBubbles(); loadCategories(); loadStats() }}
           onCancel={() => setEditingBubble(null)}
         />
       )}
