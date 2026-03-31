@@ -1289,20 +1289,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
             </button>
           </div>
 
-          {/* Desktop header */}
-          <div className="hidden md:flex items-center justify-between h-20">
+          {/* Desktop header - logo centered */}
+          <div className="hidden md:flex items-center justify-center h-20">
             <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-3 cursor-pointer">
               <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-12 gordotech-logo-invert" />
               <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
             </button>
-
-            <nav className="flex items-center gap-8">
-              <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80 apple-logo-invert" />Productos</a>
-              <Link to="/reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</Link>
-              <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
-              <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
-            </nav>
-
           </div>
         </div>
       </header>
