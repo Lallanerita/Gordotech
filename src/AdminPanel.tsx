@@ -163,17 +163,15 @@ function getTabFromPath(): Tab {
 // ==================== API HELPERS ====================
 
 async function apiGet(path: string, token: string) {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  })
+  const res = await fetch(`${API_URL}${path}?token=${token}`)
   if (!res.ok) throw new Error(`Error ${res.status}`)
   return res.json()
 }
 
 async function apiPost(path: string, body: Record<string, unknown>, token: string) {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${API_URL}${path}?token=${token}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Error ${res.status}`)
@@ -181,9 +179,9 @@ async function apiPost(path: string, body: Record<string, unknown>, token: strin
 }
 
 async function apiPut(path: string, body: Record<string, unknown>, token: string) {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${API_URL}${path}?token=${token}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Error ${res.status}`)
@@ -191,9 +189,8 @@ async function apiPut(path: string, body: Record<string, unknown>, token: string
 }
 
 async function apiDelete(path: string, token: string) {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${API_URL}${path}?token=${token}`, {
     method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${token}` },
   })
   if (!res.ok) throw new Error(`Error ${res.status}`)
   return res.json()
@@ -202,9 +199,8 @@ async function apiDelete(path: string, token: string) {
 async function apiUpload(file: File, token: string) {
   const form = new FormData()
   form.append('file', file)
-  const res = await fetch(`${API_URL}/api/admin/upload`, {
+  const res = await fetch(`${API_URL}/api/admin/upload?token=${token}`, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}` },
     body: form,
   })
   if (!res.ok) throw new Error(`Error ${res.status}`)
