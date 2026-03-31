@@ -1148,6 +1148,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
 
       document.title = titleText
       setMeta('meta[name="description"]', 'content', descText)
+      setMeta('meta[name="keywords"]', 'content', `${selectedProduct.name} Duitama, ${selectedProduct.name} Tunja, ${selectedProduct.name} Paipa, ${selectedProduct.name} Sogamoso, ${selectedProduct.name} Boyaca, comprar ${selectedProduct.name} Duitama, comprar ${selectedProduct.name} Tunja, ${selectedProduct.name} precio Colombia, ${selectedProduct.name} semi-nuevo, ${selectedProduct.name} nuevo, ${selectedProduct.name} garantia, Gordotech`)
       // Open Graph
       setMeta('meta[property="og:title"]', 'content', titleText)
       setMeta('meta[property="og:description"]', 'content', descText)
@@ -1177,6 +1178,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
 
       document.title = defaultTitle
       setMeta('meta[name="description"]', 'content', defaultDesc)
+      setMeta('meta[name="keywords"]', 'content', 'iPhone Duitama, iPhone Tunja, iPhone Paipa, iPhone Sogamoso, iPhone Nobsa, iPhone Santa Rosa de Viterbo, iPhone Tibasosa, iPad Duitama, iPad Tunja, MacBook Duitama, MacBook Tunja, AirPods Duitama, AirPods Tunja, Apple Watch Duitama, Apple Watch Tunja, comprar iPhone Boyaca, tienda Apple Duitama, tienda Apple Tunja, tienda Apple Boyaca, Gordotech, celulares Duitama, celulares Tunja, celulares Paipa, celulares Sogamoso, tecnologia Boyaca')
       setMeta('meta[property="og:title"]', 'content', defaultTitle)
       setMeta('meta[property="og:description"]', 'content', defaultDesc)
       setMeta('meta[property="og:image"]', 'content', defaultImage)
@@ -2116,9 +2118,11 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
   const [showCitySelect, setShowCitySelect] = useState(false)
   useEffect(() => {
     window.scrollTo(0, 0)
-    document.title = 'Plan Retoma iPhone | Gordotech - Cambia tu iPhone por uno nuevo'
+    document.title = 'Plan Retoma iPhone | Gordotech - Cambia tu iPhone por uno nuevo en Duitama, Tunja y Boyaca'
     const meta = document.querySelector('meta[name="description"]')
-    if (meta) meta.setAttribute('content', 'Trae tu iPhone usado y recibe descuento en uno nuevo. Plan Retoma disponible en Duitama y Tunja. Aceptamos desde iPhone 12 en adelante.')
+    if (meta) meta.setAttribute('content', 'Trae tu iPhone usado y recibe descuento en uno nuevo. Plan Retoma disponible en Duitama, Tunja, Paipa, Sogamoso y toda Boyaca. Aceptamos desde iPhone 12 en adelante. Gordotech tu tienda Apple de confianza.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'plan retoma iPhone Duitama, plan retoma iPhone Tunja, retoma iPhone Paipa, retoma iPhone Sogamoso, cambiar iPhone Duitama, cambiar iPhone Tunja, vender iPhone Duitama, vender iPhone Tunja, vender iPhone Paipa, vender iPhone Sogamoso, iPhone usado Duitama, iPhone usado Tunja, retoma Apple Boyaca, cambio iPhone Boyaca, Gordotech retoma, retoma iPhone Nobsa, retoma iPhone Santa Rosa de Viterbo, retoma iPhone Tibasosa')
     // Update canonical URL for this page
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
     if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
@@ -2271,9 +2275,11 @@ function ReparacionPage({ isDarkMode }: { isDarkMode: boolean }) {
   const [lightboxPhoto, setLightboxPhoto] = useState<{ image: string; caption: string } | null>(null)
   useEffect(() => {
     window.scrollTo(0, 0)
-    document.title = 'Centro de Reparaciones Apple | Gordotech - Reparacion iPhone, iPad, Mac en Duitama'
+    document.title = 'Centro de Reparaciones Apple | Gordotech - Reparacion iPhone, iPad, Mac en Duitama y Boyaca'
     const meta = document.querySelector('meta[name="description"]')
-    if (meta) meta.setAttribute('content', 'Servicio tecnico especializado Apple en Duitama. Reparacion de pantalla, bateria, Face ID para iPhone, iPad y Mac. Garantia en todas las reparaciones.')
+    if (meta) meta.setAttribute('content', 'Servicio tecnico especializado Apple en Duitama. Reparacion de pantalla, bateria, Face ID para iPhone, iPad y Mac. Atendemos clientes de Tunja, Paipa, Sogamoso, Nobsa, Santa Rosa de Viterbo y Tibasosa. Garantia en todas las reparaciones.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'reparacion iPhone Duitama, reparacion iPad Duitama, reparacion MacBook Duitama, reparacion iPhone Tunja, servicio tecnico Apple Duitama, servicio tecnico Apple Tunja, reparar iPhone Paipa, reparar iPhone Sogamoso, cambio pantalla iPhone Duitama, cambio bateria iPhone Duitama, reparacion Face ID Duitama, reparacion Apple Boyaca, arreglar iPhone Duitama, arreglar iPhone Tunja, reparar celular Duitama, reparar celular Tunja, reparar celular Paipa, reparar celular Sogamoso, Gordotech reparaciones, clinica celulares Duitama')
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
     if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
     canonical.setAttribute('href', 'https://gordotech.co/reparacion')
@@ -2534,9 +2540,11 @@ function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
   const semiResumeTimer = useRef<ReturnType<typeof setTimeout>>(null)
   useEffect(() => {
     window.scrollTo(0, 0)
-    document.title = 'iPhone Semi-Nuevos | Gordotech - iPhones usados garantizados en Duitama y Tunja'
+    document.title = 'iPhone Semi-Nuevos | Gordotech - iPhones usados garantizados en Duitama, Tunja y Boyaca'
     const meta = document.querySelector('meta[name="description"]')
-    if (meta) meta.setAttribute('content', 'Compra iPhones semi-nuevos con garantia en Duitama y Tunja. Equipos verificados y probados. Precios accesibles con garantia Gordotech.')
+    if (meta) meta.setAttribute('content', 'Compra iPhones semi-nuevos con garantia en Duitama, Tunja, Paipa, Sogamoso y toda Boyaca. Equipos verificados y probados. Precios accesibles con garantia Gordotech. Envios a Nobsa, Santa Rosa de Viterbo y Tibasosa.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'iPhone semi-nuevo Duitama, iPhone semi-nuevo Tunja, iPhone semi-nuevo Paipa, iPhone semi-nuevo Sogamoso, iPhone usado Duitama, iPhone usado Tunja, iPhone usado Paipa, iPhone usado Sogamoso, comprar iPhone barato Duitama, comprar iPhone barato Tunja, iPhone segunda mano Boyaca, iPhone garantia Duitama, iPhone garantia Tunja, celular semi-nuevo Duitama, celular semi-nuevo Tunja, iPhone economico Boyaca, Gordotech semi-nuevos, iPhone semi-nuevo Nobsa, iPhone semi-nuevo Santa Rosa de Viterbo, iPhone semi-nuevo Tibasosa')
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
     if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
     canonical.setAttribute('href', 'https://gordotech.co/semi-nuevos')
@@ -3041,9 +3049,11 @@ function SucursalesPage({ isDarkMode }: { isDarkMode: boolean }) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    document.title = 'Sucursales Gordotech | Tiendas Apple en Duitama, Tunja y Clinica de Celulares'
+    document.title = 'Sucursales Gordotech | Tiendas Apple en Duitama, Tunja, Boyaca'
     const meta = document.querySelector('meta[name="description"]')
-    if (meta) meta.setAttribute('content', 'Encuentra tu tienda Gordotech mas cercana. Sucursales en Duitama, Tunja y Clinica de Celulares. Horarios, direcciones, resenas de Google y contacto WhatsApp.')
+    if (meta) meta.setAttribute('content', 'Encuentra tu tienda Gordotech mas cercana. Sucursales en Duitama, Tunja y Clinica de Celulares. Atendemos clientes de Paipa, Sogamoso, Nobsa, Santa Rosa de Viterbo y Tibasosa. Horarios, direcciones y contacto WhatsApp.')
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', 'tienda Apple Duitama, tienda Apple Tunja, tienda celulares Duitama, tienda celulares Tunja, Gordotech Duitama, Gordotech Tunja, sucursales Gordotech, tienda iPhone Duitama, tienda iPhone Tunja, tienda Apple Paipa, tienda Apple Sogamoso, tienda tecnologia Duitama, tienda tecnologia Tunja, clinica celulares Duitama, Apple store Boyaca, donde comprar iPhone Duitama, donde comprar iPhone Tunja, donde comprar iPhone Paipa, donde comprar iPhone Sogamoso')
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
     if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
     canonical.setAttribute('href', 'https://gordotech.co/sucursales')
@@ -3259,9 +3269,11 @@ function CategoryPage({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClic
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    document.title = `${categoryLabel} | Gordotech - Tienda Apple en Duitama y Tunja`
+    document.title = `${categoryLabel} | Gordotech - Tienda Apple en Duitama, Tunja y Boyaca`
     const meta = document.querySelector('meta[name="description"]')
-    if (meta) meta.setAttribute('content', `Compra ${categoryLabel} en Gordotech. Productos Apple nuevos y semi-nuevos con garantia en Duitama y Tunja. Los mejores precios en ${categoryLabel}.`)
+    if (meta) meta.setAttribute('content', `Compra ${categoryLabel} en Gordotech. Productos Apple nuevos y semi-nuevos con garantia en Duitama, Tunja, Paipa, Sogamoso y toda Boyaca. Los mejores precios en ${categoryLabel}. Envios a Nobsa, Santa Rosa de Viterbo y Tibasosa.`)
+    const kwMeta = document.querySelector('meta[name="keywords"]')
+    if (kwMeta) kwMeta.setAttribute('content', `${categoryLabel} Duitama, ${categoryLabel} Tunja, ${categoryLabel} Paipa, ${categoryLabel} Sogamoso, ${categoryLabel} Boyaca, comprar ${categoryLabel} Duitama, comprar ${categoryLabel} Tunja, comprar ${categoryLabel} Paipa, comprar ${categoryLabel} Sogamoso, ${categoryLabel} precio Colombia, ${categoryLabel} nuevo, ${categoryLabel} semi-nuevo, ${categoryLabel} garantia Boyaca, Gordotech ${categoryLabel}, ${categoryLabel} Nobsa, ${categoryLabel} Santa Rosa de Viterbo, ${categoryLabel} Tibasosa`)
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
     if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
     canonical.setAttribute('href', `https://gordotech.co/categoria/${slug}`)
