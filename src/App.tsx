@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback, Suspense, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense, useMemo, lazy } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon } from 'lucide-react'
-import AdminPanel from './AdminPanel'
-import { lazy } from 'react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Clock, Instagram, MessageCircle, Zap, Award, X, Heart, ArrowLeft, TrendingUp, ChevronLeft, ZoomIn, Sun, Moon, Settings } from 'lucide-react'
+
+// Lazy-load heavy components that are not needed on initial page load
+const AdminPanel = lazy(() => import('./AdminPanel'))
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
 
 // Local 3D model mapping for products that have GLB files
@@ -45,16 +46,37 @@ const BUBBLE_FALLBACK_IMAGES: Record<string, string> = {
   'samsung': 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop',
 }
 
-// Preload images in background for instant display
+// Preload images in background for instant display (limited concurrency)
 const _preloadCache = new Set<string>()
-function preloadImages(urls: string[]) {
-  urls.forEach(url => {
+function preloadImages(urls: string[], priority = false) {
+  // Only preload first 6 images immediately, defer the rest
+  const immediate = priority ? urls : urls.slice(0, 6)
+  const deferred = priority ? [] : urls.slice(6)
+  immediate.forEach(url => {
     if (url && !_preloadCache.has(url)) {
       _preloadCache.add(url)
       const img = new Image()
       img.src = url
     }
   })
+  // Defer remaining images to load after initial render
+  if (deferred.length > 0) {
+    const deferFn = () => {
+      deferred.forEach(url => {
+        if (url && !_preloadCache.has(url)) {
+          _preloadCache.add(url)
+          const img = new Image()
+          img.src = url
+        }
+      })
+    }
+    // Use requestIdleCallback if available, fallback to setTimeout for older Safari
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(deferFn)
+    } else {
+      setTimeout(deferFn, 200)
+    }
+  }
 }
 
 // Apple-style scroll-triggered animation hook
@@ -478,6 +500,9 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             <img
               src={slide.image}
               alt={slide.title}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={i === 0 ? 'high' : 'auto'}
               className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
               onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
             />
@@ -3566,7 +3591,11 @@ function App() {
   }, [])
 
   if (showAdmin) {
-    return <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-gray-950 flex items-center justify-center"><div className="w-12 h-12 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" /></div>}>
+        <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
+      </Suspense>
+    )
   }
 
   return (
