@@ -61,7 +61,7 @@ function preloadImages(urls: string[], priority = false) {
   })
   // Defer remaining images to load after initial render
   if (deferred.length > 0) {
-    requestIdleCallback(() => {
+    const deferFn = () => {
       deferred.forEach(url => {
         if (url && !_preloadCache.has(url)) {
           _preloadCache.add(url)
@@ -69,7 +69,13 @@ function preloadImages(urls: string[], priority = false) {
           img.src = url
         }
       })
-    })
+    }
+    // Use requestIdleCallback if available, fallback to setTimeout for older Safari
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(deferFn)
+    } else {
+      setTimeout(deferFn, 200)
+    }
   }
 }
 
