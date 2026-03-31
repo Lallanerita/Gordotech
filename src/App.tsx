@@ -606,23 +606,6 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
       ))}
 
 
-      {/* Navigation Arrows */}
-      {slides.length > 1 && (
-        <>
-          <button
-            onClick={goPrev}
-            className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
-          >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-          <button
-            onClick={goNext}
-            className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
-          >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-        </>
-      )}
 
       {/* Bottom fade gradient for smooth transition to next section */}
       <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 z-20 pointer-events-none hero-bottom-fade" style={{ background: 'linear-gradient(to bottom, transparent, #030712)' }} />
