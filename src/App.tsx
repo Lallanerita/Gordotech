@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback, Suspense, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense, useMemo, lazy } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Sun, Moon } from 'lucide-react'
-import AdminPanel from './AdminPanel'
-import { lazy } from 'react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Clock, Instagram, MessageCircle, Zap, Award, X, Heart, ArrowLeft, TrendingUp, ChevronLeft, ZoomIn, Sun, Moon, Settings } from 'lucide-react'
+
+// Lazy-load heavy components that are not needed on initial page load
+const AdminPanel = lazy(() => import('./AdminPanel'))
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
 
 // Local 3D model mapping for products that have GLB files
@@ -45,16 +46,37 @@ const BUBBLE_FALLBACK_IMAGES: Record<string, string> = {
   'samsung': 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop',
 }
 
-// Preload images in background for instant display
+// Preload images in background for instant display (limited concurrency)
 const _preloadCache = new Set<string>()
-function preloadImages(urls: string[]) {
-  urls.forEach(url => {
+function preloadImages(urls: string[], priority = false) {
+  // Only preload first 6 images immediately, defer the rest
+  const immediate = priority ? urls : urls.slice(0, 6)
+  const deferred = priority ? [] : urls.slice(6)
+  immediate.forEach(url => {
     if (url && !_preloadCache.has(url)) {
       _preloadCache.add(url)
       const img = new Image()
       img.src = url
     }
   })
+  // Defer remaining images to load after initial render
+  if (deferred.length > 0) {
+    const deferFn = () => {
+      deferred.forEach(url => {
+        if (url && !_preloadCache.has(url)) {
+          _preloadCache.add(url)
+          const img = new Image()
+          img.src = url
+        }
+      })
+    }
+    // Use requestIdleCallback if available, fallback to setTimeout for older Safari
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(deferFn)
+    } else {
+      setTimeout(deferFn, 200)
+    }
+  }
 }
 
 // Apple-style scroll-triggered animation hook
@@ -605,6 +627,9 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
             <img
               src={slide.image}
               alt={slide.title}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={i === 0 ? 'high' : 'auto'}
               className={`absolute inset-0 w-full h-full object-cover ${i === current ? 'animate-ken-burns' : ''}`}
               onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/1200x600/0f172a/3b82f6/png?text=${encodeURIComponent(slide.title)}` }}
             />
@@ -708,23 +733,6 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
       ))}
 
 
-      {/* Navigation Arrows */}
-      {slides.length > 1 && (
-        <>
-          <button
-            onClick={goPrev}
-            className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
-          >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-          <button
-            onClick={goNext}
-            className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full items-center justify-center transition-all hover:scale-110 border border-white/10"
-          >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-        </>
-      )}
 
       {/* Bottom fade gradient for smooth transition to next section */}
       <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 z-20 pointer-events-none hero-bottom-fade" style={{ background: 'linear-gradient(to bottom, transparent, #030712)' }} />
@@ -1453,20 +1461,12 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
             </button>
           </div>
 
-          {/* Desktop header */}
-          <div className="hidden md:flex items-center justify-between h-20">
+          {/* Desktop header - logo centered */}
+          <div className="hidden md:flex items-center justify-center h-20">
             <button onClick={() => { clearProduct(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center gap-3 cursor-pointer">
               <img src="/images/gordotech-icon-white.png" alt="Gordotech - Ir al inicio" className="h-12 gordotech-logo-invert" />
               <img src="/images/gordotech-text-logo.png" alt="Gordotech" className="h-8 gordotech-logo-invert" />
             </button>
-
-            <nav className="flex items-center gap-8">
-              <a href="#productos" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"><img src="/images/apple-logo-white.png" alt="Apple" className="h-4 w-4 object-contain opacity-80 apple-logo-invert" />Productos</a>
-              <Link to="/reparacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Reparacion</Link>
-              <a href="#ubicacion" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Ubicacion</a>
-              <a href="#contacto" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Contacto</a>
-            </nav>
-
           </div>
         </div>
       </header>
@@ -3907,7 +3907,11 @@ function App() {
   }, [])
 
   if (showAdmin) {
-    return <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-gray-950 flex items-center justify-center"><div className="w-12 h-12 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" /></div>}>
+        <AdminPanel onExit={() => { setShowAdmin(false); window.location.hash = '' }} />
+      </Suspense>
+    )
   }
 
   return (
