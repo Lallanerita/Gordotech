@@ -3,6 +3,24 @@ import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-
 import './App.css'
 import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Clock, Instagram, MessageCircle, Zap, Award, X, Heart, ArrowLeft, TrendingUp, ChevronLeft, ZoomIn, Sun, Moon, Settings } from 'lucide-react'
 
+// GA4 WhatsApp click tracking
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void
+  }
+}
+function trackWhatsAppClick(city: string, page: string, product?: string) {
+  if (window.gtag) {
+    window.gtag('event', 'whatsapp_click', {
+      event_category: 'WhatsApp',
+      event_label: city,
+      city: city,
+      page_section: page,
+      product_name: product || '',
+    })
+  }
+}
+
 // Lazy-load heavy components that are not needed on initial page load
 const AdminPanel = lazy(() => import('./AdminPanel'))
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -1819,7 +1837,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
                               href={`https://wa.me/${CITY_SOCIALS[city.key].whatsappNumber}?text=${encodeURIComponent(`Hola Gordotech ${city.label}! Me interesa el ${selectedProduct.name} (${displayCondition(selectedProduct.condition)})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              onClick={() => setWhatsappCityModal(false)}
+                              onClick={() => { trackWhatsAppClick(city.label, 'producto', selectedProduct.name); setWhatsappCityModal(false) }}
                               className="flex items-center gap-4 p-4 rounded-xl bg-green-600/10 border border-green-600/20 hover:bg-green-600 hover:border-green-600 text-green-400 hover:text-white transition-all group"
                             >
                               <div className="w-12 h-12 rounded-full bg-green-500/20 group-hover:bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -1836,7 +1854,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
                             href={`https://wa.me/573213815465?text=${encodeURIComponent(`Hola Clínica de Celulares! Me interesa el ${selectedProduct.name} (${displayCondition(selectedProduct.condition)})${selectedStorage ? ` - ${selectedStorage}` : ''}${selectedColor ? ` - ${selectedColor}` : ''}. ¿Tienen disponible y cuál es el precio?`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={() => setWhatsappCityModal(false)}
+                            onClick={() => { trackWhatsAppClick('Clinica de Celulares', 'producto', selectedProduct.name); setWhatsappCityModal(false) }}
                             className="flex items-center gap-4 p-4 rounded-xl bg-green-600/10 border border-green-600/20 hover:bg-green-600 hover:border-green-600 text-green-400 hover:text-white transition-all group"
                           >
                             <div className="w-12 h-12 rounded-full bg-green-500/20 group-hover:bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -1954,7 +1972,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href={CITY_SOCIALS.duitama.whatsapp} onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href={CITY_SOCIALS.duitama.whatsapp} onClick={(e) => { e.stopPropagation(); trackWhatsAppClick('Duitama', 'sucursales_home') }} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   WhatsApp
                 </a>
                 <a href="https://www.google.com/maps/dir//Gordotech+Duitama,+Cl.+20a+%2312-32,+Solano,+Duitama,+Boyac%C3%A1/@5.8259915,-73.0301255,14z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a3fb0048fe77f:0xd1f7a4fb7101b8e8!2m2!1d-73.0317497!2d5.8320283" onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
@@ -1991,7 +2009,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
                 </div>
               </div>
               <div className="mt-6 flex gap-3">
-                <a href={CITY_SOCIALS.tunja.whatsapp} onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
+                <a href={CITY_SOCIALS.tunja.whatsapp} onClick={(e) => { e.stopPropagation(); trackWhatsAppClick('Tunja', 'sucursales_home') }} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-green-600/10 hover:bg-green-600 border border-green-600/30 hover:border-green-600 text-green-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
                   WhatsApp
                 </a>
                 <a href="https://www.google.com/maps/dir//Gordotech+Tunja,+Universitaria+39+%2377+UNICENTRO,+Tunja,+Boyac%C3%A1/@5.539294,-73.356241,13z/data=!4m8!4m7!1m0!1m5!1m1!1s0x8e6a7d74e31ea55d:0x22aa657c5e1e9dc1!2m2!1d-73.3483432!2d5.5451975" onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/30 hover:border-blue-500 text-blue-400 hover:text-white font-medium rounded-xl transition-all text-center text-sm">
@@ -2076,6 +2094,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
               href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20necesito%20información"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('Tunja', 'flotante')}
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
             >
               <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
@@ -2085,6 +2104,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
                           href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20necesito%20información"
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackWhatsAppClick('Duitama', 'flotante')}
                           className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
                         >
                           <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
@@ -2094,6 +2114,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
                           href="https://wa.me/573213815465?text=Hola%20Gordotech%20Clínica%2C%20necesito%20información"
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackWhatsAppClick('Clinica de Celulares', 'flotante')}
                           className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
                         >
                           <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
@@ -2197,16 +2218,19 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
               {showCitySelect && (
                 <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
                   <a href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppClick('Duitama', 'plan_retoma')}
                     className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
                     <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
                     <div className="text-left"><p className="text-white text-sm font-medium">Duitama</p><p className="text-gray-400 text-[10px]">Pasaje Solano Local 102</p></div>
                   </a>
                   <a href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppClick('Tunja', 'plan_retoma')}
                     className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
                     <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
                     <div className="text-left"><p className="text-white text-sm font-medium">Tunja</p><p className="text-gray-400 text-[10px]">Unicentro Isla Comercial</p></div>
                   </a>
                   <a href="https://wa.me/573213815465?text=Hola%20Clinica%20de%20Celulares%2C%20quiero%20informacion%20sobre%20el%20Plan%20Retoma" target="_blank" rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppClick('Clinica de Celulares', 'plan_retoma')}
                     className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all w-full sm:w-auto">
                     <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-7 h-7 object-contain" />
                     <div className="text-left"><p className="text-white text-sm font-medium">Clinica de Celulares</p><p className="text-gray-400 text-[10px]">San Andresito de la 18 Local 11</p></div>
@@ -2413,6 +2437,7 @@ function ReparacionPage({ isDarkMode }: { isDarkMode: boolean }) {
                 href="https://wa.me/573213815465?text=Hola%20Gordotech%20Cl%C3%ADnica%2C%20necesito%20una%20reparacion"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick('Clinica de Celulares', 'reparacion')}
                 className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl transition-all hover:scale-105 hover:shadow-lg font-semibold"
                 style={{ backgroundColor: '#34C759', color: '#ffffff' }}
               >
@@ -2743,6 +2768,7 @@ function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
                       href="https://wa.me/573219863883?text=Hola%20Gordotech%20Tunja%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackWhatsAppClick('Tunja', 'semi_nuevos')}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                     >
                       <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
@@ -2752,6 +2778,7 @@ function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
                       href="https://wa.me/573144810431?text=Hola%20Gordotech%20Duitama%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackWhatsAppClick('Duitama', 'semi_nuevos')}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
                     >
                       <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
@@ -2761,6 +2788,7 @@ function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
                       href="https://wa.me/573213815465?text=Hola%20Cl%C3%ADnica%20de%20Celulares%2C%20quiero%20consultar%20disponibilidad%20de%20iPhones%20seminuevos"
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackWhatsAppClick('Clinica de Celulares', 'semi_nuevos')}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
                     >
                       <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
@@ -3196,6 +3224,7 @@ function SucursalesPage({ isDarkMode }: { isDarkMode: boolean }) {
                           href={waUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackWhatsAppClick(s.city || s.name, 'sucursales')}
                           className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center px-2 sm:px-3 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-200 rounded-xl transition-colors text-xs font-semibold min-w-0"
                         >
                           <img src="/images/whatsapp-logo.png" alt="WhatsApp" loading="lazy" decoding="async" className="w-4 h-4 object-contain flex-shrink-0" />
