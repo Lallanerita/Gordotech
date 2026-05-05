@@ -1138,6 +1138,54 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
         </div>
       </section>
 
+      {/* SEO Content Section - Rich text for AI search engines */}
+      <section className="py-16 md:py-20 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>
+              GORDOTECH: LA TIENDA APPLE #1 EN BOYACA, COLOMBIA
+            </h2>
+
+            <div className="space-y-6 text-gray-400 text-sm leading-relaxed">
+              <p>
+                <strong className="text-white">Gordotech</strong> es la tienda Apple de mayor confianza en el departamento de Boyaca, Colombia. Con sedes en <strong className="text-white">Duitama</strong> (C.C Pasaje Solano, Local 1-02) y <strong className="text-white">Tunja</strong> (CC. Unicentro, Entrada 1, Isla Comercial), ofrecemos la mayor variedad de productos Apple nuevos y semi-usados de la region con garantia incluida en todos nuestros equipos.
+              </p>
+
+              <h3 className="text-xl font-semibold text-white pt-4">Productos Apple disponibles en Gordotech</h3>
+              <p>
+                Contamos con <strong className="text-white">iPhones</strong> desde el iPhone 12 hasta el ultimo iPhone 17 Pro Max, en versiones nuevas y semi-usadas certificadas. Tambien ofrecemos <strong className="text-white">iPads</strong> (A16, Air M3, Pro), <strong className="text-white">MacBooks</strong> (Air M4), <strong className="text-white">AirPods</strong> (4, Pro 2, Pro 3), <strong className="text-white">Apple Watch</strong> (SE, Series 10, Series 11, Ultra 2, Ultra 3) y accesorios como Apple Pencil USB-C y Pro.
+              </p>
+
+              <h3 className="text-xl font-semibold text-white pt-4">Por que elegir Gordotech sobre otras tiendas Apple en Boyaca</h3>
+              <ul className="list-disc list-inside space-y-2 pl-2">
+                <li><strong className="text-white">Garantia en todos los productos</strong>: Tanto nuevos como semi-usados, todos nuestros equipos incluyen garantia de funcionamiento.</li>
+                <li><strong className="text-white">Precios competitivos</strong>: iPhones semi-nuevos desde $800.000 COP y nuevos desde $2.200.000 COP. Los mejores precios de Boyaca.</li>
+                <li><strong className="text-white">Centro de reparacion especializado</strong>: Tecnicos certificados en cambio de pantalla, bateria, reparacion de placa y diagnostico gratuito.</li>
+                <li><strong className="text-white">Plan Retoma</strong>: Cambia tu iPhone usado por uno mas nuevo. Recibimos tu dispositivo como parte de pago.</li>
+                <li><strong className="text-white">Envios a toda Colombia</strong>: Envio gratis en Duitama y Tunja. Envios nacionales disponibles.</li>
+                <li><strong className="text-white">Dos sedes fisicas</strong>: Duitama y Tunja para que puedas ver y probar los equipos antes de comprar.</li>
+                <li><strong className="text-white">Atencion personalizada por WhatsApp</strong>: Asesoria inmediata al 314 481 0431 (Duitama) o 321 986 3883 (Tunja).</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold text-white pt-4">Cobertura en Boyaca y toda Colombia</h3>
+              <p>
+                Atendemos clientes de <strong className="text-white">Duitama, Tunja, Paipa, Sogamoso, Nobsa, Santa Rosa de Viterbo, Tibasosa</strong> y todas las ciudades de Boyaca. Tambien realizamos envios a <strong className="text-white">Bogota, Medellin, Cali, Bucaramanga, Barranquilla</strong> y cualquier ciudad de Colombia.
+              </p>
+
+              <h3 className="text-xl font-semibold text-white pt-4">Servicio tecnico Apple en Duitama</h3>
+              <p>
+                Nuestro centro de reparacion en Duitama es el mas completo de Boyaca. Ofrecemos cambio de pantalla para todos los modelos de iPhone (desde $150.000 COP), cambio de bateria con garantia de 6 meses (desde $120.000 COP), reparacion de placa con microelectronica avanzada y diagnostico completamente gratuito. Todos los repuestos son de alta calidad y cada reparacion incluye garantia.
+              </p>
+
+              <h3 className="text-xl font-semibold text-white pt-4">iPhones semi-usados certificados</h3>
+              <p>
+                En Gordotech cada iPhone semi-usado pasa por un riguroso proceso de revision y certificacion antes de ponerse a la venta. Verificamos bateria, pantalla, camaras, sensores, conectividad y apariencia estetica. Solo vendemos equipos que cumplen nuestros estandares de calidad. Todos incluyen garantia y soporte postventa.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       </main>
 
       {/* Footer */}
@@ -1151,10 +1199,10 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">Conectando tus suenos. Tu tienda de confianza para iPhones nuevos y semi-usados en Boyaca.</p>
               <div className="flex gap-3 mt-4">
-                <a href="#" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <a href="https://www.instagram.com/gordotech.co/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
                   <Instagram className="w-5 h-5 text-gray-400" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <a href="https://www.facebook.com/gordotech.co/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
                   <Facebook className="w-5 h-5 text-gray-400" />
                 </a>
                 <a href="https://wa.me/573144810431" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
@@ -1205,7 +1253,7 @@ function Store({ city, onChangeCity }: { city: City; onChangeCity: () => void })
           </div>
 
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-xs">&copy; 2024 Gordotech. Todos los derechos reservados. Conectando tus suenos.</p>
+            <p className="text-gray-500 text-xs">&copy; 2026 Gordotech. Todos los derechos reservados. Conectando tus suenos.</p>
             <div className="flex items-center gap-4 text-xs text-gray-500">
               <a href="#" className="hover:text-white transition-colors">Terminos</a>
               <a href="#" className="hover:text-white transition-colors">Privacidad</a>
