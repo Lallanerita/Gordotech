@@ -862,8 +862,9 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
             price: s.price as string,
           })))
         }
-        // Hero slides are now hardcoded in DEFAULT_HERO_SLIDES
-        // API slides ignored to keep custom banner order
+        if (slidesRes?.slides?.length) {
+          setHeroSlides(slidesRes.slides.filter((s: HeroSlide) => s.active).sort((a: HeroSlide, b: HeroSlide) => a.sort_order - b.sort_order))
+        }
         if (marqueeRes?.texts) {
           setMarqueeTexts(marqueeRes.texts.map((t: { text: string }) => t.text))
         }
