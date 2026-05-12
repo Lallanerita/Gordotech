@@ -1274,13 +1274,23 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
             <div className="space-y-3">
               {heroSlides.map(slide => (
                 <div key={slide.id} className={`bg-gray-900/50 border rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center gap-4 transition-all ${slide.active ? 'border-white/10 hover:border-blue-500/30' : 'border-white/5 opacity-60'}`}>
-                  <img src={slide.image} alt={slide.title} className="w-full md:w-40 h-24 rounded-xl object-cover bg-gray-800 flex-shrink-0" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x200/1a1a2e/7BA3C9/png?text=Sin+imagen' }} />
+                  <div className="relative w-full md:w-40 h-24 flex-shrink-0">
+                    {slide.video_url ? (
+                      <video src={slide.video_url} muted preload="metadata" className="w-full h-24 rounded-xl object-cover bg-gray-800" poster={slide.image || undefined} />
+                    ) : (
+                      <img src={slide.image} alt={slide.title} className="w-full h-24 rounded-xl object-cover bg-gray-800" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x200/1a1a2e/7BA3C9/png?text=Sin+imagen' }} />
+                    )}
+                    {slide.video_url && (
+                      <span className="absolute bottom-1 left-1 bg-blue-600/90 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">▶ VIDEO</span>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-medium truncate">{slide.title || '(Sin titulo)'}</p>
                     <p className="text-gray-400 text-sm truncate">{slide.subtitle || '(Sin subtitulo)'}</p>
-                    <div className="flex items-center gap-3 mt-1">
+                    <div className="flex flex-wrap items-center gap-3 mt-1">
                       <span className="text-gray-500 text-xs">Orden: {slide.sort_order}</span>
                       <span className="text-gray-500 text-xs">Link: {slide.link || '-'}</span>
+                      {slide.video_url && <span className="text-blue-400 text-xs">🎬 {slide.video_url.split('/').pop()}</span>}
                       <span className={`text-xs px-2 py-0.5 rounded-full ${slide.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                         {slide.active ? 'Activo' : 'Inactivo'}
                       </span>

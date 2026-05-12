@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
 import './App.css'
-import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, Truck, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2 } from 'lucide-react'
+import { MapPin, Smartphone, Wrench, Shield, Star, ChevronRight, Phone, Mail, Clock, Instagram, MessageCircle, ArrowRight, Zap, Award, X, Menu, ShoppingCart, Heart, ArrowLeft, TrendingUp, Sparkles, Settings, ChevronLeft, ZoomIn, Minus, Plus, Trash2 } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import { lazy } from 'react'
 const ProductViewer3D = lazy(() => import('./ProductViewer3D'))
@@ -139,12 +139,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=${startTime}&vq=hd1080&hd=1`
 }
 
-type MarqueeText = {
-  id: number
-  text: string
-  active: boolean
-  sort_order: number
-}
+
 
 // Cart types
 type CartItem = {
@@ -298,6 +293,7 @@ type Product = {
   description?: string
   sort_order?: number
   model_3d?: string
+  color_images?: Record<string, string>
 }
 
 function generateSlug(name: string): string {
@@ -536,17 +532,27 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
     const hasVideo = currentSlide?.video_url && isVideoUrl(currentSlide.video_url)
     if (hasVideo) {
       if (videoPlaying) {
-        // Video is playing: onEnded handles advancement, 20s fallback
         timerRef.current = setTimeout(goNext, 20000)
       } else {
-        // Video not playing yet: safety fallback after 8s in case autoplay fails
         timerRef.current = setTimeout(goNext, 8000)
       }
       return () => { if (timerRef.current) clearTimeout(timerRef.current) }
     }
-    timerRef.current = setTimeout(goNext, 13000)
+    timerRef.current = setTimeout(goNext, 8000)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [goNext, isPaused, slides.length, current, videoPlaying, slides])
+
+  // Safety: detect stuck videos (ended but didn't trigger onEnded)
+  useEffect(() => {
+    if (isPaused || slides.length <= 1) return
+    const interval = setInterval(() => {
+      const videoEl = document.querySelector(`section video[src]`) as HTMLVideoElement | null
+      if (videoEl && videoEl.ended && !videoEl.paused) {
+        goNext()
+      }
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [isPaused, slides.length, goNext])
 
   if (slides.length === 0) return null
 
