@@ -475,21 +475,17 @@ function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
     setVideoPlaying(false)
   }, [current])
 
-  // Timer: always ensure slideshow advances, never gets stuck
+  // Timer: 13s per slide (video or image), never gets stuck
   useEffect(() => {
     if (isPaused || slides.length <= 1) return
     const currentSlide = slides[current]
     const hasVideo = currentSlide?.video_url && isVideoUrl(currentSlide.video_url)
-    if (hasVideo) {
-      if (videoPlaying) {
-        // Video is playing: onEnded handles advancement, 20s fallback
-        timerRef.current = setTimeout(goNext, 20000)
-      } else {
-        // Video not playing yet: safety fallback after 8s in case autoplay fails
-        timerRef.current = setTimeout(goNext, 8000)
-      }
+    if (hasVideo && !videoPlaying) {
+      // Video not playing yet: safety fallback after 8s in case autoplay fails
+      timerRef.current = setTimeout(goNext, 8000)
       return () => { if (timerRef.current) clearTimeout(timerRef.current) }
     }
+    // 13s per slide for both video and image slides
     timerRef.current = setTimeout(goNext, 13000)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [goNext, isPaused, slides.length, current, videoPlaying, slides])
