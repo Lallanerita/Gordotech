@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen } from 'lucide-react'
+import { X, Plus, Trash2, Edit3, Save, LogOut, Upload, BarChart3, Package, Circle, Wrench, Eye, Search, Lock, FolderOpen, Image, Type, ToggleLeft, ToggleRight, ArrowUp, ArrowDown } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -9,11 +9,14 @@ type Product = {
   category: string
   condition: string
   image: string
+  images: string[]
   colors: string[]
+  color_images: Record<string, string>
   storage_options: string[]
   badge: string | null
   available: string[]
   price: string
+  old_price: string
   description: string
   featured_recommended: boolean
   featured_trending: boolean
@@ -45,6 +48,24 @@ type RepairService = {
   sort_order: number
 }
 
+type HeroSlide = {
+  id: number
+  title: string
+  subtitle: string
+  image: string
+  video_url: string
+  link: string
+  active: boolean
+  sort_order: number
+}
+
+type MarqueeText = {
+  id: number
+  text: string
+  active: boolean
+  sort_order: number
+}
+
 type Stats = {
   total_products: number
   new_products: number
@@ -52,9 +73,10 @@ type Stats = {
   categories: number
   bubbles: number
   repair_services: number
+  hero_slides: number
 }
 
-type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'settings'
+type Tab = 'dashboard' | 'products' | 'categories' | 'bubbles' | 'services' | 'slideshow' | 'marquee' | 'settings'
 
 // ==================== API HELPERS ====================
 
@@ -228,6 +250,75 @@ function ImageUploader({ token, currentImage, onUpload }: { token: string; curre
   )
 }
 
+// ==================== MULTI IMAGE UPLOADER ====================
+
+function MultiImageUploader({ token, images, onChange }: { token: string; images: string[]; onChange: (images: string[]) => void }) {
+  const [uploading, setUploading] = useState(false)
+
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    setUploading(true)
+    try {
+      const newUrls: string[] = []
+      for (let i = 0; i < files.length; i++) {
+        const data = await apiUpload(files[i], token)
+        newUrls.push(`${API_URL}${data.url}`)
+      }
+      onChange([...images, ...newUrls])
+    } catch {
+      alert('Error subiendo imagenes')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  const removeImage = (index: number) => {
+    onChange(images.filter((_, i) => i !== index))
+  }
+
+  const moveImage = (from: number, to: number) => {
+    if (to < 0 || to >= images.length) return
+    const updated = [...images]
+    const [moved] = updated.splice(from, 1)
+    updated.splice(to, 0, moved)
+    onChange(updated)
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-3">
+        {images.map((img, i) => (
+          <div key={i} className="relative group w-20 h-20">
+            <img src={img} alt={`Foto ${i + 1}`} className="w-full h-full rounded-lg object-cover bg-gray-800 border border-white/10" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/200x200/1a1a2e/7BA3C9/png?text=Error' }} />
+            <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+              {i > 0 && (
+                <button onClick={() => moveImage(i, i - 1)} className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-xs hover:bg-white/40" title="Mover izquierda">&larr;</button>
+              )}
+              <button onClick={() => removeImage(i)} className="w-6 h-6 bg-red-500/80 rounded-full flex items-center justify-center text-white hover:bg-red-600" title="Eliminar">
+                <X className="w-3 h-3" />
+              </button>
+              {i < images.length - 1 && (
+                <button onClick={() => moveImage(i, i + 1)} className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-xs hover:bg-white/40" title="Mover derecha">&rarr;</button>
+              )}
+            </div>
+            {i === 0 && (
+              <div className="absolute -top-1 -left-1 px-1.5 py-0.5 bg-blue-500 rounded text-white text-[10px] font-bold">Principal</div>
+            )}
+          </div>
+        ))}
+        <label className={`w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors ${uploading ? 'opacity-50' : ''}`}>
+          <Plus className="w-5 h-5 text-gray-400" />
+          <span className="text-[10px] text-gray-500 mt-1">{uploading ? 'Subiendo...' : 'Agregar'}</span>
+          <input type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" disabled={uploading} />
+        </label>
+      </div>
+      <p className="text-xs text-gray-500">La primera imagen sera la principal. Puedes reordenar pasando el mouse y usando las flechas.</p>
+    </div>
+  )
+}
+
 // ==================== PRODUCT FORM ====================
 
 function ProductForm({ product, token, categories, onSave, onCancel }: {
@@ -242,12 +333,15 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
     category: product?.category || '',
     condition: product?.condition || 'Semi-usado',
     image: product?.image || '',
+    images: product?.images || [],
     colors: product?.colors?.join(', ') || '',
+    color_images: product?.color_images || {} as Record<string, string>,
     storage_options: product?.storage_options?.join(', ') || '',
     badge: product?.badge || '',
     available_duitama: product?.available?.includes('duitama') ?? true,
     available_tunja: product?.available?.includes('tunja') ?? true,
     price: product?.price || '',
+    old_price: product?.old_price || '',
     description: product?.description || '',
     featured_recommended: product?.featured_recommended || false,
     featured_trending: product?.featured_trending || false,
@@ -266,12 +360,15 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
         name: form.name,
         category: form.category,
         condition: form.condition,
-        image: form.image,
+        image: form.images.length > 0 ? form.images[0] : form.image,
+        images: form.images,
         colors: form.colors.split(',').map(c => c.trim()).filter(Boolean),
+        color_images: form.color_images,
         storage_options: form.storage_options.split(',').map(s => s.trim()).filter(Boolean),
         badge: form.badge || null,
         available,
         price: form.price,
+        old_price: form.old_price,
         description: form.description,
         featured_recommended: form.featured_recommended,
         featured_trending: form.featured_trending,
@@ -328,8 +425,12 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
           </div>
 
           <div>
-            <label className="block text-gray-400 text-sm mb-1">Imagen</label>
-            <ImageUploader token={token} currentImage={form.image} onUpload={url => setForm({...form, image: url})} />
+            <label className="block text-gray-400 text-sm mb-1">Imagenes del producto</label>
+            <MultiImageUploader
+              token={token}
+              images={form.images}
+              onChange={imgs => setForm({ ...form, images: imgs, image: imgs.length > 0 ? imgs[0] : form.image })}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -339,18 +440,63 @@ function ProductForm({ product, token, categories, onSave, onCancel }: {
                 className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="128GB, 256GB, 512GB" />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Colores hex (separados por coma)</label>
+              <label className="block text-gray-400 text-sm mb-1">Colores (nombre o hex, separados por coma)</label>
               <input value={form.colors} onChange={e => setForm({...form, colors: e.target.value})}
                 className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="#000000, #FFFFFF, #4169E1" />
             </div>
           </div>
 
+          {/* Color-Image Assignment */}
+          {form.colors.split(',').map(c => c.trim()).filter(Boolean).length > 0 && form.images.length > 0 && (
+            <div>
+              <label className="block text-gray-400 text-sm mb-1">Asignar imagen a cada color</label>
+              <div className="space-y-2">
+                {form.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
+                  <div key={color} className="flex items-center gap-3 bg-gray-800/30 rounded-lg px-3 py-2">
+                    <div className="w-6 h-6 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: color.startsWith('#') ? color : color }} title={color} />
+                    <span className="text-white text-sm min-w-[80px]">{color}</span>
+                    <select
+                      value={form.color_images[color] || ''}
+                      onChange={e => {
+                        const updated = { ...form.color_images }
+                        if (e.target.value) {
+                          updated[color] = e.target.value
+                        } else {
+                          delete updated[color]
+                        }
+                        setForm({ ...form, color_images: updated })
+                      }}
+                      className="flex-1 bg-gray-800/50 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
+                    >
+                      <option value="">Sin imagen asignada</option>
+                      {form.images.map((img, idx) => (
+                        <option key={idx} value={img}>Foto {idx + 1}</option>
+                      ))}
+                    </select>
+                    {form.color_images[color] && (
+                      <img src={form.color_images[color]} alt={color} className="w-8 h-8 rounded object-cover border border-white/10" />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Selecciona que foto se muestra al elegir cada color.</p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Precio</label>
+              <label className="block text-gray-400 text-sm mb-1">Precio Actual</label>
               <input value={form.price} onChange={e => setForm({...form, price: e.target.value})}
-                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="$2.500.000" />
+                className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="2.500.000" />
             </div>
+            <div>
+              <label className="block text-red-400 text-sm mb-1">Precio Anterior (tachado en rojo)</label>
+              <input value={form.old_price} onChange={e => setForm({...form, old_price: e.target.value})}
+                className="w-full bg-gray-800/50 border border-red-500/20 rounded-lg px-3 py-2.5 text-red-400 text-sm focus:outline-none focus:border-red-500/50" placeholder="3.200.000" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-400 text-sm mb-1">Badge / Etiqueta</label>
               <input value={form.badge} onChange={e => setForm({...form, badge: e.target.value})}
@@ -650,13 +796,27 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [conditionFilter, setConditionFilter] = useState('todos')
   const [categoryFilter, setCategoryFilter] = useState('todos')
+  const [cityFilter, setCityFilter] = useState('todos')
   
   // Form modals
   const [editingProduct, setEditingProduct] = useState<Product | null | 'new'>(null)
   const [editingCategory, setEditingCategory] = useState<Category | null | 'new'>(null)
   const [editingBubble, setEditingBubble] = useState<Bubble | null | 'new'>(null)
   const [editingService, setEditingService] = useState<RepairService | null | 'new'>(null)
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([])
+  const [marqueeTexts, setMarqueeTexts] = useState<MarqueeText[]>([])
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; id: number; name: string } | null>(null)
+  
+  // Slide editing
+  const [editingSlide, setEditingSlide] = useState<HeroSlide | null | 'new'>(null)
+  const [slideForm, setSlideForm] = useState({ title: '', subtitle: '', image: '', video_url: '', link: '', sort_order: 0 })
+  const [savingSlide, setSavingSlide] = useState(false)
+  
+  // Marquee editing
+  const [newMarqueeText, setNewMarqueeText] = useState('')
+  const [editingMarqueeId, setEditingMarqueeId] = useState<number | null>(null)
+  const [editingMarqueeValue, setEditingMarqueeValue] = useState('')
+  const [savingMarquee, setSavingMarquee] = useState(false)
 
   // Password change
   const [currentPassword, setCurrentPassword] = useState('')
@@ -723,6 +883,26 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     }
   }, [token])
 
+  const loadHeroSlides = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiGet('/api/admin/hero-slides', token)
+      setHeroSlides(data.slides)
+    } catch {
+      handleLogout()
+    }
+  }, [token])
+
+  const loadMarqueeTexts = useCallback(async () => {
+    if (!token) return
+    try {
+      const data = await apiGet('/api/admin/marquee-texts', token)
+      setMarqueeTexts(data.texts)
+    } catch {
+      handleLogout()
+    }
+  }, [token])
+
   useEffect(() => {
     if (token) {
       loadStats()
@@ -730,8 +910,10 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       loadCategories()
       loadBubbles()
       loadServices()
+      loadHeroSlides()
+      loadMarqueeTexts()
     }
-  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices])
+  }, [token, loadStats, loadProducts, loadCategories, loadBubbles, loadServices, loadHeroSlides, loadMarqueeTexts])
 
   const handleDelete = async () => {
     if (!deleteConfirm || !token) return
@@ -740,12 +922,16 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       if (deleteConfirm.type === 'category') await apiDelete(`/api/admin/categories/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'bubble') await apiDelete(`/api/admin/bubbles/${deleteConfirm.id}`, token)
       if (deleteConfirm.type === 'service') await apiDelete(`/api/admin/repair-services/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'slide') await apiDelete(`/api/admin/hero-slides/${deleteConfirm.id}`, token)
+      if (deleteConfirm.type === 'marquee') await apiDelete(`/api/admin/marquee-texts/${deleteConfirm.id}`, token)
       setDeleteConfirm(null)
       loadStats()
       if (deleteConfirm.type === 'product') loadProducts()
       if (deleteConfirm.type === 'category') loadCategories()
       if (deleteConfirm.type === 'bubble') loadBubbles()
       if (deleteConfirm.type === 'service') loadServices()
+      if (deleteConfirm.type === 'slide') loadHeroSlides()
+      if (deleteConfirm.type === 'marquee') loadMarqueeTexts()
     } catch {
       alert('Error eliminando')
     }
@@ -772,7 +958,8 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       (conditionFilter === 'nuevos' && p.condition === 'Nuevo') ||
       (conditionFilter === 'semi-usados' && p.condition === 'Semi-usado')
     const matchesCategory = categoryFilter === 'todos' || p.category === categoryFilter
-    return matchesSearch && matchesCondition && matchesCategory
+    const matchesCity = cityFilter === 'todos' || p.available.includes(cityFilter)
+    return matchesSearch && matchesCondition && matchesCategory && matchesCity
   })
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -781,6 +968,8 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     { id: 'categories', label: 'Categorias', icon: <FolderOpen className="w-4 h-4" /> },
     { id: 'bubbles', label: 'Burbujas', icon: <Circle className="w-4 h-4" /> },
     { id: 'services', label: 'Servicios', icon: <Wrench className="w-4 h-4" /> },
+    { id: 'slideshow', label: 'Slideshow', icon: <Image className="w-4 h-4" /> },
+    { id: 'marquee', label: 'Marquee', icon: <Type className="w-4 h-4" /> },
     { id: 'settings', label: 'Config', icon: <Lock className="w-4 h-4" /> },
   ]
 
@@ -867,6 +1056,14 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     placeholder="Buscar producto..."
                     className="w-full bg-gray-800/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
                   />
+                </div>
+                <div className="flex gap-2">
+                  {['todos', 'duitama', 'tunja'].map(f => (
+                    <button key={f} onClick={() => setCityFilter(f)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${cityFilter === f ? 'bg-green-500 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-white border border-white/10'}`}>
+                      {f === 'todos' ? 'Todas' : f === 'duitama' ? 'Duitama' : 'Tunja'}
+                    </button>
+                  ))}
                 </div>
                 <div className="flex gap-2">
                   {['todos', 'nuevos', 'semi-usados'].map(f => (
@@ -1060,6 +1257,226 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* SLIDESHOW TAB */}
+        {activeTab === 'slideshow' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>HERO SLIDESHOW ({heroSlides.length})</h2>
+              <button onClick={() => { setEditingSlide('new'); setSlideForm({ title: '', subtitle: '', image: '', video_url: '', link: '#productos', sort_order: heroSlides.length }) }} className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors">
+                <Plus className="w-4 h-4" /> Nuevo Slide
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {heroSlides.map(slide => (
+                <div key={slide.id} className={`bg-gray-900/50 border rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center gap-4 transition-all ${slide.active ? 'border-white/10 hover:border-blue-500/30' : 'border-white/5 opacity-60'}`}>
+                  <div className="relative w-full md:w-40 h-24 flex-shrink-0">
+                    {slide.video_url ? (
+                      <video src={slide.video_url} muted preload="metadata" className="w-full h-24 rounded-xl object-cover bg-gray-800" poster={slide.image || undefined} />
+                    ) : (
+                      <img src={slide.image} alt={slide.title} className="w-full h-24 rounded-xl object-cover bg-gray-800" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x200/1a1a2e/7BA3C9/png?text=Sin+imagen' }} />
+                    )}
+                    {slide.video_url && (
+                      <span className="absolute bottom-1 left-1 bg-blue-600/90 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">▶ VIDEO</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium truncate">{slide.title || '(Sin titulo)'}</p>
+                    <p className="text-gray-400 text-sm truncate">{slide.subtitle || '(Sin subtitulo)'}</p>
+                    <div className="flex flex-wrap items-center gap-3 mt-1">
+                      <span className="text-gray-500 text-xs">Orden: {slide.sort_order}</span>
+                      <span className="text-gray-500 text-xs">Link: {slide.link || '-'}</span>
+                      {slide.video_url && <span className="text-blue-400 text-xs">🎬 {slide.video_url.split('/').pop()}</span>}
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${slide.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {slide.active ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button onClick={async () => { await apiPost(`/api/admin/hero-slides/${slide.id}/toggle`, {}, token); loadHeroSlides() }} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-yellow-400" title={slide.active ? 'Desactivar' : 'Activar'}>
+                      {slide.active ? <ToggleRight className="w-5 h-5 text-green-400" /> : <ToggleLeft className="w-5 h-5" />}
+                    </button>
+                    <button onClick={() => { setEditingSlide(slide); setSlideForm({ title: slide.title, subtitle: slide.subtitle, image: slide.image, video_url: slide.video_url || '', link: slide.link, sort_order: slide.sort_order }) }} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => setDeleteConfirm({ type: 'slide', id: slide.id, name: slide.title || 'Slide' })} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-red-400">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {heroSlides.length === 0 && (
+                <div className="text-center py-10 text-gray-500">No hay slides. Agrega uno para mostrar en la pagina principal.</div>
+              )}
+            </div>
+
+            {/* Slide edit modal */}
+            {editingSlide !== null && (
+              <div className="fixed inset-0 bg-black/70 z-50 flex items-start justify-center p-4 overflow-y-auto">
+                <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg my-8">
+                  <div className="flex items-center justify-between p-5 border-b border-white/10">
+                    <h3 className="text-xl font-bold text-white">{editingSlide === 'new' ? 'Nuevo Slide' : 'Editar Slide'}</h3>
+                    <button onClick={() => setEditingSlide(null)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Imagen del slide</label>
+                      <ImageUploader token={token} currentImage={slideForm.image} onUpload={url => setSlideForm({...slideForm, image: url})} />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Video URL (YouTube) - opcional</label>
+                      <input value={slideForm.video_url} onChange={e => setSlideForm({...slideForm, video_url: e.target.value})}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: https://www.youtube.com/watch?v=_-AS5DtDeqs" />
+                      <p className="text-gray-500 text-xs mt-1">Si pones un video, se mostrara en lugar de la imagen. Soporta YouTube.</p>
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Titulo</label>
+                      <input value={slideForm.title} onChange={e => setSlideForm({...slideForm, title: e.target.value})}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: iPhone 17 Pro Max" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-1">Subtitulo</label>
+                      <input value={slideForm.subtitle} onChange={e => setSlideForm({...slideForm, subtitle: e.target.value})}
+                        className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="ej: El mas poderoso. Disponible ahora." />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Link</label>
+                        <input value={slideForm.link} onChange={e => setSlideForm({...slideForm, link: e.target.value})}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" placeholder="#productos" />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-1">Orden</label>
+                        <input type="number" value={slideForm.sort_order} onChange={e => setSlideForm({...slideForm, sort_order: parseInt(e.target.value) || 0})}
+                          className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-5 border-t border-white/10">
+                    <button onClick={() => setEditingSlide(null)} className="flex-1 py-2.5 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors text-sm">Cancelar</button>
+                    <button onClick={async () => {
+                      setSavingSlide(true)
+                      try {
+                        if (editingSlide === 'new') {
+                          await apiPost('/api/admin/hero-slides', slideForm, token)
+                        } else {
+                          await apiPut(`/api/admin/hero-slides/${editingSlide.id}`, slideForm, token)
+                        }
+                        setEditingSlide(null)
+                        loadHeroSlides()
+                        loadStats()
+                      } catch { alert('Error guardando slide') } finally { setSavingSlide(false) }
+                    }} disabled={savingSlide || (!slideForm.image && !slideForm.video_url)} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                      <Save className="w-4 h-4" />
+                      {savingSlide ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MARQUEE TAB */}
+        {activeTab === 'marquee' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '1px' }}>TEXTOS DEL BANNER ({marqueeTexts.length})</h2>
+            </div>
+            <p className="text-gray-400 text-sm">Estos textos se muestran en el banner animado en la parte superior de la pagina. Se concatenan y se desplazan horizontalmente.</p>
+
+            {/* Add new text */}
+            <div className="flex gap-3">
+              <input
+                value={newMarqueeText}
+                onChange={e => setNewMarqueeText(e.target.value)}
+                placeholder="Nuevo texto para el banner..."
+                className="flex-1 bg-gray-800/50 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
+                onKeyDown={async e => {
+                  if (e.key === 'Enter' && newMarqueeText.trim()) {
+                    setSavingMarquee(true)
+                    try {
+                      await apiPost('/api/admin/marquee-texts', { text: newMarqueeText.trim(), sort_order: marqueeTexts.length }, token)
+                      setNewMarqueeText('')
+                      loadMarqueeTexts()
+                    } catch { alert('Error') } finally { setSavingMarquee(false) }
+                  }
+                }}
+              />
+              <button onClick={async () => {
+                if (!newMarqueeText.trim()) return
+                setSavingMarquee(true)
+                try {
+                  await apiPost('/api/admin/marquee-texts', { text: newMarqueeText.trim(), sort_order: marqueeTexts.length }, token)
+                  setNewMarqueeText('')
+                  loadMarqueeTexts()
+                } catch { alert('Error') } finally { setSavingMarquee(false) }
+              }} disabled={savingMarquee || !newMarqueeText.trim()} className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Agregar
+              </button>
+            </div>
+
+            {/* Texts list */}
+            <div className="space-y-2">
+              {marqueeTexts.map((mt, idx) => (
+                <div key={mt.id} className={`bg-gray-900/50 border rounded-xl p-3 flex items-center gap-3 transition-all ${mt.active ? 'border-white/10' : 'border-white/5 opacity-60'}`}>
+                  <div className="flex flex-col gap-0.5">
+                    <button onClick={async () => {
+                      if (idx === 0) return
+                      await apiPut(`/api/admin/marquee-texts/${mt.id}`, { sort_order: marqueeTexts[idx - 1].sort_order }, token)
+                      await apiPut(`/api/admin/marquee-texts/${marqueeTexts[idx - 1].id}`, { sort_order: mt.sort_order }, token)
+                      loadMarqueeTexts()
+                    }} disabled={idx === 0} className="p-0.5 text-gray-500 hover:text-white disabled:opacity-30"><ArrowUp className="w-3.5 h-3.5" /></button>
+                    <button onClick={async () => {
+                      if (idx === marqueeTexts.length - 1) return
+                      await apiPut(`/api/admin/marquee-texts/${mt.id}`, { sort_order: marqueeTexts[idx + 1].sort_order }, token)
+                      await apiPut(`/api/admin/marquee-texts/${marqueeTexts[idx + 1].id}`, { sort_order: mt.sort_order }, token)
+                      loadMarqueeTexts()
+                    }} disabled={idx === marqueeTexts.length - 1} className="p-0.5 text-gray-500 hover:text-white disabled:opacity-30"><ArrowDown className="w-3.5 h-3.5" /></button>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    {editingMarqueeId === mt.id ? (
+                      <input
+                        value={editingMarqueeValue}
+                        onChange={e => setEditingMarqueeValue(e.target.value)}
+                        className="w-full bg-gray-800/50 border border-blue-500/50 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none"
+                        autoFocus
+                        onKeyDown={async e => {
+                          if (e.key === 'Enter') {
+                            await apiPut(`/api/admin/marquee-texts/${mt.id}`, { text: editingMarqueeValue }, token)
+                            setEditingMarqueeId(null)
+                            loadMarqueeTexts()
+                          }
+                          if (e.key === 'Escape') setEditingMarqueeId(null)
+                        }}
+                      />
+                    ) : (
+                      <p className="text-white text-sm truncate">{mt.text}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button onClick={async () => {
+                      await apiPut(`/api/admin/marquee-texts/${mt.id}`, { active: !mt.active }, token)
+                      loadMarqueeTexts()
+                    }} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title={mt.active ? 'Desactivar' : 'Activar'}>
+                      {mt.active ? <ToggleRight className="w-4 h-4 text-green-400" /> : <ToggleLeft className="w-4 h-4 text-gray-500" />}
+                    </button>
+                    <button onClick={() => { setEditingMarqueeId(mt.id); setEditingMarqueeValue(mt.text) }} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-blue-400">
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => setDeleteConfirm({ type: 'marquee', id: mt.id, name: mt.text.slice(0, 30) })} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-red-400">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {marqueeTexts.length === 0 && (
+                <div className="text-center py-10 text-gray-500">No hay textos. Agrega uno para mostrar en el banner superior.</div>
+              )}
             </div>
           </div>
         )}
