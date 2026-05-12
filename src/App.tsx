@@ -859,7 +859,13 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
           })))
         }
         if (slidesRes?.slides?.length) {
-          setHeroSlides(slidesRes.slides.filter((s: HeroSlide) => s.active).sort((a: HeroSlide, b: HeroSlide) => a.sort_order - b.sort_order))
+          // Only add image-only banners from API (video slides use hardcoded defaults)
+          const apiBanners = slidesRes.slides
+            .filter((s: HeroSlide) => s.active && s.image && !s.video_url)
+            .map((s: HeroSlide) => ({ ...s, title: '', subtitle: '', link: '' }))
+          if (apiBanners.length) {
+            setHeroSlides(prev => [...prev, ...apiBanners].sort((a, b) => a.sort_order - b.sort_order))
+          }
         }
         if (marqueeRes?.texts) {
           setMarqueeTexts(marqueeRes.texts.map((t: { text: string }) => t.text))
