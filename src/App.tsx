@@ -1749,7 +1749,7 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
                 
                 <div className="mb-6">
                   <div className="flex flex-wrap items-start gap-4">
-                    {selectedProduct.storageOptions.length > 0 && (
+                    {selectedProduct.condition !== 'Semi-usado' && selectedProduct.storageOptions.length > 0 && (
                     <div>
                       <p className="text-gray-400 text-sm mb-2">Almacenamiento</p>
                       <div className="flex flex-wrap gap-2">
