@@ -223,6 +223,133 @@ function displayCondition(condition: string): string {
   return condition
 }
 
+// ─── Advanced SEO: usePageSEO hook ───────────────────────────────────────────
+// Sets document.title, meta description, Open Graph, Twitter Card, canonical URL,
+// and injects JSON-LD structured data per page for maximum Google discoverability.
+
+interface PageSEOConfig {
+  title: string
+  description: string
+  canonical: string
+  ogType?: string
+  ogImage?: string
+  keywords?: string
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[]
+}
+
+function usePageSEO(config: PageSEOConfig) {
+  useEffect(() => {
+    const { title, description, canonical, ogType = 'website', ogImage = 'https://gordotech.co/images/og-preview.png', keywords, jsonLd } = config
+
+    document.title = title
+
+    const setMeta = (selector: string, attr: string, value: string) => {
+      let el = document.querySelector(selector)
+      if (!el) {
+        el = document.createElement('meta')
+        const isProperty = attr === 'content' && selector.includes('property=')
+        if (isProperty) {
+          const propMatch = selector.match(/property="([^"]+)"/)
+          if (propMatch) el.setAttribute('property', propMatch[1])
+        } else if (selector.includes('name=')) {
+          const nameMatch = selector.match(/name="([^"]+)"/)
+          if (nameMatch) el.setAttribute('name', nameMatch[1])
+        }
+        document.head.appendChild(el)
+      }
+      el.setAttribute(attr, value)
+    }
+
+    setMeta('meta[name="description"]', 'content', description)
+    if (keywords) setMeta('meta[name="keywords"]', 'content', keywords)
+    setMeta('meta[property="og:title"]', 'content', title)
+    setMeta('meta[property="og:description"]', 'content', description)
+    setMeta('meta[property="og:image"]', 'content', ogImage)
+    setMeta('meta[property="og:url"]', 'content', canonical)
+    setMeta('meta[property="og:type"]', 'content', ogType)
+    setMeta('meta[property="og:site_name"]', 'content', 'Gordotech')
+    setMeta('meta[property="og:locale"]', 'content', 'es_CO')
+    setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image')
+    setMeta('meta[name="twitter:title"]', 'content', title)
+    setMeta('meta[name="twitter:description"]', 'content', description)
+    setMeta('meta[name="twitter:image"]', 'content', ogImage)
+
+    let canonicalEl = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    if (!canonicalEl) {
+      canonicalEl = document.createElement('link')
+      canonicalEl.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonicalEl)
+    }
+    canonicalEl.setAttribute('href', canonical)
+
+    // Inject JSON-LD structured data
+    const existingScripts = document.querySelectorAll('script[data-page-seo]')
+    existingScripts.forEach(s => s.remove())
+
+    if (jsonLd) {
+      const schemas = Array.isArray(jsonLd) ? jsonLd : [jsonLd]
+      schemas.forEach(schema => {
+        const script = document.createElement('script')
+        script.type = 'application/ld+json'
+        script.setAttribute('data-page-seo', 'true')
+        script.textContent = JSON.stringify(schema)
+        document.head.appendChild(script)
+      })
+    }
+
+    return () => {
+      const scripts = document.querySelectorAll('script[data-page-seo]')
+      scripts.forEach(s => s.remove())
+    }
+  }, [config.title, config.description, config.canonical])
+}
+
+// SEO keyword maps for city+product combinations
+const SEO_CATEGORY_META: Record<string, { title: string; description: string; keywords: string; schemaName: string; schemaDesc: string }> = {
+  'iphones': {
+    title: 'Comprar iPhone en Duitama y Tunja | iPhone 16, 15, 14 Nuevos y Semi-nuevos | Gordotech',
+    description: 'Compra iPhone en Duitama y Tunja, Boyaca. iPhone 16 Pro Max, iPhone 16 Pro, iPhone 15, iPhone 14 nuevos y semi-nuevos con garantia. Mejores precios en Boyaca. Envios a toda Colombia. Financiacion disponible.',
+    keywords: 'iPhone Duitama, iPhone Tunja, comprar iPhone Boyaca, iPhone 16 Pro Max Duitama, iPhone 15 Tunja, iPhone semi-nuevo Boyaca, iPhone nuevo Colombia, tienda iPhone Duitama, iPhone barato Boyaca, iPhone con garantia Tunja, venta iPhone Duitama, iPhone precio Colombia',
+    schemaName: 'iPhones - Gordotech',
+    schemaDesc: 'Catalogo completo de iPhones nuevos y semi-nuevos disponibles en Duitama y Tunja, Boyaca. iPhone 16, 15, 14 y mas.'
+  },
+  'ipads': {
+    title: 'Comprar iPad en Duitama y Tunja | iPad Air, iPad Pro, iPad A16 | Gordotech',
+    description: 'Compra iPad en Duitama y Tunja, Boyaca. iPad Air M3, iPad Pro, iPad A16 nuevas con garantia. Las mejores tablets Apple en Boyaca. Envios a toda Colombia.',
+    keywords: 'iPad Duitama, iPad Tunja, comprar iPad Boyaca, iPad Air Duitama, iPad Pro Tunja, iPad A16 Colombia, tablet Apple Boyaca, iPad nueva Duitama, iPad precio Colombia, tienda iPad Tunja',
+    schemaName: 'iPads - Gordotech',
+    schemaDesc: 'Catalogo de iPads disponibles en Duitama y Tunja. iPad Air M3, iPad Pro, iPad A16.'
+  },
+  'macbook': {
+    title: 'Comprar MacBook en Duitama y Tunja | MacBook Air M4, MacBook Pro | Gordotech',
+    description: 'Compra MacBook en Duitama y Tunja, Boyaca. MacBook Air M4 con garantia. Portatiles Apple al mejor precio en Boyaca. Envios a toda Colombia.',
+    keywords: 'MacBook Duitama, MacBook Tunja, comprar MacBook Boyaca, MacBook Air M4 Duitama, MacBook Pro Tunja, portatil Apple Colombia, laptop Apple Boyaca, MacBook precio Duitama, MacBook con garantia',
+    schemaName: 'MacBooks - Gordotech',
+    schemaDesc: 'MacBook Air M4 y MacBook Pro disponibles en Duitama y Tunja, Boyaca.'
+  },
+  'airpods': {
+    title: 'Comprar AirPods en Duitama y Tunja | AirPods 4, AirPods Pro 2 y 3 | Gordotech',
+    description: 'Compra AirPods en Duitama y Tunja, Boyaca. AirPods 4, AirPods Pro 2, AirPods Pro 3 originales con garantia. Audifonos Apple al mejor precio. Envios a toda Colombia.',
+    keywords: 'AirPods Duitama, AirPods Tunja, comprar AirPods Boyaca, AirPods Pro Duitama, AirPods 4 Tunja, audifonos Apple Colombia, AirPods originales Boyaca, AirPods precio Duitama',
+    schemaName: 'AirPods - Gordotech',
+    schemaDesc: 'AirPods 4, AirPods Pro 2 y AirPods Pro 3 disponibles en Duitama y Tunja, Boyaca.'
+  },
+  'apple-watch': {
+    title: 'Comprar Apple Watch en Duitama y Tunja | Apple Watch SE, Series 10, Ultra 2 | Gordotech',
+    description: 'Compra Apple Watch en Duitama y Tunja, Boyaca. Apple Watch SE, Series 10, Series 11, Ultra 2 y Ultra 3 con garantia. Relojes Apple al mejor precio en Boyaca. Envios a toda Colombia.',
+    keywords: 'Apple Watch Duitama, Apple Watch Tunja, comprar Apple Watch Boyaca, Apple Watch SE Duitama, Apple Watch Ultra Tunja, reloj Apple Colombia, smartwatch Apple Boyaca, Apple Watch precio Duitama',
+    schemaName: 'Apple Watch - Gordotech',
+    schemaDesc: 'Apple Watch SE, Series 10, Series 11, Ultra 2 y Ultra 3 disponibles en Duitama y Tunja, Boyaca.'
+  },
+  'accesorios': {
+    title: 'Accesorios Apple en Duitama y Tunja | Apple Pencil, Cargadores, Fundas | Gordotech',
+    description: 'Compra accesorios Apple en Duitama y Tunja, Boyaca. Apple Pencil USB-C, Apple Pencil Pro, cargadores y accesorios originales con garantia. Envios a toda Colombia.',
+    keywords: 'accesorios Apple Duitama, accesorios Apple Tunja, Apple Pencil Duitama, Apple Pencil Pro Tunja, cargador iPhone Boyaca, accesorios iPhone Colombia, funda iPhone Duitama, accesorios originales Apple',
+    schemaName: 'Accesorios Apple - Gordotech',
+    schemaDesc: 'Accesorios Apple originales disponibles en Duitama y Tunja. Apple Pencil, cargadores y mas.'
+  }
+}
+
 // Product data - Semi-nuevos
 const semiUsados = [
   // iPhone 12 Series
@@ -1200,8 +1327,8 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
       }
       canonical.setAttribute('href', productUrl)
     } else {
-      const defaultTitle = 'Gordotech - iPhones, iPads, MacBooks y mas | Tu destino Apple en Boyaca'
-      const defaultDesc = 'Gordotech - Tu destino Apple en Boyaca. iPhones nuevos y semi-nuevos, iPads, MacBooks, AirPods y Apple Watch al mejor precio. Envios a toda Colombia.'
+      const defaultTitle = 'Gordotech - Comprar iPhone, iPad, MacBook, AirPods y Apple Watch en Duitama y Tunja | Tienda Apple Boyaca'
+      const defaultDesc = 'Gordotech: Tu tienda Apple de confianza en Duitama y Tunja, Boyaca. Compra iPhone 16, iPad, MacBook Air M4, AirPods y Apple Watch nuevos y semi-nuevos con garantia. Centro de reparacion. Envios a toda Colombia.'
       const defaultUrl = 'https://gordotech.co'
       const defaultImage = 'https://gordotech.co/images/og-preview.png'
 
@@ -1227,6 +1354,51 @@ function Store({ onAdminClick, productSlug, productId, initialProduct, isDarkMod
         document.head.appendChild(canonical)
       }
       canonical.setAttribute('href', defaultUrl)
+
+      // Inject FAQ structured data for homepage (common search queries)
+      const existingFaq = document.querySelectorAll('script[data-page-seo]')
+      existingFaq.forEach(s => s.remove())
+      const faqSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': '¿Donde comprar iPhone en Duitama?',
+            'acceptedAnswer': { '@type': 'Answer', 'text': 'En Gordotech Duitama puedes comprar iPhone 16, 15, 14 y mas modelos nuevos y semi-nuevos con garantia. Estamos ubicados en el centro de Duitama, Boyaca. Tambien hacemos envios a toda Colombia.' }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Donde comprar iPhone en Tunja?',
+            'acceptedAnswer': { '@type': 'Answer', 'text': 'Gordotech Tunja esta ubicado en el CC. Unicentro, Entrada 1, Isla Comercial. Vendemos iPhones nuevos y semi-nuevos, iPads, MacBooks, AirPods y Apple Watch con garantia.' }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Cuanto cuesta reparar un iPhone en Duitama?',
+            'acceptedAnswer': { '@type': 'Answer', 'text': 'En Gordotech ofrecemos reparacion de iPhone con diagnostico gratuito. Los precios varian segun el modelo y la reparacion. Cambio de pantalla, bateria, puerto de carga y mas. Contactanos por WhatsApp para una cotizacion.' }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Que es el Plan Retoma de Gordotech?',
+            'acceptedAnswer': { '@type': 'Answer', 'text': 'El Plan Retoma te permite traer tu iPhone usado y cambiarlo por uno nuevo o semi-nuevo. Evaluamos tu equipo y te damos el mejor precio como parte de pago. Disponible en Duitama y Tunja.' }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Gordotech vende productos Apple originales?',
+            'acceptedAnswer': { '@type': 'Answer', 'text': 'Si, todos nuestros productos son 100% originales Apple con garantia. Vendemos iPhones, iPads, MacBooks, AirPods, Apple Watch y accesorios originales en Duitama y Tunja, Boyaca.' }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Hacen envios a toda Colombia?',
+            'acceptedAnswer': { '@type': 'Answer', 'text': 'Si, Gordotech realiza envios a toda Colombia. Puedes comprar desde cualquier ciudad y recibir tu producto Apple con garantia en tu domicilio.' }
+          }
+        ]
+      }
+      const faqScript = document.createElement('script')
+      faqScript.type = 'application/ld+json'
+      faqScript.setAttribute('data-page-seo', 'true')
+      faqScript.textContent = JSON.stringify(faqSchema)
+      document.head.appendChild(faqScript)
     }
   }, [selectedProduct, cityName])
 
@@ -2156,6 +2328,35 @@ function PlanRetomaPage({ isDarkMode }: { isDarkMode: boolean }) {
     if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/plan-retoma')
   }, [])
 
+  usePageSEO({
+    title: 'Plan Retoma iPhone en Duitama y Tunja | Cambia tu iPhone por uno Mejor | Gordotech',
+    description: 'Plan Retoma en Gordotech: Trae tu iPhone usado y cambialo por uno nuevo o semi-nuevo. Te recibimos tu equipo como parte de pago en Duitama y Tunja, Boyaca. Evaluacion gratuita. Mejores precios de retoma en Boyaca.',
+    canonical: 'https://gordotech.co/plan-retoma',
+    keywords: 'plan retoma iPhone Duitama, cambiar iPhone Tunja, retoma iPhone Boyaca, vender iPhone usado Duitama, cambio iPhone Tunja, trade in iPhone Colombia, plan retoma celular Boyaca, retoma Apple Duitama, cambiar celular Tunja, iPhone usado por nuevo',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        'name': 'Plan Retoma iPhone - Gordotech',
+        'description': 'Servicio de retoma de iPhones usados. Trae tu iPhone y cambialo por uno nuevo o semi-nuevo con descuento.',
+        'provider': { '@type': 'LocalBusiness', 'name': 'Gordotech', 'url': 'https://gordotech.co' },
+        'areaServed': [
+          { '@type': 'City', 'name': 'Duitama', 'containedInPlace': { '@type': 'State', 'name': 'Boyaca' } },
+          { '@type': 'City', 'name': 'Tunja', 'containedInPlace': { '@type': 'State', 'name': 'Boyaca' } }
+        ],
+        'serviceType': 'Trade-in / Retoma de dispositivos Apple'
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Inicio', 'item': 'https://gordotech.co' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Plan Retoma', 'item': 'https://gordotech.co/plan-retoma' }
+        ]
+      }
+    ]
+  })
+
   return (
     <div className={`min-h-screen bg-gray-950 text-white ${!isDarkMode ? 'light-mode' : ''}`} style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
@@ -2314,6 +2515,44 @@ function ReparacionPage({ isDarkMode }: { isDarkMode: boolean }) {
     if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/reparacion')
   }, [])
 
+  usePageSEO({
+    title: 'Reparacion iPhone en Duitama y Tunja | Centro de Reparacion Apple Especializado | Gordotech',
+    description: 'Centro de reparacion de iPhone, iPad y MacBook en Duitama y Tunja, Boyaca. Cambio de pantalla iPhone, bateria, carga y mas. Repuestos originales, garantia en todas las reparaciones. Tecnicos certificados Apple.',
+    canonical: 'https://gordotech.co/reparacion',
+    keywords: 'reparacion iPhone Duitama, reparacion iPhone Tunja, cambio pantalla iPhone Duitama, cambio bateria iPhone Tunja, reparar iPhone Boyaca, servicio tecnico Apple Duitama, reparacion iPad Tunja, reparacion MacBook Boyaca, pantalla iPhone rota Duitama, centro reparacion Apple Colombia, arreglar iPhone Tunja, reparacion celular Duitama',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        'name': 'Gordotech - Centro de Reparacion Apple',
+        'description': 'Centro de reparacion especializado en dispositivos Apple: iPhone, iPad, MacBook. Repuestos originales y garantia.',
+        'url': 'https://gordotech.co/reparacion',
+        'telephone': '+573144810431',
+        'address': { '@type': 'PostalAddress', 'addressLocality': 'Duitama', 'addressRegion': 'Boyaca', 'addressCountry': 'CO' },
+        'geo': { '@type': 'GeoCoordinates', 'latitude': '5.8268', 'longitude': '-73.0333' },
+        'openingHours': 'Mo-Sa 09:00-19:00',
+        'priceRange': '$$',
+        'hasOfferCatalog': {
+          '@type': 'OfferCatalog',
+          'name': 'Servicios de Reparacion',
+          'itemListElement': [
+            { '@type': 'Offer', 'itemOffered': { '@type': 'Service', 'name': 'Cambio de Pantalla iPhone', 'description': 'Reparacion de pantalla rota o dañada para todos los modelos de iPhone' } },
+            { '@type': 'Offer', 'itemOffered': { '@type': 'Service', 'name': 'Cambio de Bateria iPhone', 'description': 'Reemplazo de bateria para mejorar la duracion y rendimiento' } },
+            { '@type': 'Offer', 'itemOffered': { '@type': 'Service', 'name': 'Reparacion de Puerto de Carga', 'description': 'Reparacion del conector de carga Lightning o USB-C' } },
+            { '@type': 'Offer', 'itemOffered': { '@type': 'Service', 'name': 'Diagnostico Gratuito', 'description': 'Evaluacion sin costo de tu dispositivo Apple' } }
+          ]
+        }
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Inicio', 'item': 'https://gordotech.co' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Reparacion', 'item': 'https://gordotech.co/reparacion' }
+        ]
+      }
+    ]
+  })
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -2579,6 +2818,30 @@ function SemiNuevosPage({ isDarkMode }: { isDarkMode: boolean }) {
     const ogUrl = document.querySelector('meta[property="og:url"]')
     if (ogUrl) ogUrl.setAttribute('content', 'https://gordotech.co/semi-nuevos')
   }, [])
+
+  usePageSEO({
+    title: 'iPhone Semi-nuevo en Duitama y Tunja | iPhone Usado con Garantia | Gordotech',
+    description: 'Compra iPhone semi-nuevo en Duitama y Tunja, Boyaca. iPhones usados verificados y con garantia al mejor precio. iPhone 16, 15, 14, 13 Pro Max semi-nuevos. Ahorra hasta 40% vs nuevo. Envios a toda Colombia.',
+    canonical: 'https://gordotech.co/semi-nuevos',
+    keywords: 'iPhone semi-nuevo Duitama, iPhone usado Tunja, iPhone segunda mano Boyaca, iPhone semi-nuevo con garantia, iPhone barato Duitama, iPhone usado Boyaca, comprar iPhone usado Colombia, iPhone semi-nuevo Tunja, iPhone reacondicionado Duitama, iPhone segunda mano Colombia, iPhone economico Boyaca',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': 'iPhones Semi-nuevos - Gordotech',
+        'description': 'Catalogo de iPhones semi-nuevos verificados y con garantia en Duitama y Tunja, Boyaca.',
+        'url': 'https://gordotech.co/semi-nuevos',
+        'isPartOf': { '@type': 'WebSite', 'name': 'Gordotech', 'url': 'https://gordotech.co' },
+        'breadcrumb': {
+          '@type': 'BreadcrumbList',
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Inicio', 'item': 'https://gordotech.co' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Semi-nuevos', 'item': 'https://gordotech.co/semi-nuevos' }
+          ]
+        }
+      }
+    ]
+  })
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -3078,6 +3341,44 @@ function SucursalesPage({ isDarkMode }: { isDarkMode: boolean }) {
   const [loading, setLoading] = useState(true)
   const [reviewsMap, setReviewsMap] = useState<Record<string, { reviews: SucursalReview[]; googleUrl: string; rating: number; count: number }>>({})
 
+  usePageSEO({
+    title: 'Sucursales Gordotech | Tiendas Apple en Duitama y Tunja, Boyaca | Horarios y Ubicacion',
+    description: 'Visita nuestras sucursales en Duitama y Tunja, Boyaca. Gordotech Duitama, Gordotech Tunja y Clinica de Celulares. Horario: Lunes a Sabado 9AM-7PM. Direcciones, telefonos y resenas de Google.',
+    canonical: 'https://gordotech.co/sucursales',
+    keywords: 'Gordotech Duitama direccion, Gordotech Tunja ubicacion, tienda Apple Duitama, tienda Apple Tunja, Clinica de Celulares Duitama, sucursales Gordotech, horario Gordotech, donde queda Gordotech, tienda celulares Duitama, tienda iPhone Tunja, Apple Store Boyaca',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        'name': 'Gordotech Duitama',
+        'description': 'Tienda Apple en Duitama. Venta de iPhones, iPads, MacBooks y reparacion de dispositivos Apple.',
+        'url': 'https://gordotech.co/sucursales',
+        'telephone': '+573144810431',
+        'address': { '@type': 'PostalAddress', 'streetAddress': 'Centro de Duitama', 'addressLocality': 'Duitama', 'addressRegion': 'Boyaca', 'addressCountry': 'CO' },
+        'geo': { '@type': 'GeoCoordinates', 'latitude': '5.8268', 'longitude': '-73.0333' },
+        'openingHours': 'Mo-Sa 09:00-19:00'
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        'name': 'Gordotech Tunja',
+        'description': 'Tienda Apple en Tunja. Venta de iPhones, iPads, MacBooks y accesorios Apple.',
+        'url': 'https://gordotech.co/sucursales',
+        'telephone': '+573144810431',
+        'address': { '@type': 'PostalAddress', 'streetAddress': 'CC. Unicentro, Entrada 1, Isla Comercial', 'addressLocality': 'Tunja', 'addressRegion': 'Boyaca', 'addressCountry': 'CO' },
+        'openingHours': 'Mo-Sa 09:00-19:00'
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Inicio', 'item': 'https://gordotech.co' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Sucursales', 'item': 'https://gordotech.co/sucursales' }
+        ]
+      }
+    ]
+  })
+
   useEffect(() => {
     window.scrollTo(0, 0)
     document.title = 'Sucursales Gordotech | Tiendas Apple en Duitama, Tunja, Boyaca'
@@ -3357,6 +3658,46 @@ function CategoryPage({ onAdminClick, isDarkMode, setIsDarkMode }: { onAdminClic
       }
     }
     return true
+  })
+
+  // Advanced SEO for category pages
+  const catSeo = SEO_CATEGORY_META[slug || '']
+  usePageSEO({
+    title: catSeo?.title || `${categoryLabel} en Duitama y Tunja | Gordotech`,
+    description: catSeo?.description || `Compra ${categoryLabel} en Duitama y Tunja, Boyaca. Productos Apple nuevos y semi-nuevos con garantia. Gordotech - Tu tienda Apple de confianza.`,
+    canonical: `https://gordotech.co/categoria/${slug || ''}`,
+    keywords: catSeo?.keywords || `${categoryLabel} Duitama, ${categoryLabel} Tunja, ${categoryLabel} Boyaca, Gordotech`,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': catSeo?.schemaName || `${categoryLabel} - Gordotech`,
+        'description': catSeo?.schemaDesc || `${categoryLabel} disponibles en Gordotech, Duitama y Tunja, Boyaca.`,
+        'url': `https://gordotech.co/categoria/${slug || ''}`,
+        'isPartOf': { '@type': 'WebSite', 'name': 'Gordotech', 'url': 'https://gordotech.co' },
+        'breadcrumb': {
+          '@type': 'BreadcrumbList',
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Inicio', 'item': 'https://gordotech.co' },
+            { '@type': 'ListItem', 'position': 2, 'name': categoryLabel, 'item': `https://gordotech.co/categoria/${slug || ''}` }
+          ]
+        }
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'OfferCatalog',
+        'name': `${categoryLabel} en Gordotech - Duitama y Tunja`,
+        'description': catSeo?.schemaDesc || `Catalogo de ${categoryLabel} disponibles en Gordotech.`,
+        'url': `https://gordotech.co/categoria/${slug || ''}`,
+        'numberOfItems': filtered.length,
+        'itemListElement': filtered.slice(0, 10).map((p, i) => ({
+          '@type': 'ListItem',
+          'position': i + 1,
+          'name': p.name,
+          'url': `https://gordotech.co/producto/${p.id}/${getProductSlug(p)}`
+        }))
+      }
+    ]
   })
 
   return (
